@@ -20,6 +20,19 @@ class Draw:
         finally:
             self._lock.release()
 
+    @staticmethod
+    def coin_positions(coins):
+        positions = [None] * len(coins) * 4
+        offset = 0
+        for coin in coins:
+            scaled = [coin[0] / 5 - 1, coin[1] / 5 - 1]
+            positions[offset + 0] = (scaled[0] - 0.05, scaled[1] - 0.05)
+            positions[offset + 1] = (scaled[0] - 0.05, scaled[1] + 0.05)
+            positions[offset + 2] = (scaled[0] + 0.05, scaled[1] + 0.05)
+            positions[offset + 3] = (scaled[0] + 0.05, scaled[1] - 0.05)
+            offset += 4
+        return positions;
+
     def run(self):
 
         window = app.Window(width=1024, height=1024, aspect=1)
@@ -93,16 +106,3 @@ class Draw:
         """
 
         return gloo.Program(vertex, fragment)
-
-    @staticmethod
-    def coin_positions(coins):
-        positions = [None] * len(coins) * 4
-        offset = 0
-        for coin in coins:
-            scaled = [coin[0] / 5 - 1, coin[1] / 5 - 1]
-            positions[offset + 0] = (scaled[0] - 0.05, scaled[1] - 0.05)
-            positions[offset + 1] = (scaled[0] - 0.05, scaled[1] + 0.05)
-            positions[offset + 2] = (scaled[0] + 0.05, scaled[1] + 0.05)
-            positions[offset + 3] = (scaled[0] + 0.05, scaled[1] - 0.05)
-            offset += 4
-        return positions;
