@@ -33,15 +33,14 @@ def square():
         [8.0, 8.0]
     ]
 
-    agent = Agent(2.0, 2.0, pi / 4.0)
+    agent = Agent([2.0, 2.0], pi / 4.0)
 
     return Level(grid, coins, agent)
 
 
 class Agent:
-    def __init__(self, x=0.0, y=0.0, theta=0.0):
-        self.x = x
-        self.y = y
+    def __init__(self, coord=[0.0, 0.0], theta=0.0):
+        self.coord = coord
         self.theta = theta
 
 

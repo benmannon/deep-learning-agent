@@ -50,7 +50,7 @@ class Draw:
         return positions
 
     def agent_position(self, agent):
-        normal = self.normalize([agent.x, agent.y])
+        normal = self.normalize(agent.coord)
         r = self._agent_radius
         position = [None] * 4
         position[0] = (normal[0] - r, normal[1] - r)
