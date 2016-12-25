@@ -3,9 +3,10 @@ import level
 
 
 def main():
-    draw = Draw()
+    lvl = level.square()
+    draw = Draw(lvl.grid.shape)
     draw.init()
-    draw.update(level.square())
+    draw.update(lvl)
     draw.run()
 
 if __name__ == "__main__":

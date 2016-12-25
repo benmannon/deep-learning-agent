@@ -6,9 +6,9 @@ from glumpy import app, gloo, gl
 
 class Draw:
 
-    def __init__(self):
+    def __init__(self, grid_shape):
         self._lock = Lock()
-        self._grid = self._grid_program()
+        self._grid = self._grid_program(grid_shape)
 
     def init(self):
 
@@ -27,7 +27,7 @@ class Draw:
         self._lock.acquire()
         try:
             grid = level.grid
-            self._grid['texture'] = np.reshape(np.repeat(grid, 3), (10, 10, 3))
+            self._grid['texture'] = np.reshape(np.repeat(grid, 3), grid.shape + (3,))
         finally:
             self._lock.release()
 
@@ -36,7 +36,7 @@ class Draw:
         app.run()
 
     @staticmethod
-    def _grid_program():
+    def _grid_program(shape):
         grid_vertex = """
             attribute vec2 position;
             attribute vec2 texcoord;
@@ -60,6 +60,6 @@ class Draw:
         _grid = gloo.Program(grid_vertex, grid_fragment, count=4)
         _grid['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
         _grid['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
-        _grid['texture'] = np.zeros((10, 10, 3))
+        _grid['texture'] = np.zeros(shape + (3,))
 
         return _grid
