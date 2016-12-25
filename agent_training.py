@@ -1,8 +1,9 @@
-import draw
+from draw import Draw
 import level
 
 
 def main():
+    draw = Draw()
     draw.init()
     draw.update(level.square())
     draw.run()

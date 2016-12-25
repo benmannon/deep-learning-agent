@@ -4,60 +4,62 @@ import numpy as np
 from glumpy import app, gloo, gl
 
 
-def _grid_program():
-    grid_vertex = """
-        attribute vec2 position;
-        attribute vec2 texcoord;
-        varying vec2 v_texcoord;
-        void main()
-        {
-            gl_Position = vec4(position, 0.0, 1.0);
-            v_texcoord = texcoord;
-        }
-    """
+class Draw:
 
-    grid_fragment = """
-        uniform sampler2D texture;
-        varying vec2 v_texcoord;
-        void main()
-        {
-            gl_FragColor = texture2D(texture, v_texcoord);
-        }
-    """
+    def __init__(self):
+        self._lock = Lock()
+        self._grid = self._grid_program()
 
-    _grid = gloo.Program(grid_vertex, grid_fragment, count=4)
-    _grid['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
-    _grid['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
-    _grid['texture'] = np.zeros((10, 10, 3))
+    def init(self):
 
-    return _grid
+        window = app.Window(width=1024, height=1024, aspect=1)
 
-_lock = Lock()
-_grid = _grid_program()
+        @window.event
+        def on_draw(dt):
+            self._lock.acquire()
+            try:
+                window.clear()
+                self._grid.draw(gl.GL_TRIANGLE_STRIP)
+            finally:
+                self._lock.release()
 
-
-def init():
-
-    window = app.Window(width=1024, height=1024, aspect=1)
-
-    @window.event
-    def on_draw(dt):
-        _lock.acquire()
+    def update(self, level):
+        self._lock.acquire()
         try:
-            window.clear()
-            _grid.draw(gl.GL_TRIANGLE_STRIP)
+            grid = level.grid
+            self._grid['texture'] = np.reshape(np.repeat(grid, 3), (10, 10, 3))
         finally:
-            _lock.release()
+            self._lock.release()
 
+    @staticmethod
+    def run():
+        app.run()
 
-def update(level):
-    _lock.acquire()
-    try:
-        grid = level.grid
-        _grid['texture'] = np.reshape(np.repeat(grid, 3), (10, 10, 3))
-    finally:
-        _lock.release()
+    @staticmethod
+    def _grid_program():
+        grid_vertex = """
+            attribute vec2 position;
+            attribute vec2 texcoord;
+            varying vec2 v_texcoord;
+            void main()
+            {
+                gl_Position = vec4(position, 0.0, 1.0);
+                v_texcoord = texcoord;
+            }
+        """
 
+        grid_fragment = """
+            uniform sampler2D texture;
+            varying vec2 v_texcoord;
+            void main()
+            {
+                gl_FragColor = texture2D(texture, v_texcoord);
+            }
+        """
 
-def run():
-    app.run()
+        _grid = gloo.Program(grid_vertex, grid_fragment, count=4)
+        _grid['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
+        _grid['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
+        _grid['texture'] = np.zeros((10, 10, 3))
+
+        return _grid
