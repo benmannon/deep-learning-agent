@@ -17,7 +17,7 @@ class Draw:
             agent_pointer_threshold=pi/4,
             grid_color=[0.4, 0.4, 0.4],
             coin_color=[1.0, 0.843, 0.0],
-            agent_color=[0.31, 0.89, 0.706],
+            agent_color=[0.15, 0.45, 0.35],
             agent_pointer_brightness=0.5,
             bkg_color=[1.0, 1.0, 1.0]):
 
