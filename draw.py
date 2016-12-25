@@ -151,13 +151,17 @@ class Draw:
             {
                 float dist = sqrt(dot(v_texcoord, v_texcoord));
                 if (dist < 0.9)
+                    // inside the border
                     if (abs(v_texcoord.x) < 0.1 && abs(v_texcoord.y) < 0.5)
+                        // draw a vertical slot
                         gl_FragColor = border_color;
                     else
                         gl_FragColor = circle_color;
                 else if (dist < 1)
+                    // the border
                     gl_FragColor = border_color;
                 else
+                    // outside the border
                     gl_FragColor = bkg_color;
             }
         """
@@ -194,20 +198,25 @@ class Draw:
                 float dist = sqrt(dot(v_texcoord, v_texcoord));
                 if (dist < 0.9)
                 {
+                    // inside the border; calculate angle to draw pointer
                     vec2 coord_unit = v_texcoord / dist;
                     float theta_actual = atan(coord_unit.y, coord_unit.x);
                     float theta_diff = abs(theta - theta_actual);
                     if (theta_diff > pointer_threshold)
+                        // outside the pointer arc
                         gl_FragColor = circle_color;
                     else
+                        // inside the pointer arc
                         gl_FragColor = pointer_color;
                 }
                 else if (dist < 1)
                 {
+                    // the border
                     gl_FragColor = border_color;
                 }
                 else
                 {
+                    // outside the border
                     gl_FragColor = bkg_color;
                 }
             }
