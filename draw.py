@@ -28,7 +28,7 @@ def _grid_program():
     _grid = gloo.Program(grid_vertex, grid_fragment, count=4)
     _grid['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
     _grid['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
-    _grid['texture'] = np.zeros((10, 10, 1))
+    _grid['texture'] = np.zeros((10, 10, 3))
 
     return _grid
 
@@ -53,7 +53,8 @@ def init():
 def update(level):
     _lock.acquire()
     try:
-        _grid['texture'] = level.grid
+        grid = level.grid
+        _grid['texture'] = np.reshape(np.repeat(grid, 3), (10, 10, 3))
     finally:
         _lock.release()
 
