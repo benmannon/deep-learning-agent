@@ -36,8 +36,9 @@ class Draw:
         self._grid = self._grid_program()
         self._coin = self._coin_program()
         self._agent = self._agent_program()
+        self._lines = self._lines_program()
 
-    def update(self, level):
+    def update(self, level, lines):
         self._lock.acquire()
         try:
             self._grid['texture'] = self.grid_texture(level.grid)
@@ -46,6 +47,8 @@ class Draw:
             self._agent['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)]
             self._agent['position'] = self.agent_position(level.agent)
             self._agent['theta'] = level.agent.theta
+            self._lines['position'] = self.line_positions(lines)
+            self._lines['line_color'] = self.line_colors(lines)
         finally:
             self._lock.release()
 
@@ -80,6 +83,21 @@ class Draw:
         position[3] = self.normalize([agent.coord[0] + r, agent.coord[1] - r])
         return position
 
+    def line_positions(self, lines):
+        positions = []
+        for line in lines:
+            positions.append(self.normalize(line.a))
+            positions.append(self.normalize(line.b))
+        return positions
+
+    def line_colors(self, lines):
+        # append each color twice (one per vertex)
+        colors = []
+        for line in lines:
+            colors.append(line.color + [1.0])
+            colors.append(line.color + [1.0])
+        return colors
+
     def run(self):
 
         window_w = self._window_size[0]
@@ -94,6 +112,7 @@ class Draw:
                 self._grid.draw(gl.GL_TRIANGLE_STRIP)
                 self._coin.draw(gl.GL_QUADS)
                 self._agent.draw(gl.GL_QUADS)
+                self._lines.draw(gl.GL_LINES)
             finally:
                 self._lock.release()
 
@@ -238,6 +257,28 @@ class Draw:
 
         return agent
 
+    def _lines_program(self):
+        vertex = """
+            attribute vec2 position;
+            attribute vec4 line_color;
+            varying vec4 v_line_color;
+            void main()
+            {
+                gl_Position = vec4(position, 0.0, 1.0);
+                v_line_color = line_color;
+            }
+        """
+
+        fragment = """
+            varying vec4 v_line_color;
+            void main()
+            {
+                gl_FragColor = v_line_color;
+            }
+        """
+
+        return gloo.Program(vertex, fragment)
+
     def normalize_each(self, coords):
         normals = []
         for coord in coords:
@@ -263,3 +304,11 @@ class Draw:
         y = (ymax - ymin) * y_unit + ymin
 
         return [x, y]
+
+
+class Line:
+    def __init__(self, a=[0.0, 0.0], b=[1.0, 0.0], color=[0.5, 0.5, 0.5]):
+        self.a = a
+        self.b = b
+        self.color = color
+
