@@ -15,8 +15,7 @@ class Draw:
     def update(self, level):
         self._lock.acquire()
         try:
-            grid = level.grid
-            self._grid['texture'] = np.reshape(np.repeat(grid, 3), grid.shape + (3,))
+            self._grid['texture'] = self.grid_texture(level.grid)
             self._coin['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)] * len(level.coins)
             self._coin['position'] = self.coin_positions(level.coins)
             self._agent['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)]
@@ -24,6 +23,9 @@ class Draw:
             self._agent['theta'] = level.agent.theta
         finally:
             self._lock.release()
+
+    def grid_texture(self, grid):
+        return np.reshape(np.repeat(grid, 3), grid.shape + (3,))
 
     @staticmethod
     def coin_positions(coins):
