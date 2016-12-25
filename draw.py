@@ -6,9 +6,17 @@ from glumpy import app, gloo, gl
 
 
 class Draw:
-    def __init__(self, grid_shape):
+    def __init__(
+            self, grid_shape,
+            coin_radius=0.05,
+            agent_radius=0.09,
+            agent_pointer_threshold=pi/4):
+
         self._lock = Lock()
         self._grid_shape = grid_shape
+        self._coin_radius = coin_radius
+        self._agent_radius = agent_radius
+        self._agent_pointer_threshold = agent_pointer_threshold
         self._grid = self._grid_program()
         self._coin = self._coin_program()
         self._agent = self._agent_program()
@@ -30,24 +38,26 @@ class Draw:
 
     def coin_positions(self, coins):
         positions = [None] * len(coins) * 4
+        r = self._coin_radius
         offset = 0
         for coin in coins:
             normal = self.normalize(coin)
-            positions[offset + 0] = (normal[0] - 0.05, normal[1] - 0.05)
-            positions[offset + 1] = (normal[0] - 0.05, normal[1] + 0.05)
-            positions[offset + 2] = (normal[0] + 0.05, normal[1] + 0.05)
-            positions[offset + 3] = (normal[0] + 0.05, normal[1] - 0.05)
+            positions[offset + 0] = (normal[0] - r, normal[1] - r)
+            positions[offset + 1] = (normal[0] - r, normal[1] + r)
+            positions[offset + 2] = (normal[0] + r, normal[1] + r)
+            positions[offset + 3] = (normal[0] + r, normal[1] - r)
             offset += 4
-        return positions;
+        return positions
 
     def agent_position(self, agent):
         normal = self.normalize([agent.x, agent.y])
+        r = self._agent_radius
         position = [None] * 4
-        position[0] = (normal[0] - 0.09, normal[1] - 0.09)
-        position[1] = (normal[0] - 0.09, normal[1] + 0.09)
-        position[2] = (normal[0] + 0.09, normal[1] + 0.09)
-        position[3] = (normal[0] + 0.09, normal[1] - 0.09)
-        return position;
+        position[0] = (normal[0] - r, normal[1] - r)
+        position[1] = (normal[0] - r, normal[1] + r)
+        position[2] = (normal[0] + r, normal[1] + r)
+        position[3] = (normal[0] + r, normal[1] - r)
+        return position
 
     def normalize(self, coord):
         w_half, h_half = self._grid_shape[0] / 2, self._grid_shape[1] / 2
@@ -98,8 +108,7 @@ class Draw:
 
         return grid
 
-    @staticmethod
-    def _coin_program():
+    def _coin_program(self):
         vertex = """
             attribute vec2 position;
             attribute vec2 texcoord;
@@ -131,8 +140,7 @@ class Draw:
 
         return coin
 
-    @staticmethod
-    def _agent_program():
+    def _agent_program(self):
         vertex = """
             attribute vec2 position;
             attribute vec2 texcoord;
@@ -175,6 +183,6 @@ class Draw:
         agent['circle_color'] = [0.31, 0.89, 0.706, 1.0]
         agent['pointer_color'] = [0.83, 0.98, 0.93, 1.0]
         agent['bkg_color'] = [0.31, 0.89, 0.706, 0.0]
-        agent['pointer_threshold'] = pi / 4
+        agent['pointer_threshold'] = self._agent_pointer_threshold
 
         return agent
