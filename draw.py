@@ -15,6 +15,7 @@ class Draw:
         try:
             grid = level.grid
             self._grid['texture'] = np.reshape(np.repeat(grid, 3), grid.shape + (3,))
+            self._coin['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)] * len(level.coins)
             self._coin['position'] = self.coin_positions(level.coins)
         finally:
             self._lock.release()
@@ -68,31 +69,30 @@ class Draw:
     def _coin_program():
         vertex = """
             attribute vec2 position;
+            attribute vec2 texcoord;
+            varying vec2 v_texcoord;
             void main()
             {
                 gl_Position = vec4(position, 0.0, 1.0);
-                gl_TexCoord[0] = gl_MultiTexCoord0;
+                v_texcoord = texcoord;
             }
         """
 
         fragment = """
             uniform vec4 circle_color = vec4(1.0, 0.843, 0.0, 1.0);
             uniform vec4 bkg_color = vec4(1.0, 0.843, 0.0, 0.0);
+            varying vec2 v_texcoord;
             void main()
             {
-                vec2 uv = gl_TexCoord[0].xy;
-                float dist = sqrt(dot(uv, uv));
-                if (dist < 0.1)
+                float dist = sqrt(dot(v_texcoord, v_texcoord));
+                if (dist < 1)
                     gl_FragColor = circle_color;
                 else
                     gl_FragColor = bkg_color;
             }
         """
 
-        coin = gloo.Program(vertex, fragment)
-        coin['position'] = [0.0] * 4
-
-        return coin
+        return gloo.Program(vertex, fragment)
 
     @staticmethod
     def coin_positions(coins):
@@ -100,9 +100,9 @@ class Draw:
         offset = 0
         for coin in coins:
             scaled = [coin[0] / 5 - 1, coin[1] / 5 - 1]
-            positions[offset + 0] = (scaled[0] - 0.1, scaled[1] - 0.1)
-            positions[offset + 1] = (scaled[0] - 0.1, scaled[1] + 0.1)
-            positions[offset + 2] = (scaled[0] + 0.1, scaled[1] + 0.1)
-            positions[offset + 3] = (scaled[0] + 0.1, scaled[1] - 0.1)
+            positions[offset + 0] = (scaled[0] - 0.05, scaled[1] - 0.05)
+            positions[offset + 1] = (scaled[0] - 0.05, scaled[1] + 0.05)
+            positions[offset + 2] = (scaled[0] + 0.05, scaled[1] + 0.05)
+            positions[offset + 3] = (scaled[0] + 0.05, scaled[1] - 0.05)
             offset += 4
         return positions;
