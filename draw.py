@@ -102,7 +102,7 @@ class Draw:
             scaled = [coin[0] / 5 - 1, coin[1] / 5 - 1]
             positions[offset + 0] = (scaled[0] - 0.1, scaled[1] - 0.1)
             positions[offset + 1] = (scaled[0] - 0.1, scaled[1] + 0.1)
-            positions[offset + 2] = (scaled[0] + 0.1, scaled[1] - 0.1)
-            positions[offset + 3] = (scaled[0] + 0.1, scaled[1] + 0.1)
+            positions[offset + 2] = (scaled[0] + 0.1, scaled[1] + 0.1)
+            positions[offset + 3] = (scaled[0] + 0.1, scaled[1] - 0.1)
             offset += 4
         return positions;
