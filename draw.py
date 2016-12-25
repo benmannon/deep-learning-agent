@@ -8,6 +8,7 @@ from glumpy import app, gloo, gl
 class Draw:
     def __init__(
             self, grid_shape,
+            window_size=[1024, 1024],
             coin_radius=0.05,
             agent_radius=0.09,
             agent_pointer_threshold=pi/4,
@@ -18,6 +19,7 @@ class Draw:
             bkg_color=[1.0, 1.0, 1.0]):
 
         self._lock = Lock()
+        self._window_size = window_size
         self._grid_shape = grid_shape
         self._coin_radius = coin_radius
         self._agent_radius = agent_radius
@@ -75,7 +77,9 @@ class Draw:
 
     def run(self):
 
-        window = app.Window(width=1024, height=1024, aspect=1, color=self._bkg_color+[1.0])
+        window_w = self._window_size[0]
+        window_h = self._window_size[1]
+        window = app.Window(width=window_w, height=window_h, aspect=1, color=self._bkg_color+[1.0])
 
         @window.event
         def on_draw(dt):
