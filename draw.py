@@ -50,7 +50,14 @@ class Draw:
             self._lock.release()
 
     def grid_texture(self, grid):
-        return np.reshape(np.repeat(grid, 4), grid.shape + (4,)) * (self._grid_color + [1.0])
+        texture = []
+        flat_grid = np.reshape(grid, (-1))
+        for cell in flat_grid:
+            if (cell == 1):
+                texture.append(self._grid_color + [1.0])
+            else:
+                texture.append(self._bkg_color + [1.0])
+        return np.array(texture)
 
     def coin_positions(self, coins):
         positions = [None] * len(coins) * 4
@@ -77,7 +84,7 @@ class Draw:
 
         window_w = self._window_size[0]
         window_h = self._window_size[1]
-        window = app.Window(width=window_w, height=window_h, aspect=1, color=self._bkg_color+[1.0])
+        window = app.Window(width=window_w, height=window_h, aspect=1)
 
         @window.event
         def on_draw(dt):
