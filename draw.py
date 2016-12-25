@@ -13,7 +13,8 @@ class Draw:
             agent_pointer_threshold=pi/4,
             grid_color=[1.0, 1.0, 1.0],
             coin_color=[1.0, 0.843, 0.0],
-            agent_color=[0.31, 0.89, 0.706]):
+            agent_color=[0.31, 0.89, 0.706],
+            bkg_color=[0.0, 0.0, 0.0]):
 
         self._lock = Lock()
         self._grid_shape = grid_shape
@@ -23,6 +24,7 @@ class Draw:
         self._grid_color = grid_color
         self._coin_color = coin_color
         self._agent_color = agent_color
+        self._bkg_color = bkg_color
         self._grid = self._grid_program()
         self._coin = self._coin_program()
         self._agent = self._agent_program()
@@ -40,7 +42,7 @@ class Draw:
             self._lock.release()
 
     def grid_texture(self, grid):
-        return np.reshape(np.repeat(grid, 3), grid.shape + (3,)) * self._grid_color
+        return np.reshape(np.repeat(grid, 4), grid.shape + (4,)) * (self._grid_color + [1.0])
 
     def coin_positions(self, coins):
         positions = [None] * len(coins) * 4
@@ -71,7 +73,7 @@ class Draw:
 
     def run(self):
 
-        window = app.Window(width=1024, height=1024, aspect=1)
+        window = app.Window(width=1024, height=1024, aspect=1, color=self._bkg_color+[1.0])
 
         @window.event
         def on_draw(dt):
@@ -110,7 +112,7 @@ class Draw:
         grid = gloo.Program(grid_vertex, grid_fragment, count=4)
         grid['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
         grid['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
-        grid['texture'] = np.zeros(self._grid_shape + (3,))
+        grid['texture'] = np.zeros(self._grid_shape + (4,))
 
         return grid
 
