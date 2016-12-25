@@ -151,7 +151,10 @@ class Draw:
             {
                 float dist = sqrt(dot(v_texcoord, v_texcoord));
                 if (dist < 0.9)
-                    gl_FragColor = circle_color;
+                    if (abs(v_texcoord.x) < 0.1 && abs(v_texcoord.y) < 0.5)
+                        gl_FragColor = border_color;
+                    else
+                        gl_FragColor = circle_color;
                 else if (dist < 1)
                     gl_FragColor = border_color;
                 else
