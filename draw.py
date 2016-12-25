@@ -1,3 +1,4 @@
+from math import pi
 from threading import Lock
 
 import numpy as np
@@ -107,8 +108,8 @@ class Draw:
         """
 
         fragment = """
-            uniform vec4 circle_color = vec4(1.0, 0.843, 0.0, 1.0);
-            uniform vec4 bkg_color = vec4(1.0, 0.843, 0.0, 0.0);
+            uniform vec4 circle_color;
+            uniform vec4 bkg_color;
             varying vec2 v_texcoord;
             void main()
             {
@@ -120,7 +121,11 @@ class Draw:
             }
         """
 
-        return gloo.Program(vertex, fragment)
+        coin = gloo.Program(vertex, fragment)
+        coin['circle_color'] = [1.0, 0.843, 0.0, 1.0]
+        coin['bkg_color'] = [1.0, 0.843, 0.0, 0.0]
+
+        return coin
 
     @staticmethod
     def _agent_program():
@@ -136,11 +141,10 @@ class Draw:
         """
 
         fragment = """
-            #define M_PI 3.141592653589793
-            uniform vec4 circle_color = vec4(0.31, 0.89, 0.706, 1.0);
-            uniform vec4 pointer_color = vec4(0.83, 0.98, 0.93, 1.0);
-            uniform vec4 bkg_color = vec4(0.31, 0.89, 0.706, 0.0);
-            uniform float threshold = M_PI / 4;
+            uniform vec4 circle_color;
+            uniform vec4 pointer_color;
+            uniform vec4 bkg_color;
+            uniform float pointer_threshold;
             uniform float theta;
             varying vec2 v_texcoord;
             void main()
@@ -151,7 +155,7 @@ class Draw:
                     vec2 coord_unit = v_texcoord / dist;
                     float theta_actual = atan(coord_unit.y, coord_unit.x);
                     float theta_diff = abs(theta - theta_actual);
-                    if (theta_diff > threshold)
+                    if (theta_diff > pointer_threshold)
                         gl_FragColor = circle_color;
                     else
                         gl_FragColor = pointer_color;
@@ -163,4 +167,10 @@ class Draw:
             }
         """
 
-        return gloo.Program(vertex, fragment, count=4)
+        agent = gloo.Program(vertex, fragment, count=4)
+        agent['circle_color'] = [0.31, 0.89, 0.706, 1.0]
+        agent['pointer_color'] = [0.83, 0.98, 0.93, 1.0]
+        agent['bkg_color'] = [0.31, 0.89, 0.706, 0.0]
+        agent['pointer_threshold'] = pi / 4
+
+        return agent
