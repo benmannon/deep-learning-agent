@@ -11,6 +11,7 @@ class Draw:
             coin_radius=0.05,
             agent_radius=0.09,
             agent_pointer_threshold=pi/4,
+            grid_color=[1.0, 1.0, 1.0],
             coin_color=[1.0, 0.843, 0.0],
             agent_color=[0.31, 0.89, 0.706]):
 
@@ -19,6 +20,7 @@ class Draw:
         self._coin_radius = coin_radius
         self._agent_radius = agent_radius
         self._agent_pointer_threshold = agent_pointer_threshold
+        self._grid_color = grid_color
         self._coin_color = coin_color
         self._agent_color = agent_color
         self._grid = self._grid_program()
@@ -38,7 +40,7 @@ class Draw:
             self._lock.release()
 
     def grid_texture(self, grid):
-        return np.reshape(np.repeat(grid, 3), grid.shape + (3,))
+        return np.reshape(np.repeat(grid, 3), grid.shape + (3,)) * self._grid_color
 
     def coin_positions(self, coins):
         positions = [None] * len(coins) * 4
