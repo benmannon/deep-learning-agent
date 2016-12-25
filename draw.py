@@ -11,10 +11,10 @@ class Draw:
             coin_radius=0.05,
             agent_radius=0.09,
             agent_pointer_threshold=pi/4,
-            grid_color=[1.0, 1.0, 1.0],
+            grid_color=[0.4, 0.4, 0.4],
             coin_color=[1.0, 0.843, 0.0],
             agent_color=[0.31, 0.89, 0.706],
-            bkg_color=[0.0, 0.0, 0.0]):
+            bkg_color=[1.0, 1.0, 1.0]):
 
         self._lock = Lock()
         self._grid_shape = grid_shape
@@ -188,7 +188,7 @@ class Draw:
         """
 
         # pointer color is a brighter shade of the agent color
-        b = 3.0 / 4.0
+        b = 0.5
         pointer_r = b + self._agent_color[0] - (b * self._agent_color[0])
         pointer_g = b + self._agent_color[1] - (b * self._agent_color[1])
         pointer_b = b + self._agent_color[2] - (b * self._agent_color[2])
