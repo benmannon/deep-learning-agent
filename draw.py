@@ -10,13 +10,17 @@ class Draw:
             self, grid_shape,
             coin_radius=0.05,
             agent_radius=0.09,
-            agent_pointer_threshold=pi/4):
+            agent_pointer_threshold=pi/4,
+            coin_color=[1.0, 0.843, 0.0],
+            agent_color=[0.31, 0.89, 0.706]):
 
         self._lock = Lock()
         self._grid_shape = grid_shape
         self._coin_radius = coin_radius
         self._agent_radius = agent_radius
         self._agent_pointer_threshold = agent_pointer_threshold
+        self._coin_color = coin_color
+        self._agent_color = agent_color
         self._grid = self._grid_program()
         self._coin = self._coin_program()
         self._agent = self._agent_program()
@@ -135,8 +139,8 @@ class Draw:
         """
 
         coin = gloo.Program(vertex, fragment)
-        coin['circle_color'] = [1.0, 0.843, 0.0, 1.0]
-        coin['bkg_color'] = [1.0, 0.843, 0.0, 0.0]
+        coin['circle_color'] = self._coin_color + [1.0]
+        coin['bkg_color'] = self._coin_color + [0.0]
 
         return coin
 
@@ -179,10 +183,17 @@ class Draw:
             }
         """
 
+        # pointer color is a brighter shade of the agent color
+        b = 3.0 / 4.0
+        pointer_r = b + self._agent_color[0] - (b * self._agent_color[0])
+        pointer_g = b + self._agent_color[1] - (b * self._agent_color[1])
+        pointer_b = b + self._agent_color[2] - (b * self._agent_color[2])
+        pointer_color = [pointer_r, pointer_g, pointer_b]
+
         agent = gloo.Program(vertex, fragment, count=4)
-        agent['circle_color'] = [0.31, 0.89, 0.706, 1.0]
-        agent['pointer_color'] = [0.83, 0.98, 0.93, 1.0]
-        agent['bkg_color'] = [0.31, 0.89, 0.706, 0.0]
+        agent['circle_color'] = self._agent_color + [1.0]
+        agent['pointer_color'] = pointer_color + [1.0]
+        agent['bkg_color'] = self._agent_color + [0.0]
         agent['pointer_threshold'] = self._agent_pointer_threshold
 
         return agent
