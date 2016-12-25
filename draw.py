@@ -8,6 +8,7 @@ from glumpy import app, gloo, gl
 class Draw:
     def __init__(self, grid_shape):
         self._lock = Lock()
+        self._grid_shape = grid_shape
         self._grid = self._grid_program(grid_shape)
         self._coin = self._coin_program()
         self._agent = self._agent_program()
@@ -27,28 +28,30 @@ class Draw:
     def grid_texture(self, grid):
         return np.reshape(np.repeat(grid, 3), grid.shape + (3,))
 
-    @staticmethod
-    def coin_positions(coins):
+    def coin_positions(self, coins):
         positions = [None] * len(coins) * 4
         offset = 0
         for coin in coins:
-            scaled = [coin[0] / 5 - 1, coin[1] / 5 - 1]
-            positions[offset + 0] = (scaled[0] - 0.05, scaled[1] - 0.05)
-            positions[offset + 1] = (scaled[0] - 0.05, scaled[1] + 0.05)
-            positions[offset + 2] = (scaled[0] + 0.05, scaled[1] + 0.05)
-            positions[offset + 3] = (scaled[0] + 0.05, scaled[1] - 0.05)
+            normal = self.normalize(coin)
+            positions[offset + 0] = (normal[0] - 0.05, normal[1] - 0.05)
+            positions[offset + 1] = (normal[0] - 0.05, normal[1] + 0.05)
+            positions[offset + 2] = (normal[0] + 0.05, normal[1] + 0.05)
+            positions[offset + 3] = (normal[0] + 0.05, normal[1] - 0.05)
             offset += 4
         return positions;
 
-    @staticmethod
-    def agent_position(agent):
-        scaled = [agent.x / 5 - 1, agent.y / 5 - 1]
+    def agent_position(self, agent):
+        normal = self.normalize([agent.x, agent.y])
         position = [None] * 4
-        position[0] = (scaled[0] - 0.09, scaled[1] - 0.09)
-        position[1] = (scaled[0] - 0.09, scaled[1] + 0.09)
-        position[2] = (scaled[0] + 0.09, scaled[1] + 0.09)
-        position[3] = (scaled[0] + 0.09, scaled[1] - 0.09)
+        position[0] = (normal[0] - 0.09, normal[1] - 0.09)
+        position[1] = (normal[0] - 0.09, normal[1] + 0.09)
+        position[2] = (normal[0] + 0.09, normal[1] + 0.09)
+        position[3] = (normal[0] + 0.09, normal[1] - 0.09)
         return position;
+
+    def normalize(self, coord):
+        w_half, h_half = self._grid_shape[0] / 2, self._grid_shape[1] / 2
+        return [coord[0] / w_half - 1, coord[1] / h_half - 1]
 
     def run(self):
 
