@@ -72,7 +72,7 @@ class Draw:
         return position
 
     def normalize(self, coord):
-        w_half, h_half = self._grid_shape[0] / 2, self._grid_shape[1] / 2
+        w_half, h_half = self._grid_shape[1] / 2, self._grid_shape[0] / 2
         return [coord[0] / w_half - 1, coord[1] / h_half - 1]
 
     def run(self):
