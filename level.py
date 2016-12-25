@@ -1,8 +1,9 @@
 from math import pi
+import numpy as np
 
 
 def level_square():
-    grid = [
+    grid = np.array([
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -13,7 +14,7 @@ def level_square():
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    ]
+    ])
 
     coins = [
         [2.0, 7.0],
@@ -53,7 +54,7 @@ class Level:
     agent = None
     coins = None
 
-    def __init__(self, grid=[], coins=[], agent=Agent()):
+    def __init__(self, grid=np.empty((0, 0)), coins=[], agent=Agent()):
         self.grid = grid
         self.coins_origin = coins
         self.agent_origin = agent
