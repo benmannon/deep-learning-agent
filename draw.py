@@ -76,8 +76,8 @@ class Draw:
         """
 
         fragment = """
-            uniform vec4 circle_color = vec4(0.0, 1.0, 1.0, 1.0);
-            uniform vec4 bkg_color = vec4(0.0, 1.0, 1.0, 0.0);
+            uniform vec4 circle_color = vec4(1.0, 0.843, 0.0, 1.0);
+            uniform vec4 bkg_color = vec4(1.0, 0.843, 0.0, 0.0);
             void main()
             {
                 vec2 uv = gl_TexCoord[0].xy;
