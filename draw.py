@@ -86,12 +86,12 @@ class Draw:
             }
         """
 
-        _grid = gloo.Program(grid_vertex, grid_fragment, count=4)
-        _grid['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
-        _grid['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
-        _grid['texture'] = np.zeros(shape + (3,))
+        grid = gloo.Program(grid_vertex, grid_fragment, count=4)
+        grid['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
+        grid['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
+        grid['texture'] = np.zeros(shape + (3,))
 
-        return _grid
+        return grid
 
     @staticmethod
     def _coin_program():
