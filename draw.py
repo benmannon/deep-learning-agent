@@ -9,8 +9,8 @@ class Draw:
     def __init__(
             self, grid_shape,
             window_size=[1024, 1024],
-            coin_radius=0.05,
-            agent_radius=0.09,
+            coin_radius=0.25,
+            agent_radius=0.45,
             agent_pointer_threshold=pi/4,
             grid_color=[0.4, 0.4, 0.4],
             coin_color=[1.0, 0.843, 0.0],
@@ -53,22 +53,20 @@ class Draw:
         r = self._coin_radius
         offset = 0
         for coin in coins:
-            normal = self.normalize(coin)
-            positions[offset + 0] = (normal[0] - r, normal[1] - r)
-            positions[offset + 1] = (normal[0] - r, normal[1] + r)
-            positions[offset + 2] = (normal[0] + r, normal[1] + r)
-            positions[offset + 3] = (normal[0] + r, normal[1] - r)
+            positions[offset + 0] = self.normalize([coin[0] - r, coin[1] - r])
+            positions[offset + 1] = self.normalize([coin[0] - r, coin[1] + r])
+            positions[offset + 2] = self.normalize([coin[0] + r, coin[1] + r])
+            positions[offset + 3] = self.normalize([coin[0] + r, coin[1] - r])
             offset += 4
         return positions
 
     def agent_position(self, agent):
-        normal = self.normalize(agent.coord)
         r = self._agent_radius
         position = [None] * 4
-        position[0] = (normal[0] - r, normal[1] - r)
-        position[1] = (normal[0] - r, normal[1] + r)
-        position[2] = (normal[0] + r, normal[1] + r)
-        position[3] = (normal[0] + r, normal[1] - r)
+        position[0] = self.normalize([agent.coord[0] - r, agent.coord[1] - r])
+        position[1] = self.normalize([agent.coord[0] - r, agent.coord[1] + r])
+        position[2] = self.normalize([agent.coord[0] + r, agent.coord[1] + r])
+        position[3] = self.normalize([agent.coord[0] + r, agent.coord[1] - r])
         return position
 
     def normalize(self, coord):
