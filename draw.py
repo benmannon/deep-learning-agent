@@ -144,13 +144,16 @@ class Draw:
 
         fragment = """
             uniform vec4 circle_color;
+            uniform vec4 border_color;
             uniform vec4 bkg_color;
             varying vec2 v_texcoord;
             void main()
             {
                 float dist = sqrt(dot(v_texcoord, v_texcoord));
-                if (dist < 1)
+                if (dist < 0.9)
                     gl_FragColor = circle_color;
+                else if (dist < 1)
+                    gl_FragColor = border_color;
                 else
                     gl_FragColor = bkg_color;
             }
@@ -158,6 +161,7 @@ class Draw:
 
         coin = gloo.Program(vertex, fragment)
         coin['circle_color'] = self._coin_color + [1.0]
+        coin['border_color'] = [0.0, 0.0, 0.0, 1.0]
         coin['bkg_color'] = self._coin_color + [0.0]
 
         return coin
@@ -177,6 +181,7 @@ class Draw:
         fragment = """
             uniform vec4 circle_color;
             uniform vec4 pointer_color;
+            uniform vec4 border_color;
             uniform vec4 bkg_color;
             uniform float pointer_threshold;
             uniform float theta;
@@ -184,7 +189,7 @@ class Draw:
             void main()
             {
                 float dist = sqrt(dot(v_texcoord, v_texcoord));
-                if (dist < 1)
+                if (dist < 0.9)
                 {
                     vec2 coord_unit = v_texcoord / dist;
                     float theta_actual = atan(coord_unit.y, coord_unit.x);
@@ -193,6 +198,10 @@ class Draw:
                         gl_FragColor = circle_color;
                     else
                         gl_FragColor = pointer_color;
+                }
+                else if (dist < 1)
+                {
+                    gl_FragColor = border_color;
                 }
                 else
                 {
@@ -211,6 +220,7 @@ class Draw:
         agent = gloo.Program(vertex, fragment, count=4)
         agent['circle_color'] = self._agent_color + [1.0]
         agent['pointer_color'] = pointer_color + [1.0]
+        agent['border_color'] = [0.0, 0.0, 0.0, 1.0]
         agent['bkg_color'] = self._agent_color + [0.0]
         agent['pointer_threshold'] = self._agent_pointer_threshold
 
