@@ -2,11 +2,8 @@ from glumpy import app, gloo, gl
 import numpy as np
 from threading import Lock
 
-_lock = Lock()
-_program_grid = None
 
-
-def init():
+def _grid_program():
     grid_vertex = """
         attribute vec2 position;
         attribute vec2 texcoord;
@@ -27,10 +24,18 @@ def init():
         }
     """
 
-    _program_grid = gloo.Program(grid_vertex, grid_fragment, count=4)
-    _program_grid['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
-    _program_grid['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
-    _program_grid['texture'] = np.zeros((1, 1, 3))
+    _grid = gloo.Program(grid_vertex, grid_fragment, count=4)
+    _grid['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
+    _grid['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
+    _grid['texture'] = np.zeros((1, 1, 3))
+
+    return _grid
+
+_lock = Lock()
+_grid = _grid_program()
+
+
+def init():
 
     window = app.Window(width=1024, height=1024, aspect=1)
 
@@ -39,13 +44,17 @@ def init():
         _lock.acquire()
         try:
             window.clear()
-            _program_grid.draw(gl.GL_TRIANGLE_STRIP)
+            _grid.draw(gl.GL_TRIANGLE_STRIP)
         finally:
             _lock.release()
 
 
-def update(grid):
-    _program_grid['texture'] = np.reshape(np.repeat(grid, 3), (-1, -1, 3))
+def update(level):
+    _lock.acquire()
+    try:
+        _grid['texture'] = np.reshape(np.repeat(level.grid, 3), (-1, -1, 3))
+    finally:
+        _lock.release()
 
 
 def run():
