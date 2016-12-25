@@ -4,7 +4,7 @@ import level
 
 def main():
     draw.init()
-    draw.update(level.level_square())
+    draw.update(level.square())
     draw.run()
 
 if __name__ == "__main__":

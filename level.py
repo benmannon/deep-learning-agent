@@ -2,7 +2,7 @@ from math import pi
 import numpy as np
 
 
-def level_square():
+def square():
     grid = np.array([
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
