@@ -9,7 +9,7 @@ class Draw:
     def __init__(self, grid_shape):
         self._lock = Lock()
         self._grid_shape = grid_shape
-        self._grid = self._grid_program(grid_shape)
+        self._grid = self._grid_program()
         self._coin = self._coin_program()
         self._agent = self._agent_program()
 
@@ -70,8 +70,7 @@ class Draw:
 
         app.run()
 
-    @staticmethod
-    def _grid_program(shape):
+    def _grid_program(self):
         grid_vertex = """
             attribute vec2 position;
             attribute vec2 texcoord;
@@ -95,7 +94,7 @@ class Draw:
         grid = gloo.Program(grid_vertex, grid_fragment, count=4)
         grid['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
         grid['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
-        grid['texture'] = np.zeros(shape + (3,))
+        grid['texture'] = np.zeros(self._grid_shape + (3,))
 
         return grid
 
