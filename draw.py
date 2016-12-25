@@ -73,32 +73,6 @@ class Draw:
         position[3] = self.normalize([agent.coord[0] + r, agent.coord[1] - r])
         return position
 
-    def normalize_each(self, coords):
-        normals = []
-        for coord in coords:
-            normals.append(self.normalize(coord))
-        return normals
-
-    def normalize(self, coord):
-
-        # position level in top-left corner of screen
-        #
-        # scale determines the amount of horizontal space that is covered
-        # vertical space is used as needed, maintaining proper aspect ratio
-        xmin = -1
-        xmax = -1 + (2 * self._level_scale)
-        ymin = 1 - (2 * self._level_scale) * (self._grid_shape[0] / self._grid_shape[1])
-        ymax = 1
-
-        gw = self._grid_shape[1]
-        gh = self._grid_shape[0]
-        x_unit = coord[0] / gw
-        y_unit = coord[1] / gh
-        x = (xmax - xmin) * x_unit + xmin
-        y = (ymax - ymin) * y_unit + ymin
-
-        return [x, y]
-
     def run(self):
 
         window_w = self._window_size[0]
@@ -234,3 +208,29 @@ class Draw:
         agent['pointer_threshold'] = self._agent_pointer_threshold
 
         return agent
+
+    def normalize_each(self, coords):
+        normals = []
+        for coord in coords:
+            normals.append(self.normalize(coord))
+        return normals
+
+    def normalize(self, coord):
+
+        # position level in top-left corner of screen
+        #
+        # scale determines the amount of horizontal space that is covered
+        # vertical space is used as needed, maintaining proper aspect ratio
+        xmin = -1
+        xmax = -1 + (2 * self._level_scale)
+        ymin = 1 - (2 * self._level_scale) * (self._grid_shape[0] / self._grid_shape[1])
+        ymax = 1
+
+        gw = self._grid_shape[1]
+        gh = self._grid_shape[0]
+        x_unit = coord[0] / gw
+        y_unit = coord[1] / gh
+        x = (xmax - xmin) * x_unit + xmin
+        y = (ymax - ymin) * y_unit + ymin
+
+        return [x, y]
