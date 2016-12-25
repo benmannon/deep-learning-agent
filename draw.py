@@ -14,6 +14,7 @@ class Draw:
             grid_color=[0.4, 0.4, 0.4],
             coin_color=[1.0, 0.843, 0.0],
             agent_color=[0.31, 0.89, 0.706],
+            agent_pointer_brightness=0.5,
             bkg_color=[1.0, 1.0, 1.0]):
 
         self._lock = Lock()
@@ -24,6 +25,7 @@ class Draw:
         self._grid_color = grid_color
         self._coin_color = coin_color
         self._agent_color = agent_color
+        self._agent_pointer_brightness = agent_pointer_brightness
         self._bkg_color = bkg_color
         self._grid = self._grid_program()
         self._coin = self._coin_program()
@@ -188,7 +190,7 @@ class Draw:
         """
 
         # pointer color is a brighter shade of the agent color
-        b = 0.5
+        b = self._agent_pointer_brightness
         pointer_r = b + self._agent_color[0] - (b * self._agent_color[0])
         pointer_g = b + self._agent_color[1] - (b * self._agent_color[1])
         pointer_b = b + self._agent_color[2] - (b * self._agent_color[2])
