@@ -5,12 +5,19 @@ from glumpy import app, gloo, gl
 
 
 class Draw:
-
     def __init__(self, grid_shape):
         self._lock = Lock()
         self._grid = self._grid_program(grid_shape)
 
-    def init(self):
+    def update(self, level):
+        self._lock.acquire()
+        try:
+            grid = level.grid
+            self._grid['texture'] = np.reshape(np.repeat(grid, 3), grid.shape + (3,))
+        finally:
+            self._lock.release()
+
+    def run(self):
 
         window = app.Window(width=1024, height=1024, aspect=1)
 
@@ -23,16 +30,6 @@ class Draw:
             finally:
                 self._lock.release()
 
-    def update(self, level):
-        self._lock.acquire()
-        try:
-            grid = level.grid
-            self._grid['texture'] = np.reshape(np.repeat(grid, 3), grid.shape + (3,))
-        finally:
-            self._lock.release()
-
-    @staticmethod
-    def run():
         app.run()
 
     @staticmethod
