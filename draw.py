@@ -1,6 +1,7 @@
-from glumpy import app, gloo, gl
-import numpy as np
 from threading import Lock
+
+import numpy as np
+from glumpy import app, gloo, gl
 
 
 def _grid_program():
