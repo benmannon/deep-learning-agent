@@ -100,9 +100,12 @@ class Draw:
 
     def run(self):
 
+        config = app.configuration.Configuration()
+        config.samples = 8
+
         window_w = self._window_size[0]
         window_h = self._window_size[1]
-        window = app.Window(width=window_w, height=window_h, aspect=1)
+        window = app.Window(width=window_w, height=window_h, aspect=1, config=config)
 
         @window.event
         def on_draw(dt):
