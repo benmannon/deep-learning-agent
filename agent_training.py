@@ -1,5 +1,5 @@
-from draw import Draw
 import level
+from draw import Draw
 
 
 def main():
