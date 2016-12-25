@@ -1,3 +1,5 @@
+from __future__ import division
+
 from math import pi
 from threading import Lock
 
@@ -9,6 +11,7 @@ class Draw:
     def __init__(
             self, grid_shape,
             window_size=[1024, 1024],
+            level_scale=0.5,
             coin_radius=0.25,
             agent_radius=0.45,
             agent_pointer_threshold=pi/4,
@@ -20,6 +23,7 @@ class Draw:
 
         self._lock = Lock()
         self._window_size = window_size
+        self._level_scale = level_scale
         self._grid_shape = grid_shape
         self._coin_radius = coin_radius
         self._agent_radius = agent_radius
@@ -69,9 +73,31 @@ class Draw:
         position[3] = self.normalize([agent.coord[0] + r, agent.coord[1] - r])
         return position
 
+    def normalize_each(self, coords):
+        normals = []
+        for coord in coords:
+            normals.append(self.normalize(coord))
+        return normals
+
     def normalize(self, coord):
-        w_half, h_half = self._grid_shape[1] / 2, self._grid_shape[0] / 2
-        return [coord[0] / w_half - 1, coord[1] / h_half - 1]
+
+        # position level in top-left corner of screen
+        #
+        # scale determines the amount of horizontal space that is covered
+        # vertical space is used as needed, maintaining proper aspect ratio
+        xmin = -1
+        xmax = -1 + (2 * self._level_scale)
+        ymin = 1 - (2 * self._level_scale) * (self._grid_shape[0] / self._grid_shape[1])
+        ymax = 1
+
+        gw = self._grid_shape[1]
+        gh = self._grid_shape[0]
+        x_unit = coord[0] / gw
+        y_unit = coord[1] / gh
+        x = (xmax - xmin) * x_unit + xmin
+        y = (ymax - ymin) * y_unit + ymin
+
+        return [x, y]
 
     def run(self):
 
@@ -113,8 +139,11 @@ class Draw:
             }
         """
 
+        w = self._grid_shape[1]
+        h = self._grid_shape[0]
+
         grid = gloo.Program(grid_vertex, grid_fragment, count=4)
-        grid['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
+        grid['position'] = self.normalize_each([(0, 0), (0, h), (w, 0), (w, h)])
         grid['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
         grid['texture'] = np.zeros(self._grid_shape + (4,))
 
