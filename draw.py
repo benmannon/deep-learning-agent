@@ -240,8 +240,9 @@ class Draw:
                     // inside the border; calculate angle to draw pointer
                     vec2 coord_unit = v_texcoord / dist;
                     float theta_actual = atan(coord_unit.y, coord_unit.x);
-                    float theta_diff = abs(theta - theta_actual);
-                    if (theta_diff > pointer_threshold)
+                    float theta_diff = theta - theta_actual;
+                    float bounded_diff = abs(atan(sin(theta_diff), cos(theta_diff)));
+                    if (bounded_diff > pointer_threshold)
                         // outside the pointer arc
                         gl_FragColor = circle_color;
                     else
