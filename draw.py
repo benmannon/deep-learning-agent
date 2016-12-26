@@ -294,9 +294,13 @@ class Draw:
         #
         # scale determines the amount of horizontal space that is covered
         # vertical space is used as needed, maintaining proper aspect ratio
+
+        grid_aspect = self._grid_shape[0] / self._grid_shape[1]
+        window_aspect = self._window_size[0] / self._window_size[1]
+
         xmin = -1
         xmax = -1 + (2 * self._level_scale)
-        ymin = 1 - (2 * self._level_scale) * (self._grid_shape[0] / self._grid_shape[1])
+        ymin = 1 - (2 * self._level_scale) * grid_aspect * window_aspect
         ymax = 1
 
         gw = self._grid_shape[1]
