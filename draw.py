@@ -47,7 +47,7 @@ class Draw:
                 self._update_buffer(self._coin['texcoord'], self.texcoords(len(level.coins)), use_tuple=True)
                 self._update_buffer(self._coin['position'], self.coin_positions(level.coins), use_tuple=True)
                 self._update_buffer(self._agent['position'], self.agent_position(level.agent))
-                self._update_buffer(self._agent['theta'], [level.agent.theta])
+                self._agent['theta'] = level.agent.theta
                 self._update_buffer(self._lines['position'], self.line_positions(lines), use_tuple=True)
                 self._update_buffer(self._lines['line_color'], self.line_colors(lines), use_tuple=True)
             else:
