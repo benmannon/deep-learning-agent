@@ -105,7 +105,7 @@ class Draw:
 
         window_w = self._window_size[0]
         window_h = self._window_size[1]
-        window = app.Window(width=window_w, height=window_h, aspect=None, title="Agent Training", config=config)
+        window = app.Window(width=window_w, height=window_h, title="Agent Training", config=config)
 
         @window.event
         def on_draw(dt):
