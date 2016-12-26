@@ -15,6 +15,7 @@ _KEY_TURN_LEFT = 65     # a
 _KEY_TURN_RIGHT = 68    # d
 
 _action = [None]
+_done = [False]
 
 def mock_lines(agent):
     length = 8
@@ -39,12 +40,12 @@ def main():
     draw = Draw(lvl.grid.shape, level_scale=1)
     ctrl = controller.Controller(lvl)
     threading.Thread(target=simulate, args=(lvl, ctrl, draw)).start()
-    draw.run(key_handler=on_key_press)
+    draw.run(key_handler=on_key_press, close_handler=on_close)
 
 
 def simulate(lvl, ctrl, draw):
     draw.update(lvl, mock_lines(lvl.agent))
-    for i in range(0, 1000):
+    while not(_done[0]):
         if _action[0] is not None:
             ctrl.step(_action[0])
             _action[0] = None
@@ -60,6 +61,10 @@ def on_key_press(symbol, modifiers):
         _action[0] = controller.turn_left
     elif symbol == _KEY_TURN_RIGHT:
         _action[0] = controller.turn_right
+
+
+def on_close():
+    _done[0] = True
 
 if __name__ == "__main__":
     main()

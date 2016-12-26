@@ -115,7 +115,7 @@ class Draw:
             colors.append(line.color + [1.0])
         return colors
 
-    def run(self, key_handler=None):
+    def run(self, key_handler=None, close_handler=None):
 
         config = app.configuration.Configuration()
         config.samples = 8
@@ -140,6 +140,11 @@ class Draw:
             @window.event
             def on_key_press(symbol, modifiers):
                 key_handler(symbol, modifiers)
+
+        if close_handler is not None:
+            @window.event
+            def on_close():
+                close_handler()
 
         app.run()
 
