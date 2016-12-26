@@ -14,9 +14,10 @@ class Controller:
     _stride = 0.1
     _turn = pi / 8
 
-    def __init__(self, level):
+    def __init__(self, level, agent_radius=0.45):
         self._level = level
         self._grid_shape = np.array(level.grid).shape
+        self._agent_radius = agent_radius
 
     def step(self, action):
         if action == walk_forward:
@@ -74,7 +75,7 @@ class Controller:
         agent = self._level.agent
         ax = agent.coord[0]
         ay = agent.coord[1]
-        ar = 0.45 # TODO don't hardcode
+        ar = self._agent_radius
 
         # adjusted agent coordinates
         new_x = ax;
