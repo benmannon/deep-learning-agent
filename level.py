@@ -38,6 +38,22 @@ def square():
     return Level(grid, coins, agent)
 
 
+def collisions():
+    grid = np.array([
+        [1, 1, 1, 1, 1],
+        [1, 1, 0, 1, 1],
+        [1, 0, 0, 0, 1],
+        [1, 0, 0, 1, 1],
+        [1, 1, 1, 1, 1]
+    ])
+
+    coins = []
+
+    agent = Agent([2.0, 2.0], pi / 4.0)
+
+    return Level(grid, coins, agent)
+
+
 class Agent:
     def __init__(self, coord=[0.0, 0.0], theta=0.0):
         self.coord = coord

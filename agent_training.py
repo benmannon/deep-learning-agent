@@ -29,7 +29,7 @@ def mock_lines(agent):
 
 
 def main():
-    lvl = level.square()
+    lvl = level.collisions()
     draw = Draw(lvl.grid.shape)
     ctrl = controller.Controller(lvl)
     threading.Thread(target=simulate, args=(lvl, ctrl, draw)).start()
