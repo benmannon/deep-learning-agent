@@ -4,6 +4,8 @@ walk_forward = 0
 turn_left = 1
 turn_right = 2
 
+actions = [walk_forward, turn_left, turn_right]
+
 
 class Controller:
 

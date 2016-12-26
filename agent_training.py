@@ -10,8 +10,6 @@ import level
 from draw import Draw, Line
 
 
-actions = [controller.walk_forward, controller.turn_left, controller.turn_right]
-
 def mock_lines(agent):
     length = 8
     total = 32
@@ -41,7 +39,7 @@ def main():
 def simulate(lvl, ctrl, draw):
     draw.update(lvl, mock_lines(lvl.agent))
     for i in range(0, 1000):
-        ctrl.step(random.choice(actions))
+        ctrl.step(random.choice(controller.actions))
         draw.update(lvl, mock_lines(lvl.agent))
         time.sleep(1 / 60)
 
