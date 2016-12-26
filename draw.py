@@ -115,7 +115,7 @@ class Draw:
             colors.append(line.color + [1.0])
         return colors
 
-    def run(self):
+    def run(self, key_handler=None):
 
         config = app.configuration.Configuration()
         config.samples = 8
@@ -135,6 +135,11 @@ class Draw:
                 self._lines.draw(gl.GL_LINES)
             finally:
                 self._lock.release()
+
+        if key_handler is not None:
+            @window.event
+            def on_key_press(symbol, modifiers):
+                key_handler(symbol, modifiers)
 
         app.run()
 
