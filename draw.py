@@ -37,20 +37,34 @@ class Draw:
         self._coin = self._coin_program()
         self._agent = self._agent_program()
         self._lines = self._lines_program()
+        self._initialized = False
 
     def update(self, level, lines):
         self._lock.acquire()
         try:
             self._grid['texture'] = self.grid_texture(level.grid)
-            self._coin['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)] * len(level.coins)
-            self._coin['position'] = self.coin_positions(level.coins)
-            self._agent['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)]
-            self._agent['position'] = self.agent_position(level.agent)
-            self._agent['theta'] = level.agent.theta
-            self._lines['position'] = self.line_positions(lines)
-            self._lines['line_color'] = self.line_colors(lines)
+            if self._initialized:
+                self._update_buffer(self._coin['texcoord'], self.texcoords(len(level.coins)), use_tuple=True)
+                self._update_buffer(self._coin['position'], self.coin_positions(level.coins), use_tuple=True)
+                self._update_buffer(self._agent['position'], self.agent_position(level.agent))
+                self._update_buffer(self._agent['theta'], [level.agent.theta])
+                self._update_buffer(self._lines['position'], self.line_positions(lines), use_tuple=True)
+                self._update_buffer(self._lines['line_color'], self.line_colors(lines), use_tuple=True)
+            else:
+                self._coin['texcoord'] = self.texcoords(len(level.coins))
+                self._coin['position'] = self.coin_positions(level.coins)
+                self._agent['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)]
+                self._agent['position'] = self.agent_position(level.agent)
+                self._agent['theta'] = level.agent.theta
+                self._lines['position'] = self.line_positions(lines)
+                self._lines['line_color'] = self.line_colors(lines)
+                self._initialized = True
         finally:
             self._lock.release()
+
+    def _update_buffer(self, buffer, update, use_tuple=False):
+        for i in range(0, len(update)):
+            buffer[i] = (update[i],) if use_tuple else update[i]
 
     def grid_texture(self, grid):
         texture = []
@@ -61,6 +75,9 @@ class Draw:
             else:
                 texture.append(self._bkg_color + [1.0])
         return np.array(texture)
+
+    def texcoords(self, repeat=1):
+        return [[-1.0, -1.0], [-1.0, 1.0], [1.0, 1.0], [1.0, -1.0]] * repeat
 
     def coin_positions(self, coins):
         positions = [None] * len(coins) * 4
@@ -311,7 +328,6 @@ class Draw:
         y = (ymax - ymin) * y_unit + ymin
 
         return [x, y]
-
 
 class Line:
     def __init__(self, a=[0.0, 0.0], b=[1.0, 0.0], color=[0.5, 0.5, 0.5]):
