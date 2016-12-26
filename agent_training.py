@@ -1,12 +1,16 @@
 from __future__ import division
 
+import random
 import threading
 import time
 from math import pi, cos, sin
 
+import controller
 import level
 from draw import Draw, Line
 
+
+actions = [controller.walk_forward, controller.turn_left, controller.turn_right]
 
 def mock_lines(agent):
     length = 8
@@ -29,13 +33,15 @@ def mock_lines(agent):
 def main():
     lvl = level.square()
     draw = Draw(lvl.grid.shape)
-    threading.Thread(target=simulate, args=(lvl, draw)).start()
+    ctrl = controller.Controller(lvl)
+    threading.Thread(target=simulate, args=(lvl, ctrl, draw)).start()
     draw.run()
 
 
-def simulate(lvl, draw):
-    for i in range(0, 512):
-        lvl.agent.theta -= pi / 64
+def simulate(lvl, ctrl, draw):
+    draw.update(lvl, mock_lines(lvl.agent))
+    for i in range(0, 1000):
+        ctrl.step(random.choice(actions))
         draw.update(lvl, mock_lines(lvl.agent))
         time.sleep(1 / 60)
 
