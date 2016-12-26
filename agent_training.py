@@ -1,3 +1,7 @@
+from __future__ import division
+
+import threading
+import time
 from math import pi, cos, sin
 
 import level
@@ -25,8 +29,16 @@ def mock_lines(agent):
 def main():
     lvl = level.square()
     draw = Draw(lvl.grid.shape)
-    draw.update(lvl, mock_lines(lvl.agent))
+    threading.Thread(target=simulate, args=(lvl, draw)).start()
     draw.run()
+
+
+def simulate(lvl, draw):
+    for i in range(0, 512):
+        lvl.agent.theta -= pi / 64
+        draw.update(lvl, mock_lines(lvl.agent))
+        time.sleep(1 / 60)
+
 
 if __name__ == "__main__":
     main()
