@@ -101,7 +101,7 @@ class Controller:
                 new_x = cx0 - ar
 
         # corner case
-        if (not(handled)):
+        if not handled:
             # find the nearest corner
             ncx = cx0 if ax <= ccx else cx1
             ncy = cy0 if ay <= ccy else cy1
@@ -111,7 +111,7 @@ class Controller:
             dist = sqrt(vx * vx + vy * vy)
 
             # colliding?
-            if (dist < ar):
+            if dist < ar:
                 # rescale vector with magnitude equal to agent's radius
                 vxr = vx * ar / dist
                 vyr = vy * ar / dist
