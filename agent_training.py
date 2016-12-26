@@ -11,6 +11,7 @@ from draw import Draw, Line
 
 
 _KEY_WALK_FORWARD = 87  # w
+_KEY_WALK_BACKWARD = 83 # s
 _KEY_TURN_LEFT = 65     # a
 _KEY_TURN_RIGHT = 68    # d
 
@@ -56,6 +57,8 @@ def simulate(lvl, ctrl, draw):
 def on_key_press(symbol, modifiers):
     if symbol == _KEY_WALK_FORWARD:
         _action[0] = controller.walk_forward
+    elif symbol == _KEY_WALK_BACKWARD:
+        _action[0] = controller.walk_backward
     elif symbol == _KEY_TURN_LEFT:
         _action[0] = controller.turn_left
     elif symbol == _KEY_TURN_RIGHT:
