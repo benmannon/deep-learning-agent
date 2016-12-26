@@ -54,7 +54,6 @@ def simulate(lvl, ctrl, draw):
 
 
 def on_key_press(symbol, modifiers):
-    print('(symbol=%s, modifiers=%s)' % (symbol, modifiers))
     if symbol == _KEY_WALK_FORWARD:
         _action[0] = controller.walk_forward
     elif symbol == _KEY_TURN_LEFT:
