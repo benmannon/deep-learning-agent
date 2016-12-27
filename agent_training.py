@@ -3,6 +3,8 @@ from __future__ import division
 import threading
 import time
 
+import numpy as np
+
 import controller
 import level
 from draw import Draw, Line
@@ -25,18 +27,16 @@ def main():
     threading.Thread(target=simulate, args=(lvl, ctrl, vision, draw)).start()
 
     # TODO fix this race condition
-    time.sleep(1)
+    time.sleep(2)
 
     draw.run(key_handler=on_key_press, close_handler=on_close)
 
 
 def color(channels):
-    rgb = [1.0, 1.0, 1.0]
-    if channels[0] == 1:
-        rgb = [0.4, 0.4, 0.4]
-    elif channels[1] == 1:
-        rgb = [1.0, 0.843, 0.0]
-    return rgb
+    rgb = np.array([0.0, 0.0, 0.0])
+    rgb += np.array([0.4, 0.4, 0.4]) * channels[0]
+    rgb += np.array([1.0, 0.843, 0.0]) * channels[1]
+    return rgb.tolist()
 
 
 def lines(signals):

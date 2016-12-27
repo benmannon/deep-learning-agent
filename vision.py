@@ -70,7 +70,7 @@ class Vision:
 
         intersection = ray.project(t_nearest) if t_nearest != float('inf') else ray.point
 
-        return Signal(ray.point, intersection, channels_nearest)
+        return Signal(ray.point, intersection, self.fog(channels_nearest, t_nearest))
 
     def _edges(self):
 
@@ -143,8 +143,9 @@ class Vision:
         return float('inf')
 
     @staticmethod
-    def _v_subtract(a, b):
-        return [a[0] - b[0], a[1] - b[1]]
+    def fog(channels, distance):
+        # TODO use non-linear fog formula
+        return np.array(channels) * [max(5 - distance, 0) / 5]
 
 
 class Ray:
