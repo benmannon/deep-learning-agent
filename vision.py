@@ -85,7 +85,7 @@ class Vision:
         edges = []
         for y in range(0, h):
             for x in range(0, w):
-                if grid[y][x] == 1:
+                if grid[h - y - 1][x] == 1:
                     edges.extend(self._cell_edges(x, y))
 
         return edges
