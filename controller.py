@@ -15,10 +15,11 @@ class Controller:
     _stride = 0.1
     _turn = pi / 8
 
-    def __init__(self, level, agent_radius=0.45):
+    def __init__(self, level, agent_radius=0.45, coin_radius=0.25):
         self._level = level
         self._grid_shape = np.array(level.grid).shape
         self._agent_radius = agent_radius
+        self._coin_radius = coin_radius
 
     def step(self, action):
         if action == walk_forward:
@@ -35,6 +36,7 @@ class Controller:
         x, y = agent.coord[0], agent.coord[1]
         agent.coord = [x + distance * cos(theta), y + distance * sin(theta)]
         self._handle_collision()
+        self._collect_coins()
 
     def _handle_collision(self):
         level = self._level
@@ -162,3 +164,32 @@ class Controller:
         # apply new agent coordinates
         agent.coord[0] = new_x
         agent.coord[1] = new_y
+
+    def _collect_coins(self):
+
+        # agent coordinate
+        agent = self._level.agent
+        ax = agent.coord[0]
+        ay = agent.coord[1]
+
+        # threshold distance for coin collection
+        threshold = self._agent_radius + self._coin_radius
+
+        coins = self._level.coins
+        i = 0
+        while i < len(coins):
+
+            # coin coordinates
+            coin = coins[i]
+            cx, cy = coin[0], coin[1]
+
+            # agent-to-coin vector
+            vx, vy = cx - ax, cy - ay
+
+            # close enough to collect?
+            dist = sqrt(vx * vx + vy * vy)
+            if dist < threshold:
+                # "collect" the coin by deleting it
+                del coins[i]
+
+            i += 1
