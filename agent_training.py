@@ -50,7 +50,7 @@ def simulate(lvl, ctrl, draw):
         if _action[0] is not None:
             ctrl.step(_action[0])
             _action[0] = None
-        draw.update(lvl, mock_lines(lvl.agent))
+            draw.update(lvl, mock_lines(lvl.agent))
         time.sleep(1 / 60)
 
 
