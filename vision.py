@@ -128,7 +128,7 @@ class Vision:
     def _cast_edge(ray, edge):
 
         p = np.array(ray.point)
-        r = np.array(ray.project(1))
+        r = np.array(ray.project(1.0)) - p
         q = np.array(edge.a)
         s = np.array(edge.b) - q
 
