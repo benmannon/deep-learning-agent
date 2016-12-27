@@ -2,11 +2,11 @@ from __future__ import division
 
 import threading
 import time
-from math import pi, cos, sin
 
 import controller
 import level
 from draw import Draw, Line
+from vision import Vision
 
 _KEY_WALK_FORWARD = 87  # w
 _KEY_WALK_BACKWARD = 83  # s
@@ -17,39 +17,42 @@ _action = [None]
 _done = [False]
 
 
-def mock_lines(agent):
-    length = 8
-    total = 32
-    arc_length = pi / 2
-    theta_min = agent.theta - (arc_length / 2)
-    theta_step = arc_length / (total - 1)
-    agent_radius = 0.45
-    lines = []
-    theta = theta_min
-    for i in range(0, total):
-        a = [agent_radius * cos(theta) + agent.coord[0], agent_radius * sin(theta) + agent.coord[1]]
-        b = [length * cos(theta) + agent.coord[0], length * sin(theta) + agent.coord[1]]
-        color = [0.0, 0.0, 0.0]
-        lines.append(Line(a, b, color))
-        theta += theta_step
-    return lines
-
-
 def main():
     lvl = level.square()
     draw = Draw(lvl.grid.shape, level_scale=1)
     ctrl = controller.Controller(lvl)
-    threading.Thread(target=simulate, args=(lvl, ctrl, draw)).start()
+    vision = Vision(lvl, lvl.grid.shape)
+    threading.Thread(target=simulate, args=(lvl, ctrl, vision, draw)).start()
+
+    # TODO fix this race condition
+    time.sleep(1)
+
     draw.run(key_handler=on_key_press, close_handler=on_close)
 
 
-def simulate(lvl, ctrl, draw):
-    draw.update(lvl, mock_lines(lvl.agent))
+def color(channels):
+    rgb = [1.0, 1.0, 1.0]
+    if channels[0] == 1:
+        rgb = [0.4, 0.4, 0.4]
+    elif channels[1] == 1:
+        rgb = [1.0, 0.843, 0.0]
+    return rgb
+
+
+def lines(signals):
+    signal_lines = []
+    for signal in signals:
+        signal_lines.append(Line(signal.a, signal.b, color(signal.channels)))
+    return signal_lines
+
+
+def simulate(lvl, ctrl, vision, draw):
+    draw.update(lvl, lines(vision.look()))
     while not (_done[0]):
         if _action[0] is not None:
             ctrl.step(_action[0])
             _action[0] = None
-            draw.update(lvl, mock_lines(lvl.agent))
+            draw.update(lvl, lines(vision.look()))
         time.sleep(1 / 60)
 
 
