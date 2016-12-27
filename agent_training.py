@@ -1,6 +1,5 @@
 from __future__ import division
 
-import random
 import threading
 import time
 from math import pi, cos, sin
