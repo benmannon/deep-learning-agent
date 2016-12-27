@@ -85,26 +85,26 @@ class Controller:
         new_y = ay;
 
         # if handled as bounding box, we can skip the corner case
-        handled = False
+        bounding = False
 
         # calculate adjustment on the y-axis
         if cx0 <= ax <= cx1:
-            handled = True
-            if ay - ccy > 0:
+            bounding = True
+            if ay > ccy and ay - cy1 < ar:
                 new_y = cy1 + ar
-            else:
+            elif ay < ccy and cy0 - ay < ar:
                 new_y = cy0 - ar
 
         # calculate adjustment on the x-axis
         if cy0 <= ay <= cy1:
-            handled = True
-            if ax - ccx > 0:
+            bounding = True
+            if ax > ccx and ax - cx1 < ar:
                 new_x = cx1 + ar
-            else:
+            elif ax < ccx and cx0 - ax < ar:
                 new_x = cx0 - ar
 
         # corner case
-        if not handled:
+        if not bounding:
             # find the nearest corner
             ncx = cx0 if ax <= ccx else cx1
             ncy = cy0 if ay <= ccy else cy1
