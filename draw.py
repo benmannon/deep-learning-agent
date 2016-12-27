@@ -121,8 +121,8 @@ class Draw:
         # append each color twice (one per vertex)
         colors = []
         for line in lines:
-            colors.append(line.color + [1.0])
-            colors.append(line.color + [1.0])
+            colors.append(line.color)
+            colors.append(line.color)
         return colors
 
     def run(self, key_handler=None, close_handler=None):

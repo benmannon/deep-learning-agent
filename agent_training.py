@@ -33,10 +33,12 @@ def main():
 
 
 def color(channels):
-    rgb = np.array([0.0, 0.0, 0.0])
-    rgb += np.array([0.4, 0.4, 0.4]) * channels[0]
-    rgb += np.array([1.0, 0.843, 0.0]) * channels[1]
-    return rgb.tolist()
+    if channels[0] > 0:
+        return [0.4, 0.4, 0.4, channels[0]]
+    elif channels[1] > 0:
+        return [1.0, 0.843, 0.0, channels[1]]
+    else:
+        return [0.0, 0.0, 0.0, 0.0]
 
 
 def lines(signals):
