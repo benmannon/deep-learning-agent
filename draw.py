@@ -14,7 +14,7 @@ class Draw:
             level_scale=0.5,
             coin_radius=0.25,
             agent_radius=0.45,
-            agent_pointer_threshold=pi/4,
+            agent_pointer_threshold=pi / 4,
             grid_color=[0.4, 0.4, 0.4],
             coin_color=[1.0, 0.843, 0.0],
             agent_color=[0.15, 0.45, 0.35],
@@ -350,9 +350,9 @@ class Draw:
 
         return [x, y]
 
+
 class Line:
     def __init__(self, a=[0.0, 0.0], b=[1.0, 0.0], color=[0.5, 0.5, 0.5]):
         self.a = a
         self.b = b
         self.color = color
-

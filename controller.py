@@ -11,7 +11,6 @@ actions = [walk_forward, walk_backward, turn_left, turn_right]
 
 
 class Controller:
-
     _stride = 0.1
     _turn = pi / 8
 

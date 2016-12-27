@@ -9,14 +9,14 @@ import controller
 import level
 from draw import Draw, Line
 
-
 _KEY_WALK_FORWARD = 87  # w
-_KEY_WALK_BACKWARD = 83 # s
-_KEY_TURN_LEFT = 65     # a
-_KEY_TURN_RIGHT = 68    # d
+_KEY_WALK_BACKWARD = 83  # s
+_KEY_TURN_LEFT = 65  # a
+_KEY_TURN_RIGHT = 68  # d
 
 _action = [None]
 _done = [False]
+
 
 def mock_lines(agent):
     length = 8
@@ -46,7 +46,7 @@ def main():
 
 def simulate(lvl, ctrl, draw):
     draw.update(lvl, mock_lines(lvl.agent))
-    while not(_done[0]):
+    while not (_done[0]):
         if _action[0] is not None:
             ctrl.step(_action[0])
             _action[0] = None
@@ -67,6 +67,7 @@ def on_key_press(symbol, modifiers):
 
 def on_close():
     _done[0] = True
+
 
 if __name__ == "__main__":
     main()
