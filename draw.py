@@ -44,12 +44,12 @@ class Draw:
         try:
             self._grid['texture'] = self.grid_texture(level.grid)
             if self._initialized:
-                self._update_buffer(self._coin['texcoord'], self.texcoords(len(level.coins)), use_tuple=True)
-                self._update_buffer(self._coin['position'], self.coin_positions(level.coins), use_tuple=True)
-                self._update_buffer(self._agent['position'], self.agent_position(level.agent))
+                self._update_buffer(self._coin, 'texcoord', self.texcoords(len(level.coins)), use_tuple=True)
+                self._update_buffer(self._coin, 'position', self.coin_positions(level.coins), use_tuple=True)
+                self._update_buffer(self._agent, 'position', self.agent_position(level.agent))
                 self._agent['theta'] = level.agent.theta
-                self._update_buffer(self._lines['position'], self.line_positions(lines), use_tuple=True)
-                self._update_buffer(self._lines['line_color'], self.line_colors(lines), use_tuple=True)
+                self._update_buffer(self._lines, 'position', self.line_positions(lines), use_tuple=True)
+                self._update_buffer(self._lines, 'line_color', self.line_colors(lines), use_tuple=True)
             else:
                 self._coin['texcoord'] = self.texcoords(len(level.coins))
                 self._coin['position'] = self.coin_positions(level.coins)
@@ -62,9 +62,19 @@ class Draw:
         finally:
             self._lock.release()
 
-    def _update_buffer(self, buffer, update, use_tuple=False):
-        for i in range(0, len(update)):
-            buffer[i] = (update[i],) if use_tuple else update[i]
+    def _update_buffer(self, program, name, update, use_tuple=False):
+
+        buf = program[name]
+
+        # resize if necessary; can only get smaller
+        if len(update) < len(buf):
+            buf = buf[0:len(update)]
+
+        # update values
+        for i in range(0, len(buf)):
+            buf[i] = (update[i],) if use_tuple else update[i]
+
+        program[name] = buf
 
     def grid_texture(self, grid):
         texture = []
