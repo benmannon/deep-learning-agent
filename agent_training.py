@@ -3,8 +3,6 @@ from __future__ import division
 import threading
 import time
 
-import numpy as np
-
 import controller
 import level
 from draw import Draw, Line
@@ -51,11 +49,12 @@ def lines(signals):
 def simulate(lvl, ctrl, vision, draw):
     draw.update(lvl, lines(vision.look()))
     while not (_done[0]):
-        if _action[0] is not None:
+        if _action[0] is None:
+            time.sleep(1 / 60)
+        else:
             ctrl.step(_action[0])
             _action[0] = None
             draw.update(lvl, lines(vision.look()))
-        time.sleep(1 / 60)
 
 
 def on_key_press(symbol, modifiers):
