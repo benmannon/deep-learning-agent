@@ -10,7 +10,7 @@ from glumpy import app, gloo, gl
 class Draw:
     def __init__(
             self, grid_shape,
-            window_size=[1024, 1024],
+            window_size=[2048, 1024],
             level_scale=0.5,
             coin_radius=0.25,
             agent_radius=0.45,

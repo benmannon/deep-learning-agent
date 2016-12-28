@@ -19,7 +19,7 @@ _done = [False]
 
 def main():
     lvl = level.square()
-    draw = Draw(lvl.grid.shape, level_scale=1)
+    draw = Draw(lvl.grid.shape)
     ctrl = controller.Controller(lvl)
     vision = Vision(lvl, lvl.grid.shape)
     threading.Thread(target=simulate, args=(lvl, ctrl, vision, draw)).start()
