@@ -7,11 +7,15 @@ import numpy as np
 from glumpy import app, gloo, gl
 
 
+def calc_level_scale(window_size, grid_shape):
+    window_ratio = window_size[1] / window_size[0]
+    grid_ratio = grid_shape[0] / grid_shape[1]
+    return min(window_ratio / grid_ratio, 0.5)
+
 class Draw:
     def __init__(
             self, grid_shape,
             window_size=[2048, 1024],
-            level_scale=0.5,
             coin_radius=0.25,
             agent_radius=0.45,
             agent_pointer_threshold=pi / 4,
@@ -23,7 +27,7 @@ class Draw:
 
         self._lock = Lock()
         self._window_size = window_size
-        self._level_scale = level_scale
+        self._level_scale = calc_level_scale(window_size, grid_shape)
         self._grid_shape = grid_shape
         self._coin_radius = coin_radius
         self._agent_radius = agent_radius
