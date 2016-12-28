@@ -1,4 +1,4 @@
-from math import pi, cos, sin
+from math import pi, cos, sin, e
 import numpy as np
 
 class Vision:
@@ -7,13 +7,14 @@ class Vision:
     _CHANNELS_WALL = [1, 0]
     _CHANNELS_COIN = [0, 1]
 
-    def __init__(self, level, grid_shape, agent_radius=0.45, coin_radius=0.25, signal_count=32, fov=pi / 2):
+    def __init__(self, level, grid_shape, agent_radius=0.45, coin_radius=0.25, signal_count=32, fov=pi / 2, attenuation=0.15):
         self._level = level
         self._grid_shape = grid_shape
         self._agent_radius = agent_radius
         self._signal_count = signal_count
         self._fov = fov
         self._coin_radius = coin_radius
+        self._attenuation = attenuation
 
     def look(self):
         signals = []
@@ -70,7 +71,7 @@ class Vision:
 
         intersection = ray.project(t_nearest) if t_nearest != float('inf') else ray.point
 
-        return Signal(ray.point, intersection, self.fog(channels_nearest, t_nearest))
+        return Signal(ray.point, intersection, self.fog(channels_nearest, t_nearest, self._attenuation))
 
     def _edges(self):
 
@@ -143,9 +144,9 @@ class Vision:
         return float('inf')
 
     @staticmethod
-    def fog(channels, distance):
-        # TODO use non-linear fog formula
-        return np.array(channels) * [max(10 - distance, 0) / 10]
+    def fog(channels, distance, attenuation):
+        factor = 1 / pow(e, pow(distance * attenuation, 2))
+        return np.array(channels) * [factor]
 
 
 class Ray:
