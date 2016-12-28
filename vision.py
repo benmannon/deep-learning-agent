@@ -1,4 +1,4 @@
-from math import pi, cos, sin, e
+from math import pi, cos, sin, e, sqrt
 import numpy as np
 
 class Vision:
@@ -141,7 +141,30 @@ class Vision:
 
     @staticmethod
     def _cast_circle(ray, circle):
-        return float('inf')
+
+        # represent the ray's points in the circle's local space
+        p1 = np.array(ray.point) - np.array(circle.a)
+        p2 = np.array(ray.project(1)) - np.array(circle.a)
+        r = circle.r
+
+        x1, y1 = p1[0], p1[1]
+        x2, y2 = p2[0], p2[1]
+
+        x2_m_x1 = x2 - x1
+        y2_m_y1 = y2 - y1
+
+        # variables of quadratic formula
+        a = x2_m_x1 * x2_m_x1 + y2_m_y1 * y2_m_y1
+        b = 2 * (x1 * x2_m_x1 + y1 * y2_m_y1)
+        c = x1 * x1 + y1 * y1 - r * r
+
+        delta = b * b - 4 * a * c
+
+        if delta < 0:
+            return float('inf')
+        else:
+            # quadratic formula; only the smaller result
+            return (-b - sqrt(delta)) / (2 * a)
 
     @staticmethod
     def fog(channels, distance, attenuation):
