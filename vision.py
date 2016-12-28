@@ -75,41 +75,31 @@ class Vision:
 
     def _edges(self):
 
-        # for each grid cell that is not open, there are 4 edges
+        # walk between the cells to find the edges
 
         w = self._grid_shape[1]
         h = self._grid_shape[0]
 
         grid = self._level.grid
-
-        # TODO don't return an edge twice for adjacent cells
         edges = []
-        for y in range(0, h):
+
+        # walk between rows
+        for y in range(1, h):
             for x in range(0, w):
-                if grid[h - y - 1][x] == 1:
-                    edges.extend(self._cell_edges(x, y))
+                a = grid[h - y][x]
+                b = grid[h - y - 1][x]
+                if a != b:
+                    edges.append(Edge([x, y], [x + 1, y], self._CHANNELS_WALL))
+
+        # walk between columns
+        for x in range(1, w):
+            for y in range(0, h):
+                a = grid[h - y - 1][x - 1]
+                b = grid[h - y - 1][x]
+                if a != b:
+                    edges.append(Edge([x, y], [x, y + 1], self._CHANNELS_WALL))
 
         return edges
-
-    def _cell_edges(self, x, y):
-
-        # all the edges for a single grid cell
-
-        # components
-        x0, x1 = x, x + 1
-        y0, y1 = y, y + 1
-
-        # vertices
-        a = [x0, y0]
-        b = [x0, y1]
-        c = [x1, y1]
-        d = [x1, y0]
-
-        # cells are seen as walls
-        ch = self._CHANNELS_WALL
-
-        # construct an edge for each segment
-        return [Edge(a, b, ch), Edge(b, c, ch), Edge(c, d, ch), Edge(d, a, ch)]
 
     def _circles(self):
 
