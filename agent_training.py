@@ -48,7 +48,23 @@ def lines(signals):
 
 def simulate(lvl, ctrl, vision, draw):
     draw.update(lvl, lines(vision.look()))
+
+    # track fps
+    timer = time.time()
+    frames = 0
+
     while not (_done[0]):
+
+        # print fps
+        frames += 1
+        time_delta = time.time() - timer
+        fps_interval = 10.0
+        if time_delta >= fps_interval:
+            timer += fps_interval
+            print 'fps over %ss: %s' % (fps_interval, frames / time_delta)
+            frames = 0
+
+        # take an action or sleep
         if _action[0] is None:
             time.sleep(1 / 60)
         else:
