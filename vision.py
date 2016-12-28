@@ -164,7 +164,8 @@ class Vision:
             return float('inf')
         else:
             # quadratic formula; only the smaller result
-            return (-b - sqrt(delta)) / (2 * a)
+            t = (-b - sqrt(delta)) / (2 * a)
+            return t if t >= 0 else float('inf')
 
     @staticmethod
     def fog(channels, distance, attenuation):
