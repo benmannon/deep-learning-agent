@@ -83,21 +83,33 @@ class Vision:
         grid = self._level.grid
         edges = []
 
-        # walk between rows
+        # walk between rows, draw a line along edges
         for y in range(1, h):
+            x0 = None
             for x in range(0, w):
                 a = grid[h - y][x]
                 b = grid[h - y - 1][x]
-                if a != b:
-                    edges.append(Edge([x, y], [x + 1, y], self._CHANNELS_WALL))
+                if a != b and x0 is None:
+                    x0 = x
+                elif a == b and x0 is not None:
+                    edges.append(Edge([x0, y], [x, y], self._CHANNELS_WALL))
+                    x0 = None
+            if x0 is not None:
+                edges.append(Edge([x0, y], [w, y], self._CHANNELS_WALL))
 
         # walk between columns
         for x in range(1, w):
+            y0 = None
             for y in range(0, h):
                 a = grid[h - y - 1][x - 1]
                 b = grid[h - y - 1][x]
-                if a != b:
-                    edges.append(Edge([x, y], [x, y + 1], self._CHANNELS_WALL))
+                if a != b and y0 is None:
+                    y0 = y
+                elif a == b and y0 is not None:
+                    edges.append(Edge([x, y0], [x, y], self._CHANNELS_WALL))
+                    y0 = None
+            if y0 is not None:
+                edges.append(Edge([x, y0], [x, h], self._CHANNELS_WALL))
 
         return edges
 
