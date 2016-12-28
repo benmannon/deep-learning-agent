@@ -34,7 +34,7 @@ def main():
 
 def color(channels):
     if channels[0] > 0:
-        return [0.4, 0.4, 0.4, channels[0]]
+        return [0.8, 0.8, 0.8, channels[0]]
     elif channels[1] > 0:
         return [1.0, 0.843, 0.0, channels[1]]
     else:

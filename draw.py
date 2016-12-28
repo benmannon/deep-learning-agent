@@ -15,11 +15,11 @@ class Draw:
             coin_radius=0.25,
             agent_radius=0.45,
             agent_pointer_threshold=pi / 4,
-            grid_color=[0.4, 0.4, 0.4],
+            grid_color=[0.8, 0.8, 0.8],
             coin_color=[1.0, 0.843, 0.0],
             agent_color=[0.15, 0.45, 0.35],
             agent_pointer_brightness=0.5,
-            bkg_color=[1.0, 1.0, 1.0]):
+            bkg_color=[0.0, 0.3, 0.5]):
 
         self._lock = Lock()
         self._window_size = window_size
