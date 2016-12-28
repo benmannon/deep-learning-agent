@@ -145,7 +145,7 @@ class Vision:
     @staticmethod
     def fog(channels, distance):
         # TODO use non-linear fog formula
-        return np.array(channels) * [max(5 - distance, 0) / 5]
+        return np.array(channels) * [max(10 - distance, 0) / 10]
 
 
 class Ray:
