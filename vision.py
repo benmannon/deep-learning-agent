@@ -7,7 +7,7 @@ class Vision:
     _CHANNELS_WALL = [1, 0]
     _CHANNELS_COIN = [0, 1]
 
-    def __init__(self, level, grid_shape, agent_radius=0.45, coin_radius=0.25, signal_count=32, fov=pi / 2, attenuation=0.15):
+    def __init__(self, level, grid_shape, agent_radius=0.45, coin_radius=0.25, signal_count=32, fov=pi / 2, attenuation=0.25):
         self._level = level
         self._grid_shape = grid_shape
         self._agent_radius = agent_radius
@@ -171,7 +171,7 @@ class Vision:
 
     @staticmethod
     def fog(channels, distance, attenuation):
-        factor = 1 / pow(e, pow(distance * attenuation, 2))
+        factor = 1 / pow(e, distance * attenuation)
         return np.array(channels) * [factor]
 
 
