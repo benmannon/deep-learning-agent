@@ -14,7 +14,7 @@ def calc_level_scale(window_size, grid_shape):
 
 class Draw:
     def __init__(
-            self, grid_shape,
+            self, grid_shape, sight_res,
             window_size=[2048, 1024],
             coin_radius=0.25,
             agent_radius=0.45,
@@ -29,6 +29,7 @@ class Draw:
         self._window_size = window_size
         self._level_scale = calc_level_scale(window_size, grid_shape)
         self._grid_shape = grid_shape
+        self._sight_res = sight_res
         self._coin_radius = coin_radius
         self._agent_radius = agent_radius
         self._agent_pointer_threshold = agent_pointer_threshold
@@ -41,12 +42,14 @@ class Draw:
         self._coin = self._coin_program()
         self._agent = self._agent_program()
         self._lines = self._lines_program()
+        self._sight = self._sight_program()
         self._initialized = False
 
-    def update(self, level, lines):
+    def update(self, level, lines, sight_colors):
         self._lock.acquire()
         try:
             self._grid['texture'] = self.grid_texture(level.grid)
+            self._sight['texture'] = np.array(sight_colors)
             if self._initialized:
                 self._update_buffer(self._coin, 'texcoord', self.texcoords(len(level.coins)), use_tuple=True)
                 self._update_buffer(self._coin, 'position', self.coin_positions(level.coins), use_tuple=True)
@@ -146,6 +149,7 @@ class Draw:
                 self._coin.draw(gl.GL_QUADS)
                 self._agent.draw(gl.GL_QUADS)
                 self._lines.draw(gl.GL_LINES)
+                self._sight.draw(gl.GL_TRIANGLE_STRIP)
             finally:
                 self._lock.release()
 
@@ -322,6 +326,34 @@ class Draw:
         """
 
         return gloo.Program(vertex, fragment)
+
+    def _sight_program(self):
+        grid_vertex = """
+            attribute vec2 position;
+            attribute vec2 texcoord;
+            varying vec2 v_texcoord;
+            void main()
+            {
+                gl_Position = vec4(position, 0.0, 1.0);
+                v_texcoord = texcoord;
+            }
+        """
+
+        grid_fragment = """
+            uniform sampler2D texture;
+            varying vec2 v_texcoord;
+            void main()
+            {
+                gl_FragColor = texture2D(texture, v_texcoord);
+            }
+        """
+
+        sight = gloo.Program(grid_vertex, grid_fragment, count=4)
+        sight['position'] = [(0, -0.25), (0, 0.25), (1, -0.25), (1, 0.25)]
+        sight['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
+        sight['texture'] = np.zeros((1, self._sight_res, 4))
+
+        return sight
 
     def normalize_each(self, coords):
         normals = []

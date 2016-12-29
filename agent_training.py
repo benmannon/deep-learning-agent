@@ -19,7 +19,7 @@ _done = [False]
 
 def main():
     lvl = level.square()
-    draw = Draw(lvl.grid.shape)
+    draw = Draw(lvl.grid.shape, sight_res=32)
     ctrl = controller.Controller(lvl)
     vision = Vision(lvl, lvl.grid.shape)
     threading.Thread(target=simulate, args=(lvl, ctrl, vision, draw)).start()
@@ -46,8 +46,18 @@ def lines(signals):
     return signal_lines
 
 
+def sight_colors(signals):
+    colors = []
+    for signal in signals:
+        colors.append(color(signal.channels))
+    return colors
+
+
 def simulate(lvl, ctrl, vision, draw):
-    draw.update(lvl, lines(vision.look()))
+
+    # draw first frame
+    sightline = vision.look()
+    draw.update(lvl, lines(sightline), sight_colors(sightline))
 
     # track fps
     timer = time.time()
@@ -70,7 +80,8 @@ def simulate(lvl, ctrl, vision, draw):
         else:
             ctrl.step(_action[0])
             _action[0] = None
-            draw.update(lvl, lines(vision.look()))
+            sightline = vision.look()
+            draw.update(lvl, lines(sightline), sight_colors(sightline))
 
 
 def on_key_press(symbol, modifiers):
