@@ -32,16 +32,16 @@ class Vision:
         total = self._signal_count
 
         # determine the initial angle and step size
-        theta_min = theta_center - (fov / 2)
+        theta_max = theta_center + (fov / 2)
         theta_step = fov / (total - 1)
 
         # fan out
         rays = []
-        theta = theta_min
+        theta = theta_max
         for i in range(0, total):
             point = [near_clip * cos(theta) + origin[0], near_clip * sin(theta) + origin[1]]
             rays.append(Ray(point, theta))
-            theta += theta_step
+            theta -= theta_step
 
         return rays
 
