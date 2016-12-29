@@ -13,15 +13,16 @@ _KEY_WALK_BACKWARD = 83  # s
 _KEY_TURN_LEFT = 65  # a
 _KEY_TURN_RIGHT = 68  # d
 
+_SIGHT_SIGNALS = 32
+
 _action = [None]
 _done = [False]
 
-
 def main():
     lvl = level.square()
-    draw = Draw(lvl.grid.shape, sight_res=32)
+    draw = Draw(lvl.grid.shape, sight_res=_SIGHT_SIGNALS)
     ctrl = controller.Controller(lvl)
-    vision = Vision(lvl, lvl.grid.shape)
+    vision = Vision(lvl, lvl.grid.shape, signal_count=_SIGHT_SIGNALS)
     threading.Thread(target=simulate, args=(lvl, ctrl, vision, draw)).start()
 
     # TODO fix this race condition
