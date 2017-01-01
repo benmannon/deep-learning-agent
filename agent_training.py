@@ -18,6 +18,7 @@ _SIGHT_SIGNALS = 32
 _action = [None]
 _done = [False]
 
+
 def main():
     lvl = level.square()
     draw = Draw(lvl.grid.shape, sight_res=_SIGHT_SIGNALS)
@@ -55,7 +56,6 @@ def sight_colors(signals):
 
 
 def simulate(lvl, ctrl, vision, draw):
-
     # draw first frame
     sightline = vision.look()
     draw.update(lvl, lines(sightline), sight_colors(sightline))

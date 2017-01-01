@@ -12,6 +12,7 @@ def calc_level_scale(window_size, grid_shape):
     grid_ratio = grid_shape[0] / grid_shape[1]
     return min(window_ratio / grid_ratio, 0.5)
 
+
 class Draw:
     def __init__(
             self, grid_shape, sight_res,

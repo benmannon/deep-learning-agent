@@ -1,13 +1,19 @@
 from math import pi, cos, sin, e, sqrt
+
 import numpy as np
 
-class Vision:
 
+class Vision:
     _CHANNELS_NONE = [0, 0]
     _CHANNELS_WALL = [1, 0]
     _CHANNELS_COIN = [0, 1]
 
-    def __init__(self, level, grid_shape, agent_radius=0.45, coin_radius=0.25, signal_count=32, fov=pi / 2, attenuation=0.25):
+    def __init__(self, level, grid_shape,
+                 agent_radius=0.45,
+                 coin_radius=0.25,
+                 signal_count=32,
+                 fov=pi / 2,
+                 attenuation=0.25):
         self._level = level
         self._grid_shape = grid_shape
         self._agent_radius = agent_radius
