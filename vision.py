@@ -2,12 +2,12 @@ from math import pi, cos, sin, e, sqrt
 
 import numpy as np
 
+_CHANNELS_NONE = [0, 0]
+_CHANNELS_WALL = [1, 0]
+_CHANNELS_COIN = [0, 1]
+
 
 class Vision:
-    _CHANNELS_NONE = [0, 0]
-    _CHANNELS_WALL = [1, 0]
-    _CHANNELS_COIN = [0, 1]
-
     def __init__(self, level, grid_shape,
                  agent_radius=0.45,
                  coin_radius=0.25,
@@ -59,7 +59,7 @@ class Vision:
 
         # select the nearest item the ray intersects
         t_nearest = float('inf')
-        channels_nearest = self._CHANNELS_NONE
+        channels_nearest = _CHANNELS_NONE
 
         # first check all the edges
         for edge in edges:
@@ -98,10 +98,10 @@ class Vision:
                 if a != b and x0 is None:
                     x0 = x
                 elif a == b and x0 is not None:
-                    edges.append(Edge([x0, y], [x, y], self._CHANNELS_WALL))
+                    edges.append(Edge([x0, y], [x, y], _CHANNELS_WALL))
                     x0 = None
             if x0 is not None:
-                edges.append(Edge([x0, y], [w, y], self._CHANNELS_WALL))
+                edges.append(Edge([x0, y], [w, y], _CHANNELS_WALL))
 
         # walk between columns
         for x in range(1, w):
@@ -112,10 +112,10 @@ class Vision:
                 if a != b and y0 is None:
                     y0 = y
                 elif a == b and y0 is not None:
-                    edges.append(Edge([x, y0], [x, y], self._CHANNELS_WALL))
+                    edges.append(Edge([x, y0], [x, y], _CHANNELS_WALL))
                     y0 = None
             if y0 is not None:
-                edges.append(Edge([x, y0], [x, h], self._CHANNELS_WALL))
+                edges.append(Edge([x, y0], [x, h], _CHANNELS_WALL))
 
         return edges
 
@@ -124,7 +124,7 @@ class Vision:
         # coins are circles
 
         r = self._coin_radius
-        c = self._CHANNELS_COIN
+        c = _CHANNELS_COIN
 
         # just return each coin as a circle
         circles = []
