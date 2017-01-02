@@ -17,7 +17,7 @@ _AGENT_TURN = pi / 8
 _COIN_RADIUS = 0.25
 
 # visualization parameters
-_WINDOW_SIZE = [2048, 1024]
+_WINDOW_WIDTH = 2048
 _GRID_COLOR = [0.8, 0.8, 0.8]
 _COIN_COLOR = [1.0, 0.843, 0.0]
 _AGENT_COLOR = [0.15, 0.45, 0.35]
@@ -78,7 +78,7 @@ def main():
               agent_stride=_AGENT_STRIDE,
               agent_turn=_AGENT_TURN,
               coin_radius=_COIN_RADIUS,
-              window_size=_WINDOW_SIZE,
+              window_width=_WINDOW_WIDTH,
               grid_color=_GRID_COLOR,
               coin_color=_COIN_COLOR,
               agent_color=_AGENT_COLOR,

@@ -16,7 +16,7 @@ def calc_level_scale(window_size, grid_shape):
 class Draw:
     def __init__(
             self, grid_shape, sight_res,
-            window_size=[2048, 1024],
+            window_width=2048,
             coin_radius=0.25,
             agent_radius=0.45,
             agent_pointer_threshold=pi / 4,
@@ -27,8 +27,8 @@ class Draw:
             bkg_color=[0.0, 0.3, 0.5]):
 
         self._lock = Lock()
-        self._window_size = window_size
-        self._level_scale = calc_level_scale(window_size, grid_shape)
+        self._window_size = [window_width, int(window_width / 2)]
+        self._level_scale = calc_level_scale(self._window_size, grid_shape)
         self._grid_shape = grid_shape
         self._sight_res = sight_res
         self._coin_radius = coin_radius

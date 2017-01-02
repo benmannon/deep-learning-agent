@@ -10,7 +10,7 @@ from vision import Vision
 
 class Simulator:
     def __init__(self, agent_vision_res, agent_vision_fov, agent_vision_attenuation, agent_radius, agent_stride,
-                 agent_turn, coin_radius, window_size, grid_color, coin_color, agent_color, agent_pointer_brightness,
+                 agent_turn, coin_radius, window_width, grid_color, coin_color, agent_color, agent_pointer_brightness,
                  bkg_color):
 
         self._lvl = level.square()
@@ -19,7 +19,7 @@ class Simulator:
 
         self._draw = Draw(self._lvl.grid.shape,
                           sight_res=agent_vision_res,
-                          window_size=window_size,
+                          window_width=window_width,
                           coin_radius=coin_radius,
                           agent_radius=agent_radius,
                           grid_color=grid_color,
