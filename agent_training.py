@@ -10,18 +10,20 @@ _KEY_WALK_BACKWARD = 83  # s
 _KEY_TURN_LEFT = 65  # a
 _KEY_TURN_RIGHT = 68  # d
 
-if __name__ == "__main__":
 
-    action = [None]
-    done = [False]
+class Trainer:
+    _action = None
+    _done = False
 
+    def __init__(self):
+        pass
 
-    def train(sim, first_input):
+    def train(self, sim, first_input):
         # track fps
         timer = time.time()
         frames = 0
 
-        while not (done[0]):
+        while not self._done:
 
             # print fps
             frames += 1
@@ -33,27 +35,30 @@ if __name__ == "__main__":
                 frames = 0
 
             # TODO action should be read & updated atomically
-            act = action[0]
-            if act is not None:
-                sim.step(act)
-                action[0] = None
+            if self._action is not None:
+                sim.step(self._action)
+                self._action = None
             else:
                 time.sleep(1 / 60)
 
-
-    def key_press(symbol, modifiers):
+    def key_press(self, symbol, modifiers):
         if symbol == _KEY_WALK_FORWARD:
-            action[0] = controller.walk_forward
+            self._action = controller.walk_forward
         elif symbol == _KEY_WALK_BACKWARD:
-            action[0] = controller.walk_backward
+            self._action = controller.walk_backward
         elif symbol == _KEY_TURN_LEFT:
-            action[0] = controller.turn_left
+            self._action = controller.turn_left
         elif symbol == _KEY_TURN_RIGHT:
-            action[0] = controller.turn_right
+            self._action = controller.turn_right
+
+    def close(self):
+        self._done = True
 
 
-    def close():
-        done[0] = True
+def main():
+    trainer = Trainer()
+    Simulator().run(trainer.train, trainer.key_press, trainer.close)
 
 
-    Simulator().run(train, key_press, close)
+if __name__ == "__main__":
+    main()
