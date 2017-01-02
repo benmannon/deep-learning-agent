@@ -56,5 +56,4 @@ if __name__ == "__main__":
         done[0] = True
 
 
-    sim = Simulator()
-    sim.run(train, key_press, close)
+    Simulator().run(train, key_press, close)
