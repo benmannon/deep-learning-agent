@@ -1,6 +1,7 @@
 from __future__ import division
 
 import time
+from threading import Lock
 
 import controller
 from simulator import Simulator
@@ -12,6 +13,7 @@ _KEY_TURN_RIGHT = 68  # d
 
 
 class Trainer:
+    _action_lock = Lock()
     _action = None
     _done = False
 
@@ -34,22 +36,31 @@ class Trainer:
                 print 'fps over %ss: %s' % (fps_interval, frames / time_delta)
                 frames = 0
 
-            # TODO action should be read & updated atomically
-            if self._action is not None:
-                sim.step(self._action)
+            self._action_lock.acquire()
+            try:
+                action = self._action
                 self._action = None
+            finally:
+                self._action_lock.release()
+
+            if action is not None:
+                sim.step(action)
             else:
                 time.sleep(1 / 60)
 
     def key_press(self, symbol, modifiers):
-        if symbol == _KEY_WALK_FORWARD:
-            self._action = controller.walk_forward
-        elif symbol == _KEY_WALK_BACKWARD:
-            self._action = controller.walk_backward
-        elif symbol == _KEY_TURN_LEFT:
-            self._action = controller.turn_left
-        elif symbol == _KEY_TURN_RIGHT:
-            self._action = controller.turn_right
+        self._action_lock.acquire()
+        try:
+            if symbol == _KEY_WALK_FORWARD:
+                self._action = controller.walk_forward
+            elif symbol == _KEY_WALK_BACKWARD:
+                self._action = controller.walk_backward
+            elif symbol == _KEY_TURN_LEFT:
+                self._action = controller.turn_left
+            elif symbol == _KEY_TURN_RIGHT:
+                self._action = controller.turn_right
+        finally:
+            self._action_lock.release()
 
     def close(self):
         self._done = True
