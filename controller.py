@@ -1,4 +1,4 @@
-from math import pi, cos, sin, sqrt
+from math import cos, sin, sqrt
 
 import numpy as np
 
@@ -11,12 +11,11 @@ actions = [walk_forward, walk_backward, turn_left, turn_right]
 
 
 class Controller:
-    _stride = 0.1
-    _turn = pi / 8
-
-    def __init__(self, level, agent_radius=0.45, coin_radius=0.25):
+    def __init__(self, level, agent_stride, agent_turn, agent_radius=0.45, coin_radius=0.25):
         self._level = level
         self._grid_shape = np.array(level.grid).shape
+        self._stride = agent_stride
+        self._turn = agent_turn
         self._agent_radius = agent_radius
         self._coin_radius = coin_radius
 
