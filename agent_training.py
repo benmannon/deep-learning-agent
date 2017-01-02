@@ -19,21 +19,7 @@ class Trainer:
         self._done = False
 
     def train(self, sim, first_input):
-        # track fps
-        timer = time.time()
-        frames = 0
-
         while not self._done:
-
-            # print fps
-            frames += 1
-            time_delta = time.time() - timer
-            fps_interval = 10.0
-            if time_delta >= fps_interval:
-                timer += fps_interval
-                print 'fps over %ss: %s' % (fps_interval, frames / time_delta)
-                frames = 0
-
             self._action_lock.acquire()
             try:
                 action = self._action
