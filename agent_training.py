@@ -13,12 +13,10 @@ _KEY_TURN_RIGHT = 68  # d
 
 
 class Trainer:
-    _action_lock = Lock()
-    _action = None
-    _done = False
-
     def __init__(self):
-        pass
+        self._action_lock = Lock()
+        self._action = None
+        self._done = False
 
     def train(self, sim, first_input):
         # track fps
