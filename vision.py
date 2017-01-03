@@ -2,6 +2,8 @@ from math import pi, cos, sin, e, sqrt
 
 import numpy as np
 
+CHANNEL_NUM = 2
+
 _CHANNELS_NONE = [0, 0]
 _CHANNELS_WALL = [1, 0]
 _CHANNELS_COIN = [0, 1]

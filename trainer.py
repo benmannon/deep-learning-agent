@@ -1,13 +1,13 @@
 from __future__ import division
 
 import getopt
+import sys
 import time
 from math import pi
 from threading import Lock
 
-import sys
-
 import controller
+import simulator
 from agent import ShallowAgent
 from simulator import Simulator
 
@@ -41,8 +41,7 @@ class Trainer:
         self._action_lock = Lock()
         self._action = None
         self._done = False
-        # TODO don't hard code channel count
-        self._agent = ShallowAgent([2, _AGENT_VISION_RES], len(controller.actions))
+        self._agent = ShallowAgent([simulator.CHANNEL_NUM, _AGENT_VISION_RES], len(controller.actions))
 
     def train(self, sim, first_input):
 

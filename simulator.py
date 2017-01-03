@@ -4,8 +4,11 @@ import threading
 
 import controller
 import level
+import vision
 from draw import Draw, Line
 from vision import Vision
+
+CHANNEL_NUM = vision.CHANNEL_NUM
 
 
 class Simulator:
