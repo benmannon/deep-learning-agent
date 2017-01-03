@@ -49,7 +49,8 @@ class Simulator:
         self._draw.update(self._lvl, self._lines(sightline), self._sight_colors(sightline))
 
         if after_init is not None:
-            threading.Thread(target=after_init, args=[self, sightline]).start()
+            sight_channels = self._channels(sightline)
+            threading.Thread(target=after_init, args=[self, sight_channels]).start()
 
         self._draw.run(key_handler=on_key_press, close_handler=on_close)
 
@@ -77,4 +78,11 @@ class Simulator:
         self._ctrl.step(action)
         sightline = self._vision.look()
         self._draw.update(self._lvl, self._lines(sightline), self._sight_colors(sightline))
-        return sightline
+        return self._channels(sightline)
+
+    @staticmethod
+    def _channels(signals):
+        channels = []
+        for signal in signals:
+            channels.append(signal.channels)
+        return channels
