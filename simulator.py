@@ -22,6 +22,7 @@ class Simulator:
                           window_width=window_width,
                           coin_radius=coin_radius,
                           agent_radius=agent_radius,
+                          agent_pointer_threshold=agent_vision_fov / 2,
                           grid_color=grid_color,
                           coin_color=coin_color,
                           agent_color=agent_color,
