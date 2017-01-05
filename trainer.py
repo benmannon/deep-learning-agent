@@ -64,11 +64,11 @@ class Trainer:
 
             if action is not None:
                 next_input, reward = sim.step(action)
+                if not self._user_control:
+                    self._agent.train(agent_input, action_i, reward, 0.0)
+                    agent_input = next_input
             else:
                 time.sleep(1 / 60)
-
-            self._agent.train(agent_input, action_i, reward, 0.0)
-            agent_input = next_input
 
     @staticmethod
     def _select(p):
