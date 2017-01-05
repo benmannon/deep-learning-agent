@@ -10,6 +10,9 @@ from vision import Vision
 
 CHANNEL_NUM = vision.CHANNEL_NUM
 
+_REWARD_COIN = 1
+_REWARD_TIME_LEFT = 1
+
 
 class Simulator:
     def __init__(self, agent_vision_res, agent_vision_fov, agent_vision_attenuation, agent_radius, agent_stride,
@@ -45,6 +48,8 @@ class Simulator:
                               fov=agent_vision_fov,
                               attenuation=agent_vision_attenuation)
 
+        self._time_step = self._lvl.time
+
     def run(self, after_init=None, on_key_press=None, on_close=None):
 
         # prepare first frame
@@ -79,19 +84,28 @@ class Simulator:
 
     def step(self, action):
 
+        self._time_step -= 1
+
         # take action and check for rewards
         coins_available = len(self._lvl.coins)
         self._ctrl.step(action)
         coins_left = len(self._lvl.coins)
         coins_collected = coins_available - coins_left
+        reward = float(coins_collected) * _REWARD_COIN
 
-        # no more coins? reset the level
+        # no more coins? out of time? reset the level
         if coins_left == 0:
+            reward += self._time_step * _REWARD_TIME_LEFT
+            self._time_step = self._lvl.time
+            self._lvl.reset()
+        elif self._time_step <= 0:
+            reward -= float(coins_left) * _REWARD_COIN
+            self._time_step = self._lvl.time
             self._lvl.reset()
 
         sightline = self._vision.look()
         self._draw.update(self._lvl, self._lines(sightline), self._sight_colors(sightline))
-        return self._channels(sightline), float(coins_collected)
+        return self._channels(sightline), reward
 
     @staticmethod
     def _channels(signals):

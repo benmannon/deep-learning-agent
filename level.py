@@ -35,7 +35,7 @@ def square():
 
     agent = Agent([2.0, 2.0], pi / 4.0)
 
-    return Level(grid, coins, agent)
+    return Level(grid, coins, agent, 200)
 
 
 def collisions():
@@ -51,7 +51,7 @@ def collisions():
 
     agent = Agent([2.0, 2.0], pi / 4.0)
 
-    return Level(grid, coins, agent)
+    return Level(grid, coins, agent, 100)
 
 
 class Agent:
@@ -73,10 +73,11 @@ class Level:
     agent = None
     coins = None
 
-    def __init__(self, grid=np.empty((0, 0)), coins=[], agent=Agent()):
+    def __init__(self, grid, coins, agent, time):
         self.grid = grid
         self._coins_origin = np.copy(coins)
         self.agent = agent
+        self.time = time
         self.reset()
 
     def reset(self):
