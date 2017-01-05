@@ -101,7 +101,6 @@ class Simulator:
             self._lvl.reset()
             end = True
         elif self._time_step <= 0:
-            reward -= float(coins_left) * _REWARD_COIN
             self._time_step = self._lvl.time
             self._lvl.reset()
             end = True
