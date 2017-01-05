@@ -82,7 +82,12 @@ class Simulator:
         # take action and check for rewards
         coins_available = len(self._lvl.coins)
         self._ctrl.step(action)
-        coins_collected = coins_available - len(self._lvl.coins)
+        coins_left = len(self._lvl.coins)
+        coins_collected = coins_available - coins_left
+
+        # no more coins? reset the level
+        if coins_left == 0:
+            self._lvl.reset()
 
         sightline = self._vision.look()
         self._draw.update(self._lvl, self._lines(sightline), self._sight_colors(sightline))
