@@ -49,7 +49,7 @@ class ShallowAgent(Agent):
         p_action = tf.slice(p, action, [1])
         diff = 1 - p_action
         loss = diff * reward
-        train = tf.train.GradientDescentOptimizer(0.25).minimize(loss)
+        train = tf.train.GradientDescentOptimizer(0.01).minimize(loss)
 
         init = tf.global_variables_initializer()
         sess = tf.Session()
