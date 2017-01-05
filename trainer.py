@@ -30,6 +30,11 @@ _AGENT_COLOR = [0.15, 0.45, 0.35]
 _AGENT_POINTER_BRIGHTNESS = 0.5
 _BKG_COLOR = [0.0, 0.3, 0.5]
 
+# learning parameters
+_XP_BUFFER_SIZE = 10000
+_REPLAY_BATCH_SIZE = 1000
+_REWARD_DISCOUNT_FACTOR = 0.95
+
 # user input (w, a, d)
 _KEY_WALK_FORWARD = 87
 _KEY_TURN_LEFT = 65
@@ -46,7 +51,7 @@ class Trainer:
 
     def train(self, sim, first_input):
 
-        learner = Learner()
+        learner = Learner(_XP_BUFFER_SIZE, _REPLAY_BATCH_SIZE, _REWARD_DISCOUNT_FACTOR)
 
         agent_input = first_input
         reward = 0.0
