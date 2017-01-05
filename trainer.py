@@ -84,7 +84,7 @@ class Trainer:
             i += 1
 
         # should never get this far, but return the last item just in case
-        print 'warning: total odds, %s > 1.0' % odds
+        print 'warning: total odds, %s < 1.0' % odds
         return i - 1
 
     def key_press(self, symbol, modifiers):
