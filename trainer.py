@@ -10,6 +10,7 @@ from threading import Lock
 import controller
 import simulator
 from agent import ShallowAgent
+from learner import Learner
 from simulator import Simulator
 
 # simulation parameters
@@ -46,6 +47,8 @@ class Trainer:
 
     def train(self, sim, first_input):
 
+        learner = Learner()
+
         agent_input = first_input
         reward = 0.0
 
@@ -63,9 +66,12 @@ class Trainer:
                 self._action_lock.release()
 
             if action is not None:
-                next_input, reward = sim.step(action)
+                next_input, reward, end = sim.step(action)
                 if not self._user_control:
-                    self._agent.train(agent_input, action_i, reward, 0.0)
+                    learner.add_xp((agent_input, action, reward))
+                    if end:
+                        learner.end_episode()
+                        learner.learn(self._agent)
                     agent_input = next_input
             else:
                 time.sleep(1 / 60)
@@ -110,7 +116,6 @@ class Trainer:
 
 
 def main(argv):
-
     # parse command-line arguments
     try:
         opts, args = getopt.getopt(argv, 'hu:', ["user-control"])

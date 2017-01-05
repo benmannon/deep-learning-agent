@@ -92,20 +92,23 @@ class Simulator:
         coins_left = len(self._lvl.coins)
         coins_collected = coins_available - coins_left
         reward = float(coins_collected) * _REWARD_COIN
+        end = False
 
         # no more coins? out of time? reset the level
         if coins_left == 0:
             reward += self._time_step * _REWARD_TIME_LEFT
             self._time_step = self._lvl.time
             self._lvl.reset()
+            end = True
         elif self._time_step <= 0:
             reward -= float(coins_left) * _REWARD_COIN
             self._time_step = self._lvl.time
             self._lvl.reset()
+            end = True
 
         sightline = self._vision.look()
         self._draw.update(self._lvl, self._lines(sightline), self._sight_colors(sightline))
-        return self._channels(sightline), reward
+        return self._channels(sightline), reward, end
 
     @staticmethod
     def _channels(signals):
