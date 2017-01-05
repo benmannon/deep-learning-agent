@@ -55,9 +55,18 @@ def collisions():
 
 
 class Agent:
+
+    coord = None
+    theta = None
+
     def __init__(self, coord=[0.0, 0.0], theta=0.0):
-        self.coord = coord
-        self.theta = theta
+        self._coord_origin = np.copy(coord)
+        self._theta_origin = theta
+        self.reset()
+
+    def reset(self):
+        self.coord = np.copy(self._coord_origin)
+        self.theta = np.copy(self._theta_origin)
 
 
 class Level:
@@ -66,10 +75,10 @@ class Level:
 
     def __init__(self, grid=np.empty((0, 0)), coins=[], agent=Agent()):
         self.grid = grid
-        self.coins_origin = coins
-        self.agent_origin = agent
+        self._coins_origin = np.copy(coins)
+        self.agent = agent
         self.reset()
 
     def reset(self):
-        self.coins = self.coins_origin
-        self.agent = self.agent_origin
+        self.coins = np.copy(self._coins_origin).tolist()
+        self.agent.reset()
