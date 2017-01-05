@@ -1,6 +1,7 @@
 from __future__ import division
 
 import getopt
+import random
 import sys
 import time
 from math import pi
@@ -50,7 +51,7 @@ class Trainer:
         while not self._done:
 
             if not self._user_control:
-                action_i = self._agent.eval(agent_input)
+                action_i = self._select(self._agent.eval(agent_input))
                 self._action = controller.actions[action_i]
 
             self._action_lock.acquire()
@@ -64,6 +65,23 @@ class Trainer:
                 agent_input = sim.step(action)
             else:
                 time.sleep(1 / 60)
+
+    @staticmethod
+    def _select(p):
+
+        # randomly select an index over an array of normalized probabilities
+        r = random.random()
+        odds = 0.0
+        i = 0
+        for prob in p:
+            odds += prob
+            if r <= odds:
+                return i
+            i += 1
+
+        # should never get this far, but return the last item just in case
+        print 'warning: total odds, %s > 1.0' % odds
+        return i - 1
 
     def key_press(self, symbol, modifiers):
 

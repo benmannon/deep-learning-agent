@@ -37,7 +37,7 @@ class ShallowAgent(Agent):
         x = tf.placeholder(tf.float32, [None, self._input_size])
         w = tf.Variable(weights([self._input_size, self._output_range]))
         b = tf.Variable(biases([self._output_range]))
-        p = tf.nn.softmax(tf.matmul(x, w) + b)
+        p = tf.reshape(tf.nn.softmax(tf.matmul(x, w) + b), (-1,))
 
         init = tf.global_variables_initializer()
         sess = tf.Session()
@@ -47,22 +47,4 @@ class ShallowAgent(Agent):
 
     def eval(self, agent_input):
         inputs = np.reshape(agent_input, (1, self._input_size))
-        p = self._sess.run(self._p, feed_dict={self._x: inputs})
-        return self._select(np.reshape(p, (-1,)))
-
-    @staticmethod
-    def _select(p):
-
-        # randomly select an index over an array of normalized probabilities
-        r = random.random()
-        odds = 0.0
-        i = 0
-        for prob in p:
-            odds += prob
-            if r <= odds:
-                return i
-            i += 1
-
-        # should never get this far, but return the last item just in case
-        print 'warning: total odds, %s > 1.0' % odds
-        return i - 1
+        return self._sess.run(self._p, feed_dict={self._x: inputs})
