@@ -29,6 +29,6 @@ class Learner:
         total_reward = 0.0
         d_xps = []
         for xp in reversed(xps):
-            total_reward = gamma * (total_reward + xp[2])
+            total_reward = gamma * total_reward + xp[2]
             d_xps.append((xp[0], xp[1], total_reward))
         return reversed(d_xps)
