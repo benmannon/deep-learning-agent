@@ -88,7 +88,7 @@ class Draw:
         texture = []
         flat_grid = np.reshape(grid, (-1))
         for cell in flat_grid:
-            if (cell == 1):
+            if cell == 1:
                 texture.append(self._grid_color + [1.0])
             else:
                 texture.append(self._bkg_color + [1.0])
