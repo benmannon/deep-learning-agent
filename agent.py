@@ -20,7 +20,7 @@ class Agent(object):
     def eval(self, state):
         pass
 
-    def train(self, state, action_p, reward, rate):
+    def train(self, state, action, reward, rate):
         pass
 
 
@@ -52,5 +52,5 @@ class ShallowAgent(Agent):
         inputs = np.reshape(state, (1, self._state_size))
         return self._sess.run(self._p, feed_dict={self._x: inputs})
 
-    def train(self, state, action_p, reward, rate):
+    def train(self, state, action, reward, rate):
         pass
