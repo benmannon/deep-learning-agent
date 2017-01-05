@@ -47,6 +47,7 @@ class Trainer:
     def train(self, sim, first_input):
 
         agent_input = first_input
+        reward = 0.0
 
         while not self._done:
 
@@ -62,9 +63,12 @@ class Trainer:
                 self._action_lock.release()
 
             if action is not None:
-                agent_input = sim.step(action)
+                next_input, reward = sim.step(action)
             else:
                 time.sleep(1 / 60)
+
+            self._agent.train(agent_input, action_i, reward, 0.0)
+            agent_input = next_input
 
     @staticmethod
     def _select(p):

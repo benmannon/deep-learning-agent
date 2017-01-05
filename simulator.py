@@ -78,10 +78,15 @@ class Simulator:
         return colors
 
     def step(self, action):
+
+        # take action and check for rewards
+        coins_available = len(self._lvl.coins)
         self._ctrl.step(action)
+        coins_collected = coins_available - len(self._lvl.coins)
+
         sightline = self._vision.look()
         self._draw.update(self._lvl, self._lines(sightline), self._sight_colors(sightline))
-        return self._channels(sightline)
+        return self._channels(sightline), float(coins_collected)
 
     @staticmethod
     def _channels(signals):
