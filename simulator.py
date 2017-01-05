@@ -12,7 +12,7 @@ CHANNEL_NUM = vision.CHANNEL_NUM
 
 _REWARD_COIN = 1
 _REWARD_TIME_LEFT = 1
-
+_REWARD_TIME_OUT = -1
 
 class Simulator:
     def __init__(self, agent_vision_res, agent_vision_fov, agent_vision_attenuation, agent_radius, agent_stride,
@@ -101,6 +101,7 @@ class Simulator:
             self._lvl.reset()
             end = True
         elif self._time_step <= 0:
+            reward += _REWARD_TIME_OUT
             self._time_step = self._lvl.time
             self._lvl.reset()
             end = True
