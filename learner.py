@@ -27,7 +27,7 @@ class Learner:
 
     @staticmethod
     def discount(xps):
-        gamma = 0.99
+        gamma = 0.95
         total_reward = 0.0
         d_xps = []
         for xp in reversed(xps):
