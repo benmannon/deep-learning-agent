@@ -36,7 +36,7 @@ def square():
 
     agent = Agent([2.0, 2.0], pi / 4.0)
 
-    return Level(grid, coins, agent, 200)
+    return Level(grid, coins, agent, 400)
 
 
 def collisions():
