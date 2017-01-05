@@ -30,9 +30,8 @@ _AGENT_COLOR = [0.15, 0.45, 0.35]
 _AGENT_POINTER_BRIGHTNESS = 0.5
 _BKG_COLOR = [0.0, 0.3, 0.5]
 
-# user input (w, s, a, d)
+# user input (w, a, d)
 _KEY_WALK_FORWARD = 87
-_KEY_WALK_BACKWARD = 83
 _KEY_TURN_LEFT = 65
 _KEY_TURN_RIGHT = 68
 
@@ -102,8 +101,6 @@ class Trainer:
         try:
             if symbol == _KEY_WALK_FORWARD:
                 self._action = controller.walk_forward
-            elif symbol == _KEY_WALK_BACKWARD:
-                self._action = controller.walk_backward
             elif symbol == _KEY_TURN_LEFT:
                 self._action = controller.turn_left
             elif symbol == _KEY_TURN_RIGHT:

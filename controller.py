@@ -3,11 +3,10 @@ from math import cos, sin, sqrt
 import numpy as np
 
 walk_forward = 0
-walk_backward = 1
-turn_left = 2
-turn_right = 3
+turn_left = 1
+turn_right = 2
 
-actions = [walk_forward, walk_backward, turn_left, turn_right]
+actions = [walk_forward, turn_left, turn_right]
 
 
 class Controller:
@@ -22,8 +21,6 @@ class Controller:
     def step(self, action):
         if action == walk_forward:
             self._walk(self._level.agent.theta, self._stride)
-        elif action == walk_backward:
-            self._walk(self._level.agent.theta, -self._stride)
         elif action == turn_left:
             self._level.agent.theta += self._turn
         elif action == turn_right:
