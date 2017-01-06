@@ -14,7 +14,7 @@ from learner import Learner
 from simulator import Simulator
 
 # simulation parameters
-_AGENT_VISION_RES = 32
+_AGENT_VISION_RES = 16
 _AGENT_VISION_FOV = pi / 2
 _AGENT_VISION_ATTENUATION = 0.25
 _AGENT_RADIUS = 0.45
