@@ -30,7 +30,7 @@ class Controller:
         agent = self._level.agent
         x, y = agent.coord[0], agent.coord[1]
         agent.coord = [x + distance * cos(theta), y + distance * sin(theta)]
-        self._handle_collision()
+        is_colliding = self._handle_collision()
         self._collect_coins()
 
     def _handle_collision(self):
@@ -41,8 +41,14 @@ class Controller:
         x = round(coord[0])
         y = round(coord[1])
         check_cells = [[x - 1, y - 1], [x - 1, y], [x, y], [x, y - 1]]
-        map(self._handle_bounding_collision, check_cells)
-        map(self._handle_corner_collision, check_cells)
+        is_colliding = False
+        for cell in check_cells:
+            if self._handle_bounding_collision(cell):
+                is_colliding = True
+        for cell in check_cells:
+            if self._handle_corner_collision(cell):
+                is_colliding = True
+        return is_colliding
 
     def _handle_bounding_collision(self, cell_coord):
 

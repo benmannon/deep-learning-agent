@@ -13,6 +13,8 @@ CHANNEL_NUM = vision.CHANNEL_NUM
 _REWARD_COIN = 1
 _REWARD_TIME_LEFT = 5
 _REWARD_TIME_OUT = -5
+_REWARD_COLLISION = -0.1
+
 
 class Simulator:
     def __init__(self, agent_vision_res, agent_vision_fov, agent_vision_attenuation, agent_radius, agent_stride,
@@ -88,11 +90,14 @@ class Simulator:
 
         # take action and check for rewards
         coins_available = len(self._lvl.coins)
-        self._ctrl.step(action)
+        is_colliding = self._ctrl.step(action)
         coins_left = len(self._lvl.coins)
         coins_collected = coins_available - coins_left
         reward = float(coins_collected) * _REWARD_COIN
         end = False
+
+        if is_colliding:
+            reward += _REWARD_COLLISION
 
         # no more coins? out of time? reset the level
         if coins_left == 0:
