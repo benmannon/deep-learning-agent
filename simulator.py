@@ -11,8 +11,8 @@ from vision import Vision
 CHANNEL_NUM = vision.CHANNEL_NUM
 
 _REWARD_COIN = 1
-_REWARD_TIME_LEFT = 1
-_REWARD_TIME_OUT = -1
+_REWARD_TIME_LEFT = 5
+_REWARD_TIME_OUT = -5
 
 class Simulator:
     def __init__(self, agent_vision_res, agent_vision_fov, agent_vision_attenuation, agent_radius, agent_stride,
@@ -96,7 +96,7 @@ class Simulator:
 
         # no more coins? out of time? reset the level
         if coins_left == 0:
-            reward += self._time_step * _REWARD_TIME_LEFT
+            reward += _REWARD_TIME_LEFT
             self._time_step = self._lvl.time
             self._lvl.reset()
             end = True
