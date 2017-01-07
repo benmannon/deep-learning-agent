@@ -52,11 +52,11 @@ class Draw:
         try:
             self._grid['texture'] = self.grid_texture(level.grid)
             self._sight['texture'] = np.array(sight_colors)
+            self._agent['theta'] = level.agent.theta
             if self._initialized:
                 self._update_buffer(self._coin, 'texcoord', self.texcoords(len(level.coins)), size=2)
                 self._update_buffer(self._coin, 'position', self.coin_positions(level.coins), size=2)
                 self._update_buffer(self._agent, 'position', self.agent_position(level.agent), size=2)
-                self._agent['theta'] = level.agent.theta
                 self._update_buffer(self._lines, 'position', self.line_positions(lines), size=2)
                 self._update_buffer(self._lines, 'line_color', self.line_colors(lines), size=4)
             else:
@@ -64,7 +64,6 @@ class Draw:
                 self._coin['position'] = self.coin_positions(level.coins)
                 self._agent['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)]
                 self._agent['position'] = self.agent_position(level.agent)
-                self._agent['theta'] = level.agent.theta
                 self._lines['position'] = self.line_positions(lines)
                 self._lines['line_color'] = self.line_colors(lines)
                 self._initialized = True
