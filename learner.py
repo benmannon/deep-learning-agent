@@ -1,5 +1,5 @@
 from xp_buffer import XpBuffer
-
+import numpy as np
 
 class Learner:
 
@@ -13,18 +13,10 @@ class Learner:
         self._episode += [xp]
 
     def end_episode(self):
-        self._xp_buf.append(self.discount(self._episode))
+        self._xp_buf.append(self._discount(self._episode))
         self._episode = []
 
-    def learn(self, agent):
-        xp_samples = self._xp_buf.samples(self._batch_size)
-        for xp_sample in xp_samples:
-            state = xp_sample[0]
-            action = xp_sample[1]
-            reward = xp_sample[2]
-            agent.train(state, action, reward, None)
-
-    def discount(self, xps):
+    def _discount(self, xps):
         gamma = self._discount_factor
         total_reward = 0.0
         d_xps = []
@@ -32,3 +24,19 @@ class Learner:
             total_reward = gamma * total_reward + xp[2]
             d_xps.append((xp[0], xp[1], total_reward))
         return reversed(d_xps)
+
+    def learn(self, agent):
+        xp_samples = self._xp_buf.samples(self._batch_size)
+        states, actions, rewards = self._split(xp_samples)
+        agent.train(states, actions, rewards)
+
+    @staticmethod
+    def _split(xps):
+        states = []
+        actions = []
+        rewards = []
+        for xp in xps:
+            states.append(xp[0])
+            actions.append(xp[1])
+            rewards.append(xp[2])
+        return states, actions, rewards

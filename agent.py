@@ -41,12 +41,13 @@ class ShallowAgent(Agent):
         x = tf.placeholder(tf.float32, [None, self._state_size])
         w = tf.Variable(weights([self._state_size, self._action_range]))
         b = tf.Variable(biases([self._action_range]))
-        p = tf.reshape(tf.nn.softmax(tf.matmul(x, w) + b), (self._action_range,))
+        p = tf.reshape(tf.nn.softmax(tf.matmul(x, w) + b), (-1, self._action_range))
 
         # back propagation
-        reward = tf.placeholder(tf.float32, [1])
-        action = tf.placeholder(tf.int32, [1])
-        p_action = tf.slice(p, action, [1])
+        reward = tf.placeholder(tf.float32, [None])
+        action = tf.placeholder(tf.int32, [None])
+        action_flat = tf.range(0, tf.shape(p)[0]) * tf.shape(p)[1] + action
+        p_action = tf.gather(tf.reshape(p, [-1]), action_flat)
         diff = 1 - p_action
         loss = diff * reward
         train = tf.train.GradientDescentOptimizer(0.01).minimize(loss)
@@ -59,11 +60,11 @@ class ShallowAgent(Agent):
 
     def eval(self, state):
         inputs = np.reshape(state, (1, self._state_size))
-        return self._sess.run(self._p, feed_dict={self._x: inputs})
+        return self._sess.run(self._p, feed_dict={self._x: inputs})[0]
 
-    def train(self, state, action, reward, rate):
+    def train(self, states, actions, rewards):
         self._sess.run(self._train, feed_dict={
-            self._x: np.reshape(state, (1, self._state_size)),
-            self._action: [action],
-            self._reward: [reward]
+            self._x: np.reshape(states, (len(states), self._state_size)),
+            self._action: actions,
+            self._reward: rewards
         })
