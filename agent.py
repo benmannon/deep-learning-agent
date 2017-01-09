@@ -41,7 +41,7 @@ class ShallowAgent(Agent):
         x = tf.placeholder(tf.float32, [None, self._state_size])
         w = tf.Variable(weights([self._state_size, self._action_range]))
         b = tf.Variable(biases([self._action_range]))
-        p = tf.reshape(tf.nn.softmax(tf.matmul(x, w) + b), (-1, self._action_range))
+        p = tf.nn.softmax(tf.matmul(x, w) + b)
 
         # back propagation
         reward = tf.placeholder(tf.float32, [None])
