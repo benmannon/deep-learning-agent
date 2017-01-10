@@ -34,7 +34,7 @@ class ShallowAgent(Agent):
     def __init__(self, state_shape, action_range):
         super(ShallowAgent, self).__init__(state_shape, action_range)
         self._state_size = np.prod(self._state_shape)
-        self._sess, self._x, self._p, self._reward, self._action, self._train = self.build_model()
+        self._sess, self._x, self._p, self._reward, self._action, self._train, self._loss = self.build_model()
 
     def build_model(self):
         # feed forward
@@ -48,16 +48,18 @@ class ShallowAgent(Agent):
         reward = tf.placeholder(tf.float32, [None])
         action = tf.placeholder(tf.int32, [None])
         action_flat = tf.range(0, tf.shape(p)[0]) * tf.shape(p)[1] + action
+        p_preferred = tf.sign(tf.sign(reward) - 0.5) * 0.5 + 0.5
         p_action = tf.gather(tf.reshape(p, [-1]), action_flat)
-        diff = 1 - p_action
-        loss = diff * reward
-        train = tf.train.GradientDescentOptimizer(0.01).minimize(loss)
+        diff = p_preferred * (p_preferred - p_action) + (1 - p_preferred) * (p_preferred + p_action)
+        log_diff = tf.log(tf.clip_by_value(diff, 1e-10, 1.0))
+        loss = tf.reduce_mean(log_diff * tf.abs(reward))
+        train = tf.train.GradientDescentOptimizer(0.05).minimize(loss)
 
         init = tf.global_variables_initializer()
         sess = tf.Session()
         sess.run(init)
 
-        return sess, x, p, reward, action, train
+        return sess, x, p, reward, action, train, loss
 
     def eval(self, state):
         inputs = np.reshape(state, (1, self._state_size))

@@ -19,12 +19,14 @@ class Controller:
         self._coin_radius = coin_radius
 
     def step(self, action):
+        is_colliding = False
         if action == walk_forward:
-            self._walk(self._level.agent.theta, self._stride)
+            is_colliding = self._walk(self._level.agent.theta, self._stride)
         elif action == turn_left:
             self._level.agent.theta += self._turn
         elif action == turn_right:
             self._level.agent.theta -= self._turn
+        return is_colliding
 
     def _walk(self, theta, distance):
         agent = self._level.agent
@@ -32,6 +34,7 @@ class Controller:
         agent.coord = [x + distance * cos(theta), y + distance * sin(theta)]
         is_colliding = self._handle_collision()
         self._collect_coins()
+        return is_colliding
 
     def _handle_collision(self):
         level = self._level
@@ -106,6 +109,8 @@ class Controller:
         agent.coord[0] = new_x
         agent.coord[1] = new_y
 
+        return ax != new_x or ay != new_y
+
     def _handle_corner_collision(self, cell_coord):
 
         grid_shape = self._grid_shape
@@ -165,6 +170,8 @@ class Controller:
         # apply new agent coordinates
         agent.coord[0] = new_x
         agent.coord[1] = new_y
+
+        return ax != new_x or ay != new_y
 
     def _collect_coins(self):
 
