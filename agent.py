@@ -82,7 +82,7 @@ class RandomAgent(Agent):
         return x, p
 
 
-class ShallowAgent(Agent):
+class LinearClassifierAgent(Agent):
 
     def _model_x_p(self):
 
