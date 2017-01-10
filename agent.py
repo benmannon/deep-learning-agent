@@ -16,23 +16,6 @@ class Agent(object):
     def __init__(self, state_shape, action_range):
         self._state_shape = state_shape
         self._action_range = action_range
-
-    def eval(self, state):
-        pass
-
-    def train(self, state, action, reward, rate):
-        pass
-
-
-class RandomAgent(Agent):
-    def eval(self, state):
-        # just be random
-        return random.randrange(0, self._action_range)
-
-
-class ShallowAgent(Agent):
-    def __init__(self, state_shape, action_range):
-        super(ShallowAgent, self).__init__(state_shape, action_range)
         self._state_size = np.prod(self._state_shape)
         self._sess, self._x, self._p, self._reward, self._action, self._train = self.build_model()
 
@@ -50,26 +33,15 @@ class ShallowAgent(Agent):
 
         return sess, x, p, reward, action, train
 
-    def _model_x_p(self):
-
-        # state
-        x = tf.placeholder(tf.float32, [None, self._state_size])
-
-        # trainable variables
-        w = tf.Variable(weights([self._state_size, self._action_range]))
-        b = tf.Variable(biases([self._action_range]))
-
-        # linear classifier
-        y = tf.matmul(x, w) + b
-        p = tf.nn.softmax(y)
-
-        return x, p
-
     def _model_train(self, p):
 
         # action, reward
         reward = tf.placeholder(tf.float32, [None])
         action = tf.placeholder(tf.int32, [None])
+
+        # train is a no-op if there are no trainable variables
+        if not tf.trainable_variables():
+            return action, reward, tf.no_op()
 
         # determine preferred action, calculate loss according to magnitude of reward
         action_flat = tf.range(0, tf.shape(p)[0]) * tf.shape(p)[1] + action
@@ -94,3 +66,35 @@ class ShallowAgent(Agent):
             self._action: actions,
             self._reward: rewards
         })
+
+
+class RandomAgent(Agent):
+
+    def _model_x_p(self):
+
+        # state
+        x = tf.placeholder(tf.float32, [None, self._state_size])
+
+        # ignore state, just be random
+        y = tf.random_normal([tf.shape(x)[0], self._action_range])
+        p = tf.nn.softmax(y)
+
+        return x, p
+
+
+class ShallowAgent(Agent):
+
+    def _model_x_p(self):
+
+        # state
+        x = tf.placeholder(tf.float32, [None, self._state_size])
+
+        # trainable variables
+        w = tf.Variable(weights([self._state_size, self._action_range]))
+        b = tf.Variable(biases([self._action_range]))
+
+        # linear classifier
+        y = tf.matmul(x, w) + b
+        p = tf.nn.softmax(y)
+
+        return x, p
