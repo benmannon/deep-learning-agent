@@ -82,7 +82,7 @@ class RandomAgent(Agent):
         return x, p
 
 
-class LinearClassifierAgent(Agent):
+class LinearAgent(Agent):
 
     def _model_x_p(self):
 
@@ -95,6 +95,72 @@ class LinearClassifierAgent(Agent):
 
         # linear classifier
         y = tf.matmul(x, w) + b
+        p = tf.nn.softmax(y)
+
+        return x, p
+
+
+class ReluAgent(Agent):
+
+    def _model_x_p(self):
+
+        # state
+        x = tf.placeholder(tf.float32, [None, self._state_size])
+
+        # trainable variables
+        w = tf.Variable(weights([self._state_size, self._action_range]))
+
+        # fully connected layer
+        y = tf.contrib.layers.fully_connected(
+            inputs=x,
+            num_outputs=self._action_range,
+            variables_collections=[w],
+            activation_fn=tf.nn.relu
+        )
+        p = tf.nn.softmax(y)
+
+        return x, p
+
+
+class SigmoidAgent(Agent):
+
+    def _model_x_p(self):
+
+        # state
+        x = tf.placeholder(tf.float32, [None, self._state_size])
+
+        # trainable variables
+        w = tf.Variable(weights([self._state_size, self._action_range]))
+
+        # fully connected layer
+        y = tf.contrib.layers.fully_connected(
+            inputs=x,
+            num_outputs=self._action_range,
+            variables_collections=[w],
+            activation_fn=tf.sigmoid
+        )
+        p = tf.nn.softmax(y)
+
+        return x, p
+
+
+class TanhAgent(Agent):
+
+    def _model_x_p(self):
+
+        # state
+        x = tf.placeholder(tf.float32, [None, self._state_size])
+
+        # trainable variables
+        w = tf.Variable(weights([self._state_size, self._action_range]))
+
+        # fully connected layer
+        y = tf.contrib.layers.fully_connected(
+            inputs=x,
+            num_outputs=self._action_range,
+            variables_collections=[w],
+            activation_fn=tf.tanh
+        )
         p = tf.nn.softmax(y)
 
         return x, p

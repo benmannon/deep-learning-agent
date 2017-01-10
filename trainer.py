@@ -9,7 +9,7 @@ from threading import Lock
 
 import controller
 import simulator
-from agent import LinearClassifierAgent
+from agent import TanhAgent
 from learner import Learner
 from simulator import Simulator
 
@@ -47,7 +47,7 @@ class Trainer:
         self._action_lock = Lock()
         self._action = None
         self._done = False
-        self._agent = LinearClassifierAgent([simulator.CHANNEL_NUM, _AGENT_VISION_RES], len(controller.actions))
+        self._agent = TanhAgent([simulator.CHANNEL_NUM, _AGENT_VISION_RES], len(controller.actions))
 
     def train(self, sim, first_input):
 
