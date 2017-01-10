@@ -53,7 +53,7 @@ class ShallowAgent(Agent):
         diff = p_preferred * (p_preferred - p_action) + (1 - p_preferred) * (p_preferred + p_action)
         log_diff = tf.log(tf.clip_by_value(diff, 1e-10, 1.0))
         loss = tf.reduce_mean(log_diff * tf.abs(reward))
-        train = tf.train.GradientDescentOptimizer(0.05).minimize(loss)
+        train = tf.train.AdamOptimizer(0.05).minimize(loss)
 
         init = tf.global_variables_initializer()
         sess = tf.Session()
