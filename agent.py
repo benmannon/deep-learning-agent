@@ -115,7 +115,8 @@ class ReluAgent(Agent):
             inputs=x,
             num_outputs=self._action_range,
             variables_collections=[w],
-            activation_fn=tf.nn.relu
+            activation_fn=tf.nn.relu,
+            biases_initializer=tf.constant_initializer(0.1)
         )
         p = tf.nn.softmax(y)
 
@@ -137,7 +138,8 @@ class SigmoidAgent(Agent):
             inputs=x,
             num_outputs=self._action_range,
             variables_collections=[w],
-            activation_fn=tf.sigmoid
+            activation_fn=tf.sigmoid,
+            biases_initializer=tf.constant_initializer(0.1)
         )
         p = tf.nn.softmax(y)
 
@@ -159,7 +161,8 @@ class TanhAgent(Agent):
             inputs=x,
             num_outputs=self._action_range,
             variables_collections=[w],
-            activation_fn=tf.tanh
+            activation_fn=tf.tanh,
+            biases_initializer=tf.constant_initializer(0.1)
         )
         p = tf.nn.softmax(y)
 
