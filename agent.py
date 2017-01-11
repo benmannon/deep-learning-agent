@@ -10,13 +10,12 @@ _OP_TRAIN = 'train'
 
 _EPSILON = 0.1
 
-class Agent(object):
 
+class Agent(object):
     def __init__(self, n_inputs, n_channels, n_outputs):
         self._sess, self._ops = self.build_model(n_inputs, n_channels, n_outputs)
 
     def build_model(self, n_inputs, n_channels, n_outputs):
-
         # feed forward
         x = tf.placeholder(tf.float32, [None, n_inputs, n_channels])
         q = self._model_q(x, n_inputs, n_channels, n_outputs)
@@ -47,7 +46,6 @@ class Agent(object):
         return sess, ops
 
     def _model_train(self, p):
-
         # action, reward
         reward = tf.placeholder(tf.float32, [None])
         action = tf.placeholder(tf.int32, [None])
@@ -87,9 +85,7 @@ class Agent(object):
 
 
 class RandomAgent(Agent):
-
     def _model_q(self, x, n_inputs, n_channels, n_outputs):
-
         # ignore state, just be random
         q = tf.random_normal([tf.shape(x)[0], n_outputs])
 
@@ -97,9 +93,7 @@ class RandomAgent(Agent):
 
 
 class LinearAgent(Agent):
-
     def _model_q(self, x, n_inputs, n_channels, n_outputs):
-
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
@@ -115,9 +109,7 @@ class LinearAgent(Agent):
 
 
 class ReluAgent(Agent):
-
     def _model_q(self, x, n_inputs, n_channels, n_outputs):
-
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
@@ -133,9 +125,7 @@ class ReluAgent(Agent):
 
 
 class SigmoidAgent(Agent):
-
     def _model_q(self, x, n_inputs, n_channels, n_outputs):
-
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
@@ -151,9 +141,7 @@ class SigmoidAgent(Agent):
 
 
 class TanhAgent(Agent):
-
     def _model_q(self, x, n_inputs, n_channels, n_outputs):
-
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
