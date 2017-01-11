@@ -1,10 +1,15 @@
 import tensorflow as tf
 
+_OP_INPUTS = 'inputs'
+_OP_P = 'p'
+_OP_REWARDS = 'rewards'
+_OP_ACTIONS = 'actions'
+_OP_TRAIN = 'train'
 
 class Agent(object):
 
     def __init__(self, n_inputs, n_channels, n_outputs):
-        self._sess, self._x, self._p, self._reward, self._action, self._train = self.build_model(n_inputs, n_channels, n_outputs)
+        self._sess, self._ops = self.build_model(n_inputs, n_channels, n_outputs)
 
     def build_model(self, n_inputs, n_channels, n_outputs):
 
@@ -20,7 +25,15 @@ class Agent(object):
         sess = tf.Session()
         sess.run(init)
 
-        return sess, x, p, reward, action, train
+        ops = {
+            _OP_INPUTS: x,
+            _OP_P: p,
+            _OP_REWARDS: reward,
+            _OP_ACTIONS: action,
+            _OP_TRAIN: train
+        }
+
+        return sess, ops
 
     def _model_train(self, p):
 
@@ -46,13 +59,13 @@ class Agent(object):
         return action, reward, train
 
     def eval(self, state):
-        return self._sess.run(self._p, feed_dict={self._x: [state]})[0]
+        return self._sess.run(self._ops[_OP_P], feed_dict={self._ops[_OP_INPUTS]: [state]})[0]
 
     def train(self, states, actions, rewards):
-        self._sess.run(self._train, feed_dict={
-            self._x: states,
-            self._action: actions,
-            self._reward: rewards
+        self._sess.run(self._ops[_OP_TRAIN], feed_dict={
+            self._ops[_OP_INPUTS]: states,
+            self._ops[_OP_ACTIONS]: actions,
+            self._ops[_OP_REWARDS]: rewards
         })
 
 
