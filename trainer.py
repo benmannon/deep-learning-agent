@@ -47,7 +47,7 @@ class Trainer:
         self._action_lock = Lock()
         self._action = None
         self._done = False
-        self._agent = TanhAgent([simulator.CHANNEL_NUM, _AGENT_VISION_RES], len(controller.actions))
+        self._agent = TanhAgent(_AGENT_VISION_RES, simulator.CHANNEL_NUM, len(controller.actions))
 
     def train(self, sim, first_input):
 
