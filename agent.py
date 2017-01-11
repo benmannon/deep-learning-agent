@@ -22,7 +22,9 @@ class Agent(object):
     def build_model(self):
 
         # feed forward
-        x, p = self._model_x_p()
+        x = tf.placeholder(tf.float32, [None, self._state_size])
+        q = self._model_q(x)
+        p = tf.nn.softmax(q)
 
         # back propagation
         action, reward, train = self._model_train(p)
@@ -70,100 +72,80 @@ class Agent(object):
 
 class RandomAgent(Agent):
 
-    def _model_x_p(self):
-
-        # state
-        x = tf.placeholder(tf.float32, [None, self._state_size])
+    def _model_q(self, x):
 
         # ignore state, just be random
-        y = tf.random_normal([tf.shape(x)[0], self._action_range])
-        p = tf.nn.softmax(y)
+        q = tf.random_normal([tf.shape(x)[0], self._action_range])
 
-        return x, p
+        return q
 
 
 class LinearAgent(Agent):
 
-    def _model_x_p(self):
-
-        # state
-        x = tf.placeholder(tf.float32, [None, self._state_size])
+    def _model_q(self, x):
 
         # trainable variables
         w = tf.Variable(weights([self._state_size, self._action_range]))
         b = tf.Variable(biases([self._action_range]))
 
         # linear classifier
-        y = tf.matmul(x, w) + b
-        p = tf.nn.softmax(y)
+        q = tf.matmul(x, w) + b
 
-        return x, p
+        return q
 
 
 class ReluAgent(Agent):
 
-    def _model_x_p(self):
-
-        # state
-        x = tf.placeholder(tf.float32, [None, self._state_size])
+    def _model_q(self, x):
 
         # trainable variables
         w = tf.Variable(weights([self._state_size, self._action_range]))
 
         # fully connected layer
-        y = tf.contrib.layers.fully_connected(
+        q = tf.contrib.layers.fully_connected(
             inputs=x,
             num_outputs=self._action_range,
             variables_collections=[w],
             activation_fn=tf.nn.relu,
             biases_initializer=tf.constant_initializer(0.1)
         )
-        p = tf.nn.softmax(y)
 
-        return x, p
+        return q
 
 
 class SigmoidAgent(Agent):
 
-    def _model_x_p(self):
-
-        # state
-        x = tf.placeholder(tf.float32, [None, self._state_size])
+    def _model_q(self, x):
 
         # trainable variables
         w = tf.Variable(weights([self._state_size, self._action_range]))
 
         # fully connected layer
-        y = tf.contrib.layers.fully_connected(
+        q = tf.contrib.layers.fully_connected(
             inputs=x,
             num_outputs=self._action_range,
             variables_collections=[w],
             activation_fn=tf.sigmoid,
             biases_initializer=tf.constant_initializer(0.1)
         )
-        p = tf.nn.softmax(y)
 
-        return x, p
+        return q
 
 
 class TanhAgent(Agent):
 
-    def _model_x_p(self):
-
-        # state
-        x = tf.placeholder(tf.float32, [None, self._state_size])
+    def _model_q(self, x):
 
         # trainable variables
         w = tf.Variable(weights([self._state_size, self._action_range]))
 
         # fully connected layer
-        y = tf.contrib.layers.fully_connected(
+        q = tf.contrib.layers.fully_connected(
             inputs=x,
             num_outputs=self._action_range,
             variables_collections=[w],
             activation_fn=tf.tanh,
             biases_initializer=tf.constant_initializer(0.1)
         )
-        p = tf.nn.softmax(y)
 
-        return x, p
+        return q
