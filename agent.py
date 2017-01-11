@@ -1,10 +1,6 @@
 import tensorflow as tf
 
 
-def weights(shape):
-    return tf.truncated_normal(shape, stddev=0.1)
-
-
 class Agent(object):
 
     def __init__(self, n_inputs, n_channels, n_outputs):
@@ -77,15 +73,12 @@ class LinearAgent(Agent):
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
-        # trainable variables
-        w = tf.Variable(weights([x_size, n_outputs]))
-
         # fully connected layer
         q = tf.contrib.layers.fully_connected(
             inputs=x_flat,
             num_outputs=n_outputs,
-            variables_collections=[w],
             activation_fn=None,
+            weights_initializer=tf.truncated_normal_initializer(stddev=0.1),
             biases_initializer=tf.constant_initializer(0.1)
         )
 
@@ -99,15 +92,12 @@ class ReluAgent(Agent):
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
-        # trainable variables
-        w = tf.Variable(weights([x_size, n_outputs]))
-
         # fully connected layer
         q = tf.contrib.layers.fully_connected(
             inputs=x_flat,
             num_outputs=n_outputs,
-            variables_collections=[w],
             activation_fn=tf.nn.relu,
+            weights_initializer=tf.truncated_normal_initializer(stddev=0.1),
             biases_initializer=tf.constant_initializer(0.1)
         )
 
@@ -121,15 +111,12 @@ class SigmoidAgent(Agent):
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
-        # trainable variables
-        w = tf.Variable(weights([x_size, n_outputs]))
-
         # fully connected layer
         q = tf.contrib.layers.fully_connected(
             inputs=x_flat,
             num_outputs=n_outputs,
-            variables_collections=[w],
             activation_fn=tf.sigmoid,
+            weights_initializer=tf.truncated_normal_initializer(stddev=0.1),
             biases_initializer=tf.constant_initializer(0.1)
         )
 
@@ -143,15 +130,12 @@ class TanhAgent(Agent):
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
-        # trainable variables
-        w = tf.Variable(weights([x_size, n_outputs]))
-
         # fully connected layer
         q = tf.contrib.layers.fully_connected(
             inputs=x_flat,
             num_outputs=n_outputs,
-            variables_collections=[w],
             activation_fn=tf.tanh,
+            weights_initializer=tf.truncated_normal_initializer(stddev=0.1),
             biases_initializer=tf.constant_initializer(0.1)
         )
 
