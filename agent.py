@@ -73,7 +73,6 @@ class LinearAgent(Agent):
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
-        # fully connected layer
         q = tf.contrib.layers.fully_connected(
             inputs=x_flat,
             num_outputs=n_outputs,
@@ -92,7 +91,6 @@ class ReluAgent(Agent):
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
-        # fully connected layer
         q = tf.contrib.layers.fully_connected(
             inputs=x_flat,
             num_outputs=n_outputs,
@@ -111,7 +109,6 @@ class SigmoidAgent(Agent):
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
-        # fully connected layer
         q = tf.contrib.layers.fully_connected(
             inputs=x_flat,
             num_outputs=n_outputs,
@@ -130,7 +127,6 @@ class TanhAgent(Agent):
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
-        # fully connected layer
         q = tf.contrib.layers.fully_connected(
             inputs=x_flat,
             num_outputs=n_outputs,
