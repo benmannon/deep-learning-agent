@@ -2,9 +2,13 @@ import tensorflow as tf
 
 _OP_INPUTS = 'inputs'
 _OP_P = 'p'
+_OP_GREEDY = 'greedy'
+_OP_E_GREEDY = 'e_greedy'
 _OP_REWARDS = 'rewards'
 _OP_ACTIONS = 'actions'
 _OP_TRAIN = 'train'
+
+_EPSILON = 0.1
 
 class Agent(object):
 
@@ -16,7 +20,12 @@ class Agent(object):
         # feed forward
         x = tf.placeholder(tf.float32, [None, n_inputs, n_channels])
         q = self._model_q(x, n_inputs, n_channels, n_outputs)
+
         p = tf.nn.softmax(q)
+        greedy = tf.argmax(q, 1)
+        e_greedy = tf.select(tf.random_uniform(tf.shape(greedy)) < _EPSILON,
+                             tf.random_uniform(tf.shape(greedy), dtype=tf.int64, maxval=n_outputs),
+                             greedy)
 
         # back propagation
         action, reward, train = self._model_train(p)
@@ -28,6 +37,8 @@ class Agent(object):
         ops = {
             _OP_INPUTS: x,
             _OP_P: p,
+            _OP_GREEDY: greedy,
+            _OP_E_GREEDY: e_greedy,
             _OP_REWARDS: reward,
             _OP_ACTIONS: action,
             _OP_TRAIN: train
@@ -58,8 +69,14 @@ class Agent(object):
 
         return action, reward, train
 
-    def eval(self, state):
+    def eval_pg(self, state):
         return self._sess.run(self._ops[_OP_P], feed_dict={self._ops[_OP_INPUTS]: [state]})[0]
+
+    def eval_greedy(self, state):
+        return self._sess.run(self._ops[_OP_GREEDY], feed_dict={self._ops[_OP_INPUTS]: [state]})[0]
+
+    def eval_e_greedy(self, state):
+        return self._sess.run(self._ops[_OP_E_GREEDY], feed_dict={self._ops[_OP_INPUTS]: [state]})[0]
 
     def train(self, states, actions, rewards):
         self._sess.run(self._ops[_OP_TRAIN], feed_dict={

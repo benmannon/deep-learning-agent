@@ -59,7 +59,7 @@ class Trainer:
         while not self._done:
 
             if not self._user_control:
-                action_i = self._select(self._agent.eval(agent_input))
+                action_i = self._agent.eval_e_greedy(agent_input)
                 self._action = controller.actions[action_i]
 
             self._action_lock.acquire()
