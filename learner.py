@@ -1,8 +1,7 @@
 from xp_buffer import XpBuffer
-import numpy as np
+
 
 class Learner:
-
     def __init__(self, buffer_size, batch_size, discount_factor):
         self._episode = []
         self._xp_buf = XpBuffer(buffer_size)
