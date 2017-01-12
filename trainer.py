@@ -9,7 +9,6 @@ from threading import Lock
 
 import controller
 import simulator
-from agent import TanhAgent
 from learner import Learner
 from simulator import Simulator
 
