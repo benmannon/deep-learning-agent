@@ -18,3 +18,7 @@ class XpBuffer:
             element = self._buf[random.randrange(0, len(self._buf))]
             elements.append(element)
         return elements
+
+    @property
+    def size(self):
+        return len(self._buf)

@@ -47,19 +47,24 @@ class Trainer:
         self._action_lock = Lock()
         self._action = None
         self._done = False
-        self._agent = TanhAgent(_AGENT_VISION_RES, simulator.CHANNEL_NUM, len(controller.actions))
 
     def train(self, sim, first_input):
 
-        learner = Learner(_REPLAY_BUFFER_SIZE, _REPLAY_BATCH_SIZE, _REWARD_DISCOUNT_FACTOR)
+        learner = Learner(_REPLAY_BUFFER_SIZE,
+                          _REPLAY_BATCH_SIZE,
+                          _REWARD_DISCOUNT_FACTOR,
+                          _AGENT_VISION_RES,
+                          simulator.CHANNEL_NUM,
+                          len(controller.actions))
 
         agent_input = first_input
         reward = 0.0
+        end = False
 
         while not self._done:
 
             if not self._user_control:
-                action_i = self._agent.eval_e_greedy(agent_input)
+                action_i = learner.perceive(agent_input, reward, end)
                 self._action = controller.actions[action_i]
 
             self._action_lock.acquire()
@@ -70,13 +75,7 @@ class Trainer:
                 self._action_lock.release()
 
             if action is not None:
-                next_input, reward, end = sim.step(action)
-                if not self._user_control:
-                    learner.add_xp((agent_input, action, reward))
-                    if end:
-                        learner.end_episode()
-                        learner.learn(self._agent)
-                    agent_input = next_input
+                agent_input, reward, end = sim.step(action)
             else:
                 time.sleep(1 / 60)
 
