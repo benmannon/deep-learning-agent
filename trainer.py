@@ -34,6 +34,7 @@ _BKG_COLOR = [0.0, 0.3, 0.5]
 _REPLAY_BUFFER_SIZE = 10000
 _REPLAY_BATCH_SIZE = 32
 _REWARD_DISCOUNT_FACTOR = 0.25
+_LEARN_START_T = 2000
 _E_START = 1.0
 _E_END = 0.1
 _E_START_T = 2000
@@ -58,6 +59,7 @@ class Trainer:
         learner = Learner(buffer_cap=_REPLAY_BUFFER_SIZE,
                           batch_size=_REPLAY_BATCH_SIZE,
                           discount=_REWARD_DISCOUNT_FACTOR,
+                          learn_start_t=_LEARN_START_T,
                           e_start=_E_START,
                           e_end=_E_END,
                           e_start_t=_E_START_T,

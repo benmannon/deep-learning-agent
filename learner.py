@@ -5,13 +5,14 @@ from xp_buffer import XpBuffer
 
 
 class Learner:
-    def __init__(self, buffer_cap, batch_size, discount, e_start, e_end, e_start_t, e_end_t, n_inputs, n_channels, n_actions, report_interval):
+    def __init__(self, buffer_cap, batch_size, discount, learn_start_t, e_start, e_end, e_start_t, e_end_t, n_inputs, n_channels, n_actions, report_interval):
         self._ep_states = []
         self._ep_actions = []
         self._ep_rewards = []
         self._xp_buf = XpBuffer(buffer_cap)
         self._batch_size = batch_size
         self._gamma = discount
+        self._learn_start_t = learn_start_t
         self._e_start = e_start
         self._e_end = e_end
         self._e_start_t = e_start_t
@@ -80,10 +81,13 @@ class Learner:
 
         if terminal:
             self._end_episode()
+
+        learning = self._step >= self._learn_start_t
+        if learning:
             self._learn()
 
         if self._step % self._report_interval == 0:
-            print 'step=%s | {e: %s}' % (self._step, epsilon)
+            print 'step=%s | {e: %s, learning: %s}' % (self._step, epsilon, learning)
 
         self._step += 1
 
