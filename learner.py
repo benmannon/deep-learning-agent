@@ -50,6 +50,7 @@ class Learner:
         self._recent_action = action
 
         if terminal:
+            self._end_episode()
             self._learn()
 
         return action
