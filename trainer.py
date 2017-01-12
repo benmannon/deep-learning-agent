@@ -50,12 +50,12 @@ class Trainer:
 
     def train(self, sim, first_input):
 
-        learner = Learner(_REPLAY_BUFFER_SIZE,
-                          _REPLAY_BATCH_SIZE,
-                          _REWARD_DISCOUNT_FACTOR,
-                          _AGENT_VISION_RES,
-                          simulator.CHANNEL_NUM,
-                          len(controller.actions))
+        learner = Learner(buffer_size=_REPLAY_BUFFER_SIZE,
+                          batch_size=_REPLAY_BATCH_SIZE,
+                          discount_factor=_REWARD_DISCOUNT_FACTOR,
+                          n_inputs=_AGENT_VISION_RES,
+                          n_channels=simulator.CHANNEL_NUM,
+                          n_actions=len(controller.actions))
 
         agent_input = first_input
         reward = 0.0
