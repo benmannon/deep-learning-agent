@@ -5,7 +5,7 @@ from xp_buffer import XpBuffer
 
 
 class Learner:
-    def __init__(self, buffer_cap, batch_size, discount, e_start, e_end, e_start_t, e_end_t, n_inputs, n_channels, n_actions):
+    def __init__(self, buffer_cap, batch_size, discount, e_start, e_end, e_start_t, e_end_t, n_inputs, n_channels, n_actions, report_interval):
         self._ep_states = []
         self._ep_actions = []
         self._ep_rewards = []
@@ -17,6 +17,7 @@ class Learner:
         self._e_start_t = e_start_t
         self._e_end_t = e_end_t
         self._agent = TanhAgent(n_inputs, n_channels, n_actions)
+        self._report_interval = report_interval
         self._recent_state = None
         self._recent_action = None
         self._step = 0
@@ -71,7 +72,8 @@ class Learner:
         if self._recent_state:
             self._add_xp(self._recent_state, self._recent_action, reward)
 
-        action = self._agent.eval_e_greedy(state, self._epsilon())
+        epsilon = self._epsilon()
+        action = self._agent.eval_e_greedy(state, epsilon)
 
         self._recent_state = state
         self._recent_action = action
@@ -79,6 +81,9 @@ class Learner:
         if terminal:
             self._end_episode()
             self._learn()
+
+        if self._step % self._report_interval == 0:
+            print 'step=%s | {e: %s}' % (self._step, epsilon)
 
         self._step += 1
 

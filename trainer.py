@@ -38,6 +38,7 @@ _E_START = 1.0
 _E_END = 0.1
 _E_START_T = 2000
 _E_END_T = 10000
+_REPORT_INTERVAL = 1000
 
 # user input (w, a, d)
 _KEY_WALK_FORWARD = 87
@@ -63,7 +64,8 @@ class Trainer:
                           e_end_t=_E_END_T,
                           n_inputs=_AGENT_VISION_RES,
                           n_channels=simulator.CHANNEL_NUM,
-                          n_actions=len(controller.actions))
+                          n_actions=len(controller.actions),
+                          report_interval=_REPORT_INTERVAL)
 
         agent_input = first_input
         reward = 0.0
