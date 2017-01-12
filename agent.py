@@ -69,10 +69,14 @@ class Agent(object):
         return action, reward, train
 
     def eval_pg(self, state):
-        return self._sess.run(self._ops[_OP_P], feed_dict={self._ops[_OP_INPUTS]: [state]})[0]
+        return self._sess.run(self._ops[_OP_P], feed_dict={
+            self._ops[_OP_INPUTS]: [state]
+        })[0]
 
     def eval_greedy(self, state):
-        return self._sess.run(self._ops[_OP_GREEDY], feed_dict={self._ops[_OP_INPUTS]: [state]})[0]
+        return self._sess.run(self._ops[_OP_GREEDY], feed_dict={
+            self._ops[_OP_INPUTS]: [state]
+        })[0]
 
     def eval_e_greedy(self, state, epsilon):
         return self._sess.run(self._ops[_OP_E_GREEDY], feed_dict={
