@@ -73,12 +73,12 @@ class Trainer:
 
         agent_input = first_input
         reward = 0.0
-        end = False
+        terminal = False
 
         while not self._done:
 
             if not self._user_control:
-                action_i = learner.perceive(agent_input, reward, end)
+                action_i = learner.perceive(agent_input, reward, terminal)
                 self._action = controller.actions[action_i]
 
             self._action_lock.acquire()
@@ -89,7 +89,7 @@ class Trainer:
                 self._action_lock.release()
 
             if action is not None:
-                agent_input, reward, end = sim.step(action)
+                agent_input, reward, terminal = sim.step(action)
             else:
                 time.sleep(1 / 60)
 
