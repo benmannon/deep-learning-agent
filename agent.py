@@ -64,7 +64,7 @@ class Agent(object):
         loss = tf.reduce_mean(log_diff * tf.abs(reward))
 
         # minimize loss
-        train = tf.train.AdamOptimizer(0.05).minimize(loss)
+        train = tf.train.AdamOptimizer(0.00025).minimize(loss)
 
         return action, reward, train
 
