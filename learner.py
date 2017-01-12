@@ -9,7 +9,7 @@ class Learner:
         self._ep_rewards = []
         self._xp_buf = XpBuffer(buffer_cap)
         self._batch_size = batch_size
-        self._discount_factor = discount
+        self._discount = discount
         self._agent = TanhAgent(n_inputs, n_channels, n_actions)
         self._recent_state = None
         self._recent_action = None
@@ -26,7 +26,7 @@ class Learner:
         self._ep_rewards = []
 
     def _discount(self, rewards):
-        gamma = self._discount_factor
+        gamma = self._discount
         total_reward = 0.0
         d_rewards = []
         for reward in reversed(rewards):
