@@ -44,7 +44,7 @@ class Learner:
         if self._recent_state:
             self._add_xp(self._recent_state, self._recent_action, reward)
 
-        action = self._agent.eval_e_greedy(state)
+        action = self._agent.eval_e_greedy(state, 0.1)
 
         self._recent_state = state
         self._recent_action = action

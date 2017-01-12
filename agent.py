@@ -4,11 +4,10 @@ _OP_INPUTS = 'inputs'
 _OP_P = 'p'
 _OP_GREEDY = 'greedy'
 _OP_E_GREEDY = 'e_greedy'
+_OP_EPSILON = 'e'
 _OP_REWARDS = 'rewards'
 _OP_ACTIONS = 'actions'
 _OP_TRAIN = 'train'
-
-_EPSILON = 0.1
 
 
 class Agent(object):
@@ -22,7 +21,8 @@ class Agent(object):
 
         p = tf.nn.softmax(q)
         greedy = tf.argmax(q, 1)
-        e_greedy = tf.select(tf.random_uniform(tf.shape(greedy)) < _EPSILON,
+        e = tf.placeholder(tf.float32, [])
+        e_greedy = tf.select(tf.random_uniform(tf.shape(greedy)) < e,
                              tf.random_uniform(tf.shape(greedy), dtype=tf.int64, maxval=n_outputs),
                              greedy)
 
@@ -38,6 +38,7 @@ class Agent(object):
             _OP_P: p,
             _OP_GREEDY: greedy,
             _OP_E_GREEDY: e_greedy,
+            _OP_EPSILON: e,
             _OP_REWARDS: reward,
             _OP_ACTIONS: action,
             _OP_TRAIN: train
@@ -73,8 +74,11 @@ class Agent(object):
     def eval_greedy(self, state):
         return self._sess.run(self._ops[_OP_GREEDY], feed_dict={self._ops[_OP_INPUTS]: [state]})[0]
 
-    def eval_e_greedy(self, state):
-        return self._sess.run(self._ops[_OP_E_GREEDY], feed_dict={self._ops[_OP_INPUTS]: [state]})[0]
+    def eval_e_greedy(self, state, epsilon):
+        return self._sess.run(self._ops[_OP_E_GREEDY], feed_dict={
+            self._ops[_OP_INPUTS]: [state],
+            self._ops[_OP_EPSILON]: epsilon
+        })[0]
 
     def train(self, states, actions, rewards):
         self._sess.run(self._ops[_OP_TRAIN], feed_dict={
