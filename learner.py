@@ -3,13 +3,13 @@ from xp_buffer import XpBuffer
 
 
 class Learner:
-    def __init__(self, buffer_size, batch_size, discount_factor, n_inputs, n_channels, n_actions):
+    def __init__(self, buffer_cap, batch_size, discount, n_inputs, n_channels, n_actions):
         self._ep_states = []
         self._ep_actions = []
         self._ep_rewards = []
-        self._xp_buf = XpBuffer(buffer_size)
+        self._xp_buf = XpBuffer(buffer_cap)
         self._batch_size = batch_size
-        self._discount_factor = discount_factor
+        self._discount_factor = discount
         self._agent = TanhAgent(n_inputs, n_channels, n_actions)
         self._recent_state = None
         self._recent_action = None
