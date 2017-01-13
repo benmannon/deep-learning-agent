@@ -103,7 +103,7 @@ class Agent(object):
             self._ops[_OP_INPUTS]: states,
             self._ops[_OP_ACTIONS]: actions,
             self._ops[_OP_REWARDS]: rewards,
-            self._ops[_OP_DROPOUT]: _DROPOUT_OFF,
+            self._ops[_OP_DROPOUT]: _DROPOUT_ON,
         })
 
 
