@@ -7,7 +7,9 @@ from xp_buffer import XpBuffer
 
 
 class Learner:
-    def __init__(self, buffer_cap, batch_size, discount, learning_rate, learn_start_t, learn_interval, target_update_interval, e_start, e_end, e_start_t, e_end_t, n_inputs, n_channels, n_actions, report_interval):
+    def __init__(self, buffer_cap, batch_size, discount, learning_rate, learn_start_t, learn_interval,
+                 target_update_interval, e_start, e_end, e_start_t, e_end_t, n_inputs, n_channels, n_actions,
+                 report_interval):
         self._xp_buf = XpBuffer(buffer_cap)
         self._batch_size = batch_size
         self._gamma = discount
