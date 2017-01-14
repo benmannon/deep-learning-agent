@@ -9,6 +9,7 @@ _OP_EPSILON = 'e'
 _OP_REWARDS = 'rewards'
 _OP_ACTIONS = 'actions'
 _OP_TRANSITIONS = 'transitions'
+_OP_LEARNING_RATE = 'rate'
 _OP_TRAIN = 'train'
 
 _DROPOUT_OFF = 0.0
@@ -32,13 +33,14 @@ class Agent(object):
                              tf.random_uniform(tf.shape(greedy), dtype=tf.int64, maxval=n_outputs),
                              greedy)
 
-        # action, reward, transitions
+        # learning rate, actions, rewards, transitions
+        rate = tf.placeholder(tf.float32, [])
         actions = tf.placeholder(tf.int32, [None])
         rewards = tf.placeholder(tf.float32, [None])
         transitions = tf.placeholder(tf.float32, [None, n_inputs, n_channels])
 
         # back propagation
-        train = self._model_train(p, actions, rewards, transitions)
+        train = self._model_train(rate, p, actions, rewards, transitions)
 
         init = tf.global_variables_initializer()
         sess = tf.Session()
@@ -54,12 +56,13 @@ class Agent(object):
             _OP_REWARDS: rewards,
             _OP_ACTIONS: actions,
             _OP_TRANSITIONS: transitions,
+            _OP_LEARNING_RATE: rate,
             _OP_TRAIN: train
         }
 
         return sess, ops
 
-    def _model_train(self, p, actions, rewards, transitions):
+    def _model_train(self, rate, p, actions, rewards, transitions):
         # train is a no-op if there are no trainable variables
         if not tf.trainable_variables():
             return tf.no_op()
@@ -73,7 +76,7 @@ class Agent(object):
         loss = tf.reduce_mean(log_diff * tf.abs(rewards))
 
         # minimize loss
-        train = tf.train.AdamOptimizer(0.00025).minimize(loss)
+        train = tf.train.AdamOptimizer(rate).minimize(loss)
 
         return train
 
@@ -102,8 +105,9 @@ class Agent(object):
             self._ops[_OP_DROPOUT]: _DROPOUT_ON,
         })[0]
 
-    def train(self, states, actions, rewards, states2):
+    def train(self, learning_rate, states, actions, rewards, states2):
         self._sess.run(self._ops[_OP_TRAIN], feed_dict={
+            self._ops[_OP_LEARNING_RATE]: learning_rate,
             self._ops[_OP_INPUTS]: states,
             self._ops[_OP_ACTIONS]: actions,
             self._ops[_OP_REWARDS]: rewards,

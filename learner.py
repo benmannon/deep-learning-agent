@@ -7,13 +7,14 @@ from xp_buffer import XpBuffer
 
 
 class Learner:
-    def __init__(self, buffer_cap, batch_size, discount, learn_start_t, learn_interval, e_start, e_end, e_start_t, e_end_t, n_inputs, n_channels, n_actions, report_interval):
+    def __init__(self, buffer_cap, batch_size, discount, learning_rate, learn_start_t, learn_interval, e_start, e_end, e_start_t, e_end_t, n_inputs, n_channels, n_actions, report_interval):
         self._ep_states = []
         self._ep_actions = []
         self._ep_rewards = []
         self._xp_buf = XpBuffer(buffer_cap)
         self._batch_size = batch_size
         self._gamma = discount
+        self._learning_rate = learning_rate
         self._learn_start_t = learn_start_t
         self._learn_interval = learn_interval
         self._e_start = e_start
@@ -56,7 +57,7 @@ class Learner:
     def _learn(self):
         if self._xp_buf.size > 0:
             states, actions, rewards, states2 = self._xp_buf.samples(self._batch_size)
-            self._agent.train(states, actions, rewards, states2)
+            self._agent.train(self._learning_rate, states, actions, rewards, states2)
 
     def _epsilon(self):
 
