@@ -64,12 +64,69 @@ def _q_fully_connected(activation_fn):
 
     return fn
 
+
+def _q_hidden_fully_connected(activation_fn, n_hidden):
+    def fn(s, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
+
+        # flatten input
+        s_size = n_inputs * n_channels
+        s_flat = tf.reshape(s, [-1, s_size])
+
+        # dropout will be 1.0 (ON) or 0.0 (OFF)
+        keep_prob = 1 - dropout * 0.5
+        drop_x = tf.nn.dropout(s_flat, keep_prob)
+
+        # parameters may be shared with an identical model
+        if params is None:
+            h_w_initial = tf.truncated_normal([s_size, n_hidden], stddev=0.1)
+            h_w = tf.Variable(h_w_initial, trainable=trainable)
+
+            h_b_initial = tf.constant(0.1, shape=[n_hidden])
+            h_b = tf.Variable(h_b_initial, trainable=trainable)
+
+            q_w_initial = tf.truncated_normal([n_hidden, n_outputs], stddev=0.1)
+            q_w = tf.Variable(h_w_initial, trainable=trainable)
+
+            q_b_initial = tf.constant(0.1, shape=[n_outputs])
+            q_b = tf.Variable(h_b_initial, trainable=trainable)
+
+        else:
+            h_w, h_b, q_w, q_b = params
+
+        h = tf.contrib.layers.fully_connected(
+            inputs=drop_x,
+            num_outputs=n_hidden,
+            activation_fn=activation_fn,
+            variables_collections={
+                'weights': [h_w],
+                'biases': [h_b]
+            }
+        )
+
+        q = tf.contrib.layers.fully_connected(
+            inputs=h,
+            num_outputs=n_outputs,
+            activation_fn=activation_fn,
+            variables_collections={
+                'weights': [q_w],
+                'biases': [q_b]
+            }
+        )
+
+        return q, [h_w, h_b, q_w, q_b]
+
+    return fn
+
 q_models = {
     'random': _q_random,
     'linear': _q_fully_connected(None),
     'relu': _q_fully_connected(tf.nn.relu),
     'sigmoid': _q_fully_connected(tf.sigmoid),
-    'tanh': _q_fully_connected(tf.tanh)
+    'tanh': _q_fully_connected(tf.tanh),
+    'hidden_linear': _q_hidden_fully_connected(None, 128),
+    'hidden_relu': _q_hidden_fully_connected(tf.nn.relu, 128),
+    'hidden_sigmoid': _q_hidden_fully_connected(tf.sigmoid, 128),
+    'hidden_tanh': _q_hidden_fully_connected(tf.tanh, 128)
 }
 
 
