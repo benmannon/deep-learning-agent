@@ -28,34 +28,40 @@ def q_random(x, dropout, n_inputs, n_channels, n_outputs, trainable=True, params
     return q, []
 
 
-def q_tanh(x, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
-    x_size = n_inputs * n_channels
-    x_flat = tf.reshape(x, [-1, x_size])
+def q_fully_connected(activation_fn):
+    def fn(x, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
+        x_size = n_inputs * n_channels
+        x_flat = tf.reshape(x, [-1, x_size])
 
-    keep_prob = 1 - dropout * 0.5
-    drop_x = tf.nn.dropout(x_flat, keep_prob)
+        keep_prob = 1 - dropout * 0.5
+        drop_x = tf.nn.dropout(x_flat, keep_prob)
 
-    if params is None:
-        w_initial = tf.truncated_normal([x_size, n_outputs], stddev=0.1)
-        w = tf.Variable(w_initial, trainable=trainable)
+        if params is None:
+            w_initial = tf.truncated_normal([x_size, n_outputs], stddev=0.1)
+            w = tf.Variable(w_initial, trainable=trainable)
 
-        b_initial = tf.constant(0.1, shape=[n_outputs])
-        b = tf.Variable(b_initial, trainable=trainable)
+            b_initial = tf.constant(0.1, shape=[n_outputs])
+            b = tf.Variable(b_initial, trainable=trainable)
 
-    else:
-        w, b = params
+        else:
+            w, b = params
 
-    q = tf.contrib.layers.fully_connected(
-        inputs=drop_x,
-        num_outputs=n_outputs,
-        activation_fn=tf.tanh,
-        variables_collections={
-            'weights': [w],
-            'biases': [b]
-        }
-    )
+        q = tf.contrib.layers.fully_connected(
+            inputs=drop_x,
+            num_outputs=n_outputs,
+            activation_fn=activation_fn,
+            variables_collections={
+                'weights': [w],
+                'biases': [b]
+            }
+        )
 
-    return q, [w, b]
+        return q, [w, b]
+
+    return fn
+
+
+q_tanh = q_fully_connected(tf.tanh)
 
 
 class Agent(object):
