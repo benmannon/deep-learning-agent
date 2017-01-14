@@ -1,5 +1,7 @@
 from __future__ import division
 
+import random
+
 from agent import TanhAgent
 from xp_buffer import XpBuffer
 
@@ -100,3 +102,20 @@ class Learner:
         self._step += 1
 
         return action
+
+    @staticmethod
+    def _select(p):
+
+        # randomly select an index over an array of normalized probabilities
+        r = random.random()
+        odds = 0.0
+        i = 0
+        for prob in p:
+            odds += prob
+            if r <= odds:
+                return i
+            i += 1
+
+        # should never get this far, but return the last item just in case
+        print 'warning: total odds, %s < 1.0' % odds
+        return i - 1
