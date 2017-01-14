@@ -49,6 +49,9 @@ class Agent(object):
         s2 = tf.placeholder(tf.float32, [None, n_inputs, n_channels])
         term = tf.placeholder(tf.float32, [None])
 
+        # current network's evaluation of transition state
+        q_s2, _ = self._model_q(s2, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, trainable=False, params=q_params)
+
         # target network, using target parameters
         q2_s2, q2_params = self._model_q(s2, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, trainable=False)
 
@@ -57,7 +60,7 @@ class Agent(object):
             gamma=gamma,
             rate=rate,
             q_s=q_s,
-            q_s2=q2_s2,
+            q_s2=q_s2,
             q2_s2=q2_s2,
             a=a,
             r=r,
@@ -109,8 +112,11 @@ class Agent(object):
         # (don't reward future terminal states)
         target = r + (1 - term) * gamma * q2_s2_a2
 
-        # loss = (target - q(s, a)) ^ 2
-        loss = tf.pow(target - q_s_a, 2)
+        # don't backpropagate into the target graph
+        target_stop = tf.stop_gradient(target)
+
+        # loss = (target - Q(s, a)) ^ 2
+        loss = tf.pow(target_stop - q_s_a, 2)
         loss_mean = tf.reduce_mean(loss)
 
         # minimize loss
@@ -269,18 +275,22 @@ class SigmoidAgent(Agent):
 
 
 class TanhAgent(Agent):
-    def _model_q(self, x, dropout, n_inputs, n_channels, n_outputs, trainable=True):
+    def _model_q(self, x, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
         keep_prob = 1 - dropout * 0.5
         drop_x = tf.nn.dropout(x_flat, keep_prob)
 
-        w_initial = tf.truncated_normal([x_size, n_outputs], stddev=0.1)
-        w = tf.Variable(w_initial, trainable=trainable)
+        if params is None:
+            w_initial = tf.truncated_normal([x_size, n_outputs], stddev=0.1)
+            w = tf.Variable(w_initial, trainable=trainable)
 
-        b_initial = tf.constant(0.1, shape=[n_outputs])
-        b = tf.Variable(b_initial, trainable=trainable)
+            b_initial = tf.constant(0.1, shape=[n_outputs])
+            b = tf.Variable(b_initial, trainable=trainable)
+
+        else:
+            w, b = params
 
         q = tf.contrib.layers.fully_connected(
             inputs=drop_x,
