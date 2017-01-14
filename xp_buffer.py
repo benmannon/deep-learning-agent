@@ -23,17 +23,19 @@ class XpBuffer:
     def samples(self, n):
 
         # states, actions, rewards
-        s = []
-        a = []
-        r = []
+        s = [None] * n
+        a = [None] * n
+        r = [None] * n
 
         # sample randomly
-        for _ in range(0, n):
-            i = random.randrange(0, len(self._s))
-            s += [self._s[i]]
-            a += [self._a[i]]
-            r += [self._r[i]]
+        for i in range(0, n):
+            s[i], a[i], r[i] = self.sample()
 
+        return s, a, r
+
+    def sample(self):
+        i = random.randrange(0, self.size)
+        s, a, r = self._s[i], self._a[i], self._r[i]
         return s, a, r
 
     @property
