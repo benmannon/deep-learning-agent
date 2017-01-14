@@ -82,9 +82,11 @@ class Agent(object):
         q_flat = tf.range(0, tf.shape(q)[0]) * tf.shape(q)[1] + actions
         q_a = tf.gather(tf.reshape(q, [-1]), q_flat)
 
-        # q_target = (1 - terminal) * gamma * max_a Q(s2, a)
-        q2_max = tf.reduce_max(q_target, 1)
-        q2 = (1 - terminals) * gamma * q2_max
+        # q_target = (1 - terminal) * gamma * Q2(s2, argmax_a Q2(s2, a))
+        q2_a = tf.cast(tf.arg_max(q_target, 1), tf.int32)
+        q2_flat = tf.range(0, tf.shape(q_target)[0]) * tf.shape(q_target)[1] + q2_a
+        q2_max_a = tf.gather(tf.reshape(q_target, [-1]), q2_flat)
+        q2 = (1 - terminals) * gamma * q2_max_a
 
         # loss = (reward + q_target(s', a') - q(s, a)) ^ 2
         loss = tf.pow(rewards + q2 - q_a, 2)
