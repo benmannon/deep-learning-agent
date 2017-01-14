@@ -88,17 +88,13 @@ class Agent(object):
             return tf.no_op()
 
         # Q(s, a)
-        a_offset = tf.range(0, tf.shape(q_s)[0]) * tf.shape(q_s)[1] + a
-        q_s_flat = tf.reshape(q_s, [-1])
-        q_s_a = tf.gather(q_s_flat, a_offset)
+        q_s_a = self._tf_select(q_s, a)
 
         # a2 = argmax_a2 Q2(s2, a2)
         a2 = tf.cast(tf.arg_max(q2_s2, 1), tf.int32)
 
         # Q2(s2, a2)
-        a2_offset = tf.range(0, tf.shape(q2_s2)[0]) * tf.shape(q2_s2)[1] + a2
-        q2_s2_flat = tf.reshape(q2_s2, [-1])
-        q2_s2_a2 = tf.gather(q2_s2_flat, a2_offset)
+        q2_s2_a2 = self._tf_select(q2_s2, a2)
 
         # Yt = reward + gamma * Q2(s2, a2)
         # (don't reward future terminal states)
@@ -112,6 +108,11 @@ class Agent(object):
         train = tf.train.RMSPropOptimizer(rate, momentum=0.95, epsilon=0.01).minimize(loss_mean)
 
         return train
+
+    def _tf_select(self, tensor, indices):
+        offset = tf.range(0, tf.shape(tensor)[0]) * tf.shape(tensor)[1] + indices
+        flat = tf.reshape(tensor, [-1])
+        return tf.gather(flat, offset)
 
     def eval_pg(self, state):
         return self._sess.run(self._ops[_OP_P], feed_dict={
