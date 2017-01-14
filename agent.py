@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-_OP_INPUTS = 'inputs'
+_OP_STATES = 'states'
 _OP_DROPOUT = 'dropout'
 _OP_P = 'p'
 _OP_GREEDY = 'greedy'
@@ -8,7 +8,7 @@ _OP_E_GREEDY = 'e_greedy'
 _OP_EPSILON = 'e'
 _OP_REWARDS = 'rewards'
 _OP_ACTIONS = 'actions'
-_OP_TRANSITIONS = 'transitions'
+_OP_STATES2 = 'states2'
 _OP_TERMINAL = 'terminal'
 _OP_GAMMA = 'gamma'
 _OP_LEARNING_RATE = 'rate'
@@ -162,7 +162,7 @@ def _build_model(q_model, n_inputs, n_channels, n_outputs):
     sess.run(init)
 
     ops = {
-        _OP_INPUTS: s,
+        _OP_STATES: s,
         _OP_DROPOUT: dropout,
         _OP_P: p,
         _OP_GREEDY: greedy,
@@ -170,7 +170,7 @@ def _build_model(q_model, n_inputs, n_channels, n_outputs):
         _OP_EPSILON: e,
         _OP_REWARDS: r,
         _OP_ACTIONS: a,
-        _OP_TRANSITIONS: s2,
+        _OP_STATES2: s2,
         _OP_TERMINAL: term,
         _OP_GAMMA: gamma,
         _OP_LEARNING_RATE: rate,
@@ -193,26 +193,26 @@ class Agent:
 
     def eval_pg(self, state):
         return self._sess.run(self._ops[_OP_P], feed_dict={
-            self._ops[_OP_INPUTS]: [state],
+            self._ops[_OP_STATES]: [state],
             self._ops[_OP_DROPOUT]: _DROPOUT_OFF,
         })[0]
 
     def eval_greedy(self, state):
         return self._sess.run(self._ops[_OP_GREEDY], feed_dict={
-            self._ops[_OP_INPUTS]: [state],
+            self._ops[_OP_STATES]: [state],
             self._ops[_OP_DROPOUT]: _DROPOUT_OFF,
         })[0]
 
     def eval_e_greedy(self, state, epsilon):
         return self._sess.run(self._ops[_OP_E_GREEDY], feed_dict={
-            self._ops[_OP_INPUTS]: [state],
+            self._ops[_OP_STATES]: [state],
             self._ops[_OP_DROPOUT]: _DROPOUT_OFF,
             self._ops[_OP_EPSILON]: epsilon
         })[0]
 
     def eval_thompson_sample(self, state):
         return self._sess.run(self._ops[_OP_GREEDY], feed_dict={
-            self._ops[_OP_INPUTS]: [state],
+            self._ops[_OP_STATES]: [state],
             self._ops[_OP_DROPOUT]: _DROPOUT_ON,
         })[0]
 
@@ -220,11 +220,11 @@ class Agent:
         feed_dict = {
             self._ops[_OP_GAMMA]: discount,
             self._ops[_OP_LEARNING_RATE]: learning_rate,
-            self._ops[_OP_INPUTS]: states,
+            self._ops[_OP_STATES]: states,
             self._ops[_OP_ACTIONS]: actions,
             self._ops[_OP_REWARDS]: rewards,
             self._ops[_OP_DROPOUT]: _DROPOUT_ON,
-            self._ops[_OP_TRANSITIONS]: states2,
+            self._ops[_OP_STATES2]: states2,
             self._ops[_OP_TERMINAL] : _bools_to_floats(term2)
         }
 
