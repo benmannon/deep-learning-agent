@@ -33,11 +33,11 @@ class Agent(object):
                              greedy)
 
         # action, reward
-        action = tf.placeholder(tf.int32, [None])
-        reward = tf.placeholder(tf.float32, [None])
+        actions = tf.placeholder(tf.int32, [None])
+        rewards = tf.placeholder(tf.float32, [None])
 
         # back propagation
-        train = self._model_train(p, action, reward)
+        train = self._model_train(p, actions, rewards)
 
         init = tf.global_variables_initializer()
         sess = tf.Session()
@@ -50,26 +50,26 @@ class Agent(object):
             _OP_GREEDY: greedy,
             _OP_E_GREEDY: e_greedy,
             _OP_EPSILON: e,
-            _OP_REWARDS: reward,
-            _OP_ACTIONS: action,
+            _OP_REWARDS: rewards,
+            _OP_ACTIONS: actions,
             _OP_TRANSITIONS: tf.placeholder(tf.float32, [None, n_inputs, n_channels]),
             _OP_TRAIN: train
         }
 
         return sess, ops
 
-    def _model_train(self, p, action, reward):
+    def _model_train(self, p, actions, rewards):
         # train is a no-op if there are no trainable variables
         if not tf.trainable_variables():
             return tf.no_op()
 
         # determine preferred action, calculate loss according to magnitude of reward
-        action_flat = tf.range(0, tf.shape(p)[0]) * tf.shape(p)[1] + action
-        p_preferred = tf.sign(tf.sign(reward) - 0.5) * 0.5 + 0.5
+        action_flat = tf.range(0, tf.shape(p)[0]) * tf.shape(p)[1] + actions
+        p_preferred = tf.sign(tf.sign(rewards) - 0.5) * 0.5 + 0.5
         p_action = tf.gather(tf.reshape(p, [-1]), action_flat)
         diff = p_preferred * (p_preferred - p_action) + (1 - p_preferred) * (p_preferred + p_action)
         log_diff = tf.log(tf.clip_by_value(diff, 1e-10, 1.0))
-        loss = tf.reduce_mean(log_diff * tf.abs(reward))
+        loss = tf.reduce_mean(log_diff * tf.abs(rewards))
 
         # minimize loss
         train = tf.train.AdamOptimizer(0.00025).minimize(loss)
