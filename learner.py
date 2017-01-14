@@ -2,7 +2,7 @@ from __future__ import division
 
 import random
 
-from agent import Agent, q_tanh
+from agent import Agent, q_models
 from xp_buffer import XpBuffer
 
 
@@ -21,7 +21,7 @@ class Learner:
         self._e_end = e_end
         self._e_start_t = e_start_t
         self._e_end_t = e_end_t
-        self._agent = Agent(q_tanh, n_inputs, n_channels, n_actions)
+        self._agent = Agent(q_models['tanh'], n_inputs, n_channels, n_actions)
         self._report_interval = report_interval
         self._recent_state = None
         self._recent_action = None

@@ -21,14 +21,14 @@ _DROPOUT_OFF = 0.0
 _DROPOUT_ON = 1.0
 
 
-def q_random(x, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
+def _q_random(x, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
     # ignore state, just be random
     q = tf.random_normal([tf.shape(x)[0], n_outputs])
 
     return q, []
 
 
-def q_fully_connected(activation_fn):
+def _q_fully_connected(activation_fn):
     def fn(x, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
@@ -60,11 +60,13 @@ def q_fully_connected(activation_fn):
 
     return fn
 
-
-q_linear = q_fully_connected(None)
-q_relu = q_fully_connected(tf.nn.relu)
-q_sigmoid = q_fully_connected(tf.sigmoid)
-q_tanh = q_fully_connected(tf.tanh)
+q_models = {
+    'random': _q_random,
+    'linear': _q_fully_connected(None),
+    'relu': _q_fully_connected(tf.nn.relu),
+    'sigmoid': _q_fully_connected(tf.sigmoid),
+    'tanh': _q_fully_connected(tf.tanh)
+}
 
 
 class Agent(object):
