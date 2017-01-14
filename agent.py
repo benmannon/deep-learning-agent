@@ -14,6 +14,7 @@ _OP_TRAIN = 'train'
 _DROPOUT_OFF = 0.0
 _DROPOUT_ON = 1.0
 
+
 class Agent(object):
     def __init__(self, n_inputs, n_channels, n_outputs):
         self._sess, self._ops = self.build_model(n_inputs, n_channels, n_outputs)
@@ -58,7 +59,6 @@ class Agent(object):
         return sess, ops
 
     def _model_train(self, p, action, reward):
-
         # train is a no-op if there are no trainable variables
         if not tf.trainable_variables():
             return tf.no_op()
