@@ -54,6 +54,7 @@ class Agent(object):
             gamma=gamma,
             rate=rate,
             q_s=q_s,
+            q_s2=q2_s2,
             q2_s2=q2_s2,
             a=a,
             r=r,
@@ -82,7 +83,7 @@ class Agent(object):
 
         return sess, q_params, q2_params, ops
 
-    def _model_train(self, gamma, rate, q_s, q2_s2, a, r, term):
+    def _model_train(self, gamma, rate, q_s, q_s2, q2_s2, a, r, term):
         # train is a no-op if there are no trainable variables
         if not tf.trainable_variables():
             return tf.no_op()
@@ -90,8 +91,8 @@ class Agent(object):
         # Q(s, a)
         q_s_a = self._tf_select(q_s, a)
 
-        # a2 = argmax_a2 Q2(s2, a2)
-        a2 = tf.cast(tf.arg_max(q2_s2, 1), tf.int32)
+        # a2 = argmax_a2 Q(s2, a2)
+        a2 = tf.cast(tf.arg_max(q_s2, 1), tf.int32)
 
         # Q2(s2, a2)
         q2_s2_a2 = self._tf_select(q2_s2, a2)
