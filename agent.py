@@ -88,22 +88,22 @@ class Agent(object):
             return tf.no_op()
 
         # Q(s, a)
-        q_flat = tf.range(0, tf.shape(q_s)[0]) * tf.shape(q_s)[1] + a
-        q_a = tf.gather(tf.reshape(q_s, [-1]), q_flat)
+        q_s_flat = tf.range(0, tf.shape(q_s)[0]) * tf.shape(q_s)[1] + a
+        q_s_a = tf.gather(tf.reshape(q_s, [-1]), q_s_flat)
 
-        # q2_a = argmax_a2 Q2(s2, a2)
-        q2_a = tf.cast(tf.arg_max(q2_s2, 1), tf.int32)
-        q2_a_flat = tf.range(0, tf.shape(q2_s2)[0]) * tf.shape(q2_s2)[1] + q2_a
+        # a2 = argmax_a2 Q2(s2, a2)
+        a2 = tf.cast(tf.arg_max(q2_s2, 1), tf.int32)
 
-        # Q2(s2, q2_a)
-        q2_max_a = tf.gather(tf.reshape(q2_s2, [-1]), q2_a_flat)
+        # Q2(s2, a2)
+        q2_s2_flat = tf.range(0, tf.shape(q2_s2)[0]) * tf.shape(q2_s2)[1] + a2
+        q2_s2_a2 = tf.gather(tf.reshape(q2_s2, [-1]), q2_s2_flat)
 
-        # Yt = reward + gamma * Q2(s2, q2_a)
+        # Yt = reward + gamma * Q2(s2, a2)
         # (don't reward terminal states)
-        target = r + (1 - term) * gamma * q2_max_a
+        target = r + (1 - term) * gamma * q2_s2_a2
 
         # loss = (target - q(s, a)) ^ 2
-        loss = tf.pow(target - q_a, 2)
+        loss = tf.pow(target - q_s_a, 2)
         loss_mean = tf.reduce_mean(loss)
 
         # minimize loss
