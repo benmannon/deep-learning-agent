@@ -14,14 +14,17 @@ _OP_GAMMA = 'gamma'
 _OP_LEARNING_RATE = 'rate'
 _OP_TRAIN = 'train'
 
+_PARAMS_Q = 'q'
+_PARAMS_Q2 = 'q2'
+
 _DROPOUT_OFF = 0.0
 _DROPOUT_ON = 1.0
 
 
 class Agent(object):
     def __init__(self, n_inputs, n_channels, n_outputs):
-        self._sess, self._q_params, self._q2_params, self._ops = self.build_model(n_inputs, n_channels, n_outputs)
-        self._target_params = [None] * len(self._q_params)
+        self._sess, self._ops, self._params = self.build_model(n_inputs, n_channels, n_outputs)
+        self._target_params = [None] * len(self._params[_PARAMS_Q])
         self.update_target()
 
     def build_model(self, n_inputs, n_channels, n_outputs):
@@ -81,7 +84,12 @@ class Agent(object):
             _OP_TRAIN: train
         }
 
-        return sess, q_params, q2_params, ops
+        params = {
+            _PARAMS_Q: q_params,
+            _PARAMS_Q2: q2_params,
+        }
+
+        return sess, ops, params
 
     def _model_train(self, gamma, rate, q_s, q_s2, q2_s2, a, r, term):
         # train is a no-op if there are no trainable variables
@@ -153,8 +161,9 @@ class Agent(object):
         }
 
         # feed parameters of current target network into Q2
+        q2_params = self._params[_PARAMS_Q2]
         for i in range(0, len(self._target_params)):
-            feed_dict[self._q2_params[i]] = self._target_params[i]
+            feed_dict[q2_params[i]] = self._target_params[i]
 
         self._sess.run(self._ops[_OP_TRAIN], feed_dict=feed_dict)
 
@@ -165,8 +174,9 @@ class Agent(object):
         return floats
 
     def update_target(self):
-        for i in range(0, len(self._q_params)):
-            self._target_params[i] = self._sess.run(self._q_params[i])
+        q_params = self._params[_PARAMS_Q]
+        for i in range(0, len(self._target_params)):
+            self._target_params[i] = self._sess.run(q_params[i])
 
 
 class RandomAgent(Agent):
