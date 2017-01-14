@@ -1,7 +1,6 @@
 from __future__ import division
 
 import getopt
-import random
 import sys
 import time
 from math import pi
