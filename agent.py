@@ -32,12 +32,13 @@ class Agent(object):
                              tf.random_uniform(tf.shape(greedy), dtype=tf.int64, maxval=n_outputs),
                              greedy)
 
-        # action, reward
+        # action, reward, transitions
         actions = tf.placeholder(tf.int32, [None])
         rewards = tf.placeholder(tf.float32, [None])
+        transitions = tf.placeholder(tf.float32, [None, n_inputs, n_channels])
 
         # back propagation
-        train = self._model_train(p, actions, rewards)
+        train = self._model_train(p, actions, rewards, transitions)
 
         init = tf.global_variables_initializer()
         sess = tf.Session()
@@ -52,13 +53,13 @@ class Agent(object):
             _OP_EPSILON: e,
             _OP_REWARDS: rewards,
             _OP_ACTIONS: actions,
-            _OP_TRANSITIONS: tf.placeholder(tf.float32, [None, n_inputs, n_channels]),
+            _OP_TRANSITIONS: transitions,
             _OP_TRAIN: train
         }
 
         return sess, ops
 
-    def _model_train(self, p, actions, rewards):
+    def _model_train(self, p, actions, rewards, transitions):
         # train is a no-op if there are no trainable variables
         if not tf.trainable_variables():
             return tf.no_op()
