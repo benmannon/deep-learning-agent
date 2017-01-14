@@ -30,12 +30,16 @@ def _q_random(x, dropout, n_inputs, n_channels, n_outputs, trainable=True, param
 
 def _q_fully_connected(activation_fn):
     def fn(x, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
+
+        # flatten input
         x_size = n_inputs * n_channels
         x_flat = tf.reshape(x, [-1, x_size])
 
+        # dropout will be 1.0 (ON) or 0.0 (OFF)
         keep_prob = 1 - dropout * 0.5
         drop_x = tf.nn.dropout(x_flat, keep_prob)
 
+        # parameters may be shared with an identical model
         if params is None:
             w_initial = tf.truncated_normal([x_size, n_outputs], stddev=0.1)
             w = tf.Variable(w_initial, trainable=trainable)
