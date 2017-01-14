@@ -49,7 +49,15 @@ class Agent(object):
         q2, params_target = self._model_q(x_target, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, trainable=False)
 
         # back propagation
-        train = self._model_train(gamma, rate, q, q2, actions, rewards, terminals)
+        train = self._model_train(
+            gamma=gamma,
+            rate=rate,
+            q_s=q,
+            q2_s2=q2,
+            a=actions,
+            r=rewards,
+            term=terminals
+        )
 
         init = tf.global_variables_initializer()
         sess = tf.Session()
