@@ -85,10 +85,10 @@ def _q_hidden_fully_connected(activation_fn, n_hidden):
             h_b = tf.Variable(h_b_initial, trainable=trainable)
 
             q_w_initial = tf.truncated_normal([n_hidden, n_outputs], stddev=0.1)
-            q_w = tf.Variable(h_w_initial, trainable=trainable)
+            q_w = tf.Variable(q_w_initial, trainable=trainable)
 
             q_b_initial = tf.constant(0.1, shape=[n_outputs])
-            q_b = tf.Variable(h_b_initial, trainable=trainable)
+            q_b = tf.Variable(q_b_initial, trainable=trainable)
 
         else:
             h_w, h_b, q_w, q_b = params
