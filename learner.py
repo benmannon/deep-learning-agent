@@ -35,7 +35,8 @@ class Learner:
             s = self._ep_states[i]
             a = self._ep_actions[i]
             r = d_rewards[i]
-            self._xp_buf.append(s, a, r)
+            t = (i == len(self._ep_states) - 1)
+            self._xp_buf.append(s, a, r, t)
         self._ep_states = []
         self._ep_actions = []
         self._ep_rewards = []
