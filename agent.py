@@ -61,6 +61,9 @@ def q_fully_connected(activation_fn):
     return fn
 
 
+q_linear = q_fully_connected(None)
+q_relu = q_fully_connected(tf.nn.relu)
+q_sigmoid = q_fully_connected(tf.sigmoid)
 q_tanh = q_fully_connected(tf.tanh)
 
 
