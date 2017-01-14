@@ -50,7 +50,7 @@ class Agent(object):
         term = tf.placeholder(tf.float32, [None])
 
         # current network's evaluation of transition state
-        q_s2, _ = self._model_q(s2, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, trainable=False, params=q_params)
+        q_s2, _ = self._model_q(s2, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, params=q_params)
 
         # target network's evaluation of transition state
         q2_s2, q2_params = self._model_q(s2, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, trainable=False)
