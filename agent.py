@@ -110,13 +110,6 @@ def _model_train(gamma, rate, q_s, q_s2, q2_s2, a, r, term):
     return train
 
 
-def _bools_to_floats(bools):
-    floats = [None] * len(bools)
-    for i in range(0, len(bools)):
-        floats[i] = 1.0 if bools[i] else 0.0
-    return floats
-
-
 def _build_model(q_model, n_inputs, n_channels, n_outputs):
     # feed forward
     s = tf.placeholder(tf.float32, [None, n_inputs, n_channels])
@@ -183,6 +176,13 @@ def _build_model(q_model, n_inputs, n_channels, n_outputs):
     }
 
     return sess, ops, params
+
+
+def _bools_to_floats(bools):
+    floats = [None] * len(bools)
+    for i in range(0, len(bools)):
+        floats[i] = 1.0 if bools[i] else 0.0
+    return floats
 
 
 class Agent:
