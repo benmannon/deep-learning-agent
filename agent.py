@@ -52,7 +52,7 @@ class Agent(object):
         # current network's evaluation of transition state
         q_s2, _ = self._model_q(s2, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, trainable=False, params=q_params)
 
-        # target network, using target parameters
+        # target network's evaluation of transition state
         q2_s2, q2_params = self._model_q(s2, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, trainable=False)
 
         # back propagation
