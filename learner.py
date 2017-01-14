@@ -30,7 +30,12 @@ class Learner:
         self._ep_rewards.append(reward)
 
     def _end_episode(self):
-        self._xp_buf.append(self._ep_states, self._ep_actions, self._discount(self._ep_rewards))
+        d_rewards = self._discount(self._ep_rewards)
+        for i in range(0, len(self._ep_states)):
+            s = self._ep_states[i]
+            a = self._ep_actions[i]
+            r = d_rewards[i]
+            self._xp_buf.append(s, a, r)
         self._ep_states = []
         self._ep_actions = []
         self._ep_rewards = []
@@ -42,7 +47,8 @@ class Learner:
         for reward in reversed(rewards):
             total_reward = gamma * total_reward + reward
             d_rewards.append(total_reward)
-        return reversed(d_rewards)
+        d_rewards.reverse()
+        return d_rewards
 
     def _learn(self):
         if self._xp_buf.size > 0:

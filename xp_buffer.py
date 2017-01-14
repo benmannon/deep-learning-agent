@@ -4,19 +4,21 @@ import random
 class XpBuffer:
     def __init__(self, capacity):
         self._capacity = capacity
-        self._s = []
-        self._a = []
-        self._r = []
+        self._size = 0
+        self._index = 0
+        self._s = [None] * self._capacity
+        self._a = [None] * self._capacity
+        self._r = [None] * self._capacity
 
-    def append(self, states, actions, rewards):
-        self._s += states
-        self._a += actions
-        self._r += rewards
-        overfill = len(self._s) - self._capacity
-        if overfill > 0:
-            del self._s[:overfill]
-            del self._a[:overfill]
-            del self._r[:overfill]
+    def append(self, s, a, r):
+        self._index += 1
+        if self._index == self._capacity:
+            self._index = 0
+        if self._size < self._capacity:
+            self._size += 1
+        self._s[self._index] = s
+        self._a[self._index] = a
+        self._r[self._index] = r
 
     def samples(self, n):
 
@@ -36,4 +38,4 @@ class XpBuffer:
 
     @property
     def size(self):
-        return len(self._s)
+        return self._size
