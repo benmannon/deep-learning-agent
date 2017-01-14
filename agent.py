@@ -30,6 +30,7 @@ class Agent(object):
         dropout = tf.placeholder(tf.float32, [])
         q_s, q_params = self._model_q(s, dropout, n_inputs, n_channels, n_outputs)
 
+        # variety of evaluation functions
         p = tf.nn.softmax(q_s)
         greedy = tf.argmax(q_s, 1)
         e = tf.placeholder(tf.float32, [])
