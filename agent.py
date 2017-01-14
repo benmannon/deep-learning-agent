@@ -91,7 +91,7 @@ class Agent(object):
         loss_mean = tf.reduce_mean(loss)
 
         # minimize loss
-        train = tf.train.AdamOptimizer(rate).minimize(loss_mean)
+        train = tf.train.RMSPropOptimizer(rate, momentum=0.95, epsilon=0.01).minimize(loss_mean)
 
         return train
 
