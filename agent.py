@@ -219,7 +219,7 @@ class Agent:
             self._ops[_OP_INPUTS]: states,
             self._ops[_OP_ACTIONS]: actions,
             self._ops[_OP_REWARDS]: rewards,
-            self._ops[_OP_DROPOUT]: _DROPOUT_OFF,
+            self._ops[_OP_DROPOUT]: _DROPOUT_ON,
             self._ops[_OP_TRANSITIONS]: states2,
             self._ops[_OP_TERMINAL] : _bools_to_floats(term2)
         }
