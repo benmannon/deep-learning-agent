@@ -20,6 +20,10 @@ _AGENT_STRIDE = 0.1
 _AGENT_STRIDE_ON_TURN = 0.05
 _AGENT_TURN = pi / 16
 _COIN_RADIUS = 0.25
+_REWARD_COIN = 1
+_REWARD_WIN = 5
+_REWARD_LOSS = -5
+_REWARD_COLLISION = -0.1
 
 # visualization parameters
 _WINDOW_WIDTH = 2048
@@ -152,6 +156,10 @@ def main(argv):
               agent_stride_on_turn=_AGENT_STRIDE_ON_TURN,
               agent_turn=_AGENT_TURN,
               coin_radius=_COIN_RADIUS,
+              reward_coin=_REWARD_COIN,
+              reward_win=_REWARD_WIN,
+              reward_loss=_REWARD_LOSS,
+              reward_collision=_REWARD_COLLISION,
               window_width=_WINDOW_WIDTH,
               grid_color=_GRID_COLOR,
               coin_color=_COIN_COLOR,

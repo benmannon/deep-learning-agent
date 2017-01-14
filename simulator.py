@@ -10,16 +10,17 @@ from vision import Vision
 
 CHANNEL_NUM = vision.CHANNEL_NUM
 
-_REWARD_COIN = 1
-_REWARD_TIME_LEFT = 5
-_REWARD_TIME_OUT = -5
-_REWARD_COLLISION = -0.1
-
 
 class Simulator:
     def __init__(self, agent_vision_res, agent_vision_fov, agent_vision_attenuation, agent_radius, agent_stride,
-                 agent_stride_on_turn, agent_turn, coin_radius, window_width, grid_color, coin_color, agent_color,
+                 agent_stride_on_turn, agent_turn, coin_radius, reward_coin, reward_win, reward_loss, reward_collision,
+                 window_width, grid_color, coin_color, agent_color,
                  agent_pointer_brightness, bkg_color):
+
+        self._reward_coin = reward_coin
+        self._reward_win = reward_win
+        self._reward_loss = reward_loss
+        self._reward_collision = reward_collision
 
         self._lvl = level.square()
         self._grid_color = grid_color
@@ -94,20 +95,20 @@ class Simulator:
         is_colliding = self._ctrl.step(action)
         coins_left = len(self._lvl.coins)
         coins_collected = coins_available - coins_left
-        reward = float(coins_collected) * _REWARD_COIN
+        reward = float(coins_collected) * self._reward_coin
         end = False
 
         if is_colliding:
-            reward += _REWARD_COLLISION
+            reward += self._reward_collision
 
         # no more coins? out of time? reset the level
         if coins_left == 0:
-            reward += _REWARD_TIME_LEFT
+            reward += self._reward_win
             self._time_step = self._lvl.time
             self._lvl.reset()
             end = True
         elif self._time_step <= 0:
-            reward += _REWARD_TIME_OUT
+            reward += self._reward_loss
             self._time_step = self._lvl.time
             self._lvl.reset()
             end = True
