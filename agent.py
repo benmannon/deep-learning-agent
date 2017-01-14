@@ -8,6 +8,7 @@ _OP_E_GREEDY = 'e_greedy'
 _OP_EPSILON = 'e'
 _OP_REWARDS = 'rewards'
 _OP_ACTIONS = 'actions'
+_OP_TRANSITIONS = 'transitions'
 _OP_TRAIN = 'train'
 
 _DROPOUT_OFF = 0.0
@@ -46,6 +47,7 @@ class Agent(object):
             _OP_EPSILON: e,
             _OP_REWARDS: reward,
             _OP_ACTIONS: action,
+            _OP_TRANSITIONS: tf.placeholder(tf.float32, [None, n_inputs, n_channels]),
             _OP_TRAIN: train
         }
 
@@ -98,12 +100,13 @@ class Agent(object):
             self._ops[_OP_DROPOUT]: _DROPOUT_ON,
         })[0]
 
-    def train(self, states, actions, rewards):
+    def train(self, states, actions, rewards, states2):
         self._sess.run(self._ops[_OP_TRAIN], feed_dict={
             self._ops[_OP_INPUTS]: states,
             self._ops[_OP_ACTIONS]: actions,
             self._ops[_OP_REWARDS]: rewards,
             self._ops[_OP_DROPOUT]: _DROPOUT_ON,
+            self._ops[_OP_TRANSITIONS]: states2
         })
 
 

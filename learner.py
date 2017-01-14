@@ -53,8 +53,8 @@ class Learner:
 
     def _learn(self):
         if self._xp_buf.size > 0:
-            states, actions, rewards, _ = self._xp_buf.samples(self._batch_size)
-            self._agent.train(states, actions, rewards)
+            states, actions, rewards, states2 = self._xp_buf.samples(self._batch_size)
+            self._agent.train(states, actions, rewards, states2)
 
     def _epsilon(self):
 
