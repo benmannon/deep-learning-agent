@@ -88,15 +88,17 @@ class Agent(object):
             return tf.no_op()
 
         # Q(s, a)
-        q_s_flat = tf.range(0, tf.shape(q_s)[0]) * tf.shape(q_s)[1] + a
-        q_s_a = tf.gather(tf.reshape(q_s, [-1]), q_s_flat)
+        a_offset = tf.range(0, tf.shape(q_s)[0]) * tf.shape(q_s)[1] + a
+        q_s_flat = tf.reshape(q_s, [-1])
+        q_s_a = tf.gather(q_s_flat, a_offset)
 
         # a2 = argmax_a2 Q2(s2, a2)
         a2 = tf.cast(tf.arg_max(q2_s2, 1), tf.int32)
 
         # Q2(s2, a2)
-        q2_s2_flat = tf.range(0, tf.shape(q2_s2)[0]) * tf.shape(q2_s2)[1] + a2
-        q2_s2_a2 = tf.gather(tf.reshape(q2_s2, [-1]), q2_s2_flat)
+        a2_offset = tf.range(0, tf.shape(q2_s2)[0]) * tf.shape(q2_s2)[1] + a2
+        q2_s2_flat = tf.reshape(q2_s2, [-1])
+        q2_s2_a2 = tf.gather(q2_s2_flat, a2_offset)
 
         # Yt = reward + gamma * Q2(s2, a2)
         # (don't reward future terminal states)
