@@ -20,18 +20,18 @@ _DROPOUT_ON = 1.0
 
 class Agent(object):
     def __init__(self, n_inputs, n_channels, n_outputs):
-        self._sess, self._params, self._params_target, self._ops = self.build_model(n_inputs, n_channels, n_outputs)
-        self._target = [None] * len(self._params)
+        self._sess, self._q_params, self._q2_params, self._ops = self.build_model(n_inputs, n_channels, n_outputs)
+        self._target_params = [None] * len(self._q_params)
         self.update_target()
 
     def build_model(self, n_inputs, n_channels, n_outputs):
         # feed forward
-        x = tf.placeholder(tf.float32, [None, n_inputs, n_channels])
+        s = tf.placeholder(tf.float32, [None, n_inputs, n_channels])
         dropout = tf.placeholder(tf.float32, [])
-        q, params = self._model_q(x, dropout, n_inputs, n_channels, n_outputs)
+        q_s, q_params = self._model_q(s, dropout, n_inputs, n_channels, n_outputs)
 
-        p = tf.nn.softmax(q)
-        greedy = tf.argmax(q, 1)
+        p = tf.nn.softmax(q_s)
+        greedy = tf.argmax(q_s, 1)
         e = tf.placeholder(tf.float32, [])
         e_greedy = tf.select(tf.random_uniform(tf.shape(greedy)) < e,
                              tf.random_uniform(tf.shape(greedy), dtype=tf.int64, maxval=n_outputs),
@@ -40,23 +40,23 @@ class Agent(object):
         # learning rate, actions, rewards, transitions
         gamma = tf.placeholder(tf.float32, [])
         rate = tf.placeholder(tf.float32, [])
-        actions = tf.placeholder(tf.int32, [None])
-        rewards = tf.placeholder(tf.float32, [None])
-        x_target = tf.placeholder(tf.float32, [None, n_inputs, n_channels])
-        terminals = tf.placeholder(tf.float32, [None])
+        a = tf.placeholder(tf.int32, [None])
+        r = tf.placeholder(tf.float32, [None])
+        s2 = tf.placeholder(tf.float32, [None, n_inputs, n_channels])
+        term = tf.placeholder(tf.float32, [None])
 
         # target network, using target parameters
-        q2, params_target = self._model_q(x_target, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, trainable=False)
+        q2_s2, q2_params = self._model_q(s2, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, trainable=False)
 
         # back propagation
         train = self._model_train(
             gamma=gamma,
             rate=rate,
-            q_s=q,
-            q2_s2=q2,
-            a=actions,
-            r=rewards,
-            term=terminals
+            q_s=q_s,
+            q2_s2=q2_s2,
+            a=a,
+            r=r,
+            term=term
         )
 
         init = tf.global_variables_initializer()
@@ -64,22 +64,22 @@ class Agent(object):
         sess.run(init)
 
         ops = {
-            _OP_INPUTS: x,
+            _OP_INPUTS: s,
             _OP_DROPOUT: dropout,
             _OP_P: p,
             _OP_GREEDY: greedy,
             _OP_E_GREEDY: e_greedy,
             _OP_EPSILON: e,
-            _OP_REWARDS: rewards,
-            _OP_ACTIONS: actions,
-            _OP_TRANSITIONS: x_target,
-            _OP_TERMINAL: terminals,
+            _OP_REWARDS: r,
+            _OP_ACTIONS: a,
+            _OP_TRANSITIONS: s2,
+            _OP_TERMINAL: term,
             _OP_GAMMA: gamma,
             _OP_LEARNING_RATE: rate,
             _OP_TRAIN: train
         }
 
-        return sess, params, params_target, ops
+        return sess, q_params, q2_params, ops
 
     def _model_train(self, gamma, rate, q_s, q2_s2, a, r, term):
         # train is a no-op if there are no trainable variables
@@ -147,9 +147,9 @@ class Agent(object):
             self._ops[_OP_TERMINAL] : self.bools_to_floats(term2)
         }
 
-        # feed parameters of current target network
-        for i in range(0, len(self._target)):
-            feed_dict[self._params_target[i]] = self._target[i]
+        # feed parameters of current target network into Q2
+        for i in range(0, len(self._target_params)):
+            feed_dict[self._q2_params[i]] = self._target_params[i]
 
         self._sess.run(self._ops[_OP_TRAIN], feed_dict=feed_dict)
 
@@ -160,8 +160,8 @@ class Agent(object):
         return floats
 
     def update_target(self):
-        for i in range(0, len(self._params)):
-            self._target[i] = self._sess.run(self._params[i])
+        for i in range(0, len(self._q_params)):
+            self._target_params[i] = self._sess.run(self._q_params[i])
 
 
 class RandomAgent(Agent):
