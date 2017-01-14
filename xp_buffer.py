@@ -35,8 +35,7 @@ class XpBuffer:
 
     def sample(self):
         i = random.randrange(0, self.size)
-        s, a, r = self._s[i], self._a[i], self._r[i]
-        return s, a, r
+        return self._s[i], self._a[i], self._r[i]
 
     @property
     def size(self):
