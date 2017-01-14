@@ -11,14 +11,14 @@ class XpBuffer:
         self._r = [None] * self._capacity
 
     def append(self, s, a, r):
+        self._s[self._index] = s
+        self._a[self._index] = a
+        self._r[self._index] = r
         self._index += 1
         if self._index == self._capacity:
             self._index = 0
         if self._size < self._capacity:
             self._size += 1
-        self._s[self._index] = s
-        self._a[self._index] = a
-        self._r[self._index] = r
 
     def samples(self, n):
 
