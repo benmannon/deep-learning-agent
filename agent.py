@@ -31,8 +31,12 @@ class Agent(object):
                              tf.random_uniform(tf.shape(greedy), dtype=tf.int64, maxval=n_outputs),
                              greedy)
 
+        # action, reward
+        action = tf.placeholder(tf.int32, [None])
+        reward = tf.placeholder(tf.float32, [None])
+
         # back propagation
-        action, reward, train = self._model_train(p)
+        train = self._model_train(p, action, reward)
 
         init = tf.global_variables_initializer()
         sess = tf.Session()
@@ -53,14 +57,11 @@ class Agent(object):
 
         return sess, ops
 
-    def _model_train(self, p):
-        # action, reward
-        reward = tf.placeholder(tf.float32, [None])
-        action = tf.placeholder(tf.int32, [None])
+    def _model_train(self, p, action, reward):
 
         # train is a no-op if there are no trainable variables
         if not tf.trainable_variables():
-            return action, reward, tf.no_op()
+            return tf.no_op()
 
         # determine preferred action, calculate loss according to magnitude of reward
         action_flat = tf.range(0, tf.shape(p)[0]) * tf.shape(p)[1] + action
@@ -73,7 +74,7 @@ class Agent(object):
         # minimize loss
         train = tf.train.AdamOptimizer(0.00025).minimize(loss)
 
-        return action, reward, train
+        return train
 
     def eval_pg(self, state):
         return self._sess.run(self._ops[_OP_P], feed_dict={
