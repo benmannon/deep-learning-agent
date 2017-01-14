@@ -29,12 +29,13 @@ class XpBuffer:
         a = [None] * n
         r = [None] * n
         s2 = [None] * n
+        t2 = [None] * n
 
         # sample randomly
         for i in range(0, n):
-            s[i], a[i], r[i], s2[i] = self.sample()
+            s[i], a[i], r[i], s2[i], t2[i] = self.sample()
 
-        return s, a, r, s2
+        return s, a, r, s2, t2
 
     def sample(self):
         valid = False
@@ -43,7 +44,7 @@ class XpBuffer:
             # no terminal states
             valid = not self._t[i]
         i2 = i + 1 if i + 1 < self.size else 0
-        return self._s[i], self._a[i], self._r[i], self._s[i2]
+        return self._s[i], self._a[i], self._r[i], self._s[i2], self._t[i2]
 
     @property
     def size(self):

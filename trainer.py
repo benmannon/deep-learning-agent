@@ -36,6 +36,7 @@ _REWARD_DISCOUNT_FACTOR = 0.25
 _LEARNING_RATE = 0.00025
 _LEARN_START_T = 2000
 _LEARN_INTERVAL = 4
+_TARGET_UPDATE_INTERVAL = 500
 _E_START = 1.0
 _E_END = 0.1
 _E_START_T = 2000
@@ -63,6 +64,7 @@ class Trainer:
                           learning_rate=_LEARNING_RATE,
                           learn_start_t=_LEARN_START_T,
                           learn_interval=_LEARN_INTERVAL,
+                          target_update_interval=_TARGET_UPDATE_INTERVAL,
                           e_start=_E_START,
                           e_end=_E_END,
                           e_start_t=_E_START_T,
