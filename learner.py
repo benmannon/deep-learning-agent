@@ -8,7 +8,7 @@ from xp_buffer import XpBuffer
 
 class Learner:
     def __init__(self, buffer_cap, batch_size, discount, learning_rate, learn_start_t, learn_interval,
-                 target_update_interval, e_start, e_end, e_start_t, e_end_t, n_inputs, n_channels, n_actions,
+                 target_update_interval, e_start, e_end, e_start_t, e_end_t, model, n_inputs, n_channels, n_actions,
                  report_interval):
         self._xp_buf = XpBuffer(buffer_cap)
         self._batch_size = batch_size
@@ -21,7 +21,7 @@ class Learner:
         self._e_end = e_end
         self._e_start_t = e_start_t
         self._e_end_t = e_end_t
-        self._agent = Agent(q_models['tanh'], n_inputs, n_channels, n_actions)
+        self._agent = Agent(q_models[model], n_inputs, n_channels, n_actions)
         self._report_interval = report_interval
         self._recent_state = None
         self._recent_action = None

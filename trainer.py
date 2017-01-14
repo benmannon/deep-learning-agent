@@ -50,7 +50,8 @@ _KEY_TURN_RIGHT = 68
 
 
 class Trainer:
-    def __init__(self, user_control=False):
+    def __init__(self, model, user_control=False):
+        self._model = model
         self._user_control = user_control
         self._action_lock = Lock()
         self._action = None
@@ -69,6 +70,7 @@ class Trainer:
                           e_end=_E_END,
                           e_start_t=_E_START_T,
                           e_end_t=_E_END_T,
+                          model=self._model,
                           n_inputs=_AGENT_VISION_RES,
                           n_channels=simulator.CHANNEL_NUM,
                           n_actions=len(controller.actions),
@@ -119,22 +121,29 @@ class Trainer:
 def main(argv):
     # parse command-line arguments
     try:
-        opts, args = getopt.getopt(argv, 'hu:', ["user-control"])
+        opts, args = getopt.getopt(argv, 'hu:m:', ['user-control', 'model'])
     except getopt.GetoptError:
         print_usage()
         sys.exit(2)
 
-    # apply arguments
+    # default arguments
+    model = 'linear'
     user_control = False
+
+    # apply arguments
     for opt, arg in opts:
         if opt == '-h':
             print_usage()
             sys.exit()
         elif opt in ('-u', '--user-control'):
             user_control = True
-            print('User controls enabled')
+        elif opt in ('-m', '--model'):
+            model = arg
 
-    trainer = Trainer(user_control=user_control)
+    print "Model is '%s'" % model
+    print 'User controls %s' % ('enabled' if user_control else 'disabled')
+
+    trainer = Trainer(model, user_control=user_control)
     Simulator(agent_vision_res=_AGENT_VISION_RES,
               agent_vision_fov=_AGENT_VISION_FOV,
               agent_vision_attenuation=_AGENT_VISION_ATTENUATION,
@@ -153,7 +162,7 @@ def main(argv):
 
 
 def print_usage():
-    print 'trainer.py [-u] [--user-control]'
+    print 'trainer.py [-u] [--user-control] [-m <model>] [--model <model>]'
 
 
 if __name__ == "__main__":
