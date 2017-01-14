@@ -99,7 +99,7 @@ class Agent(object):
         q2_s2_a2 = tf.gather(tf.reshape(q2_s2, [-1]), q2_s2_flat)
 
         # Yt = reward + gamma * Q2(s2, a2)
-        # (don't reward terminal states)
+        # (don't reward future terminal states)
         target = r + (1 - term) * gamma * q2_s2_a2
 
         # loss = (target - q(s, a)) ^ 2
