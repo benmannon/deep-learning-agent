@@ -18,8 +18,8 @@ _REWARD_COLLISION = -0.1
 
 class Simulator:
     def __init__(self, agent_vision_res, agent_vision_fov, agent_vision_attenuation, agent_radius, agent_stride,
-                 agent_turn, coin_radius, window_width, grid_color, coin_color, agent_color, agent_pointer_brightness,
-                 bkg_color):
+                 agent_stride_on_turn, agent_turn, coin_radius, window_width, grid_color, coin_color, agent_color,
+                 agent_pointer_brightness, bkg_color):
 
         self._lvl = level.square()
         self._grid_color = grid_color
@@ -39,6 +39,7 @@ class Simulator:
 
         self._ctrl = controller.Controller(self._lvl,
                                            agent_stride=agent_stride,
+                                           agent_stride_on_turn=agent_stride_on_turn,
                                            agent_turn=agent_turn,
                                            agent_radius=agent_radius,
                                            coin_radius=coin_radius)

@@ -10,10 +10,11 @@ actions = [walk_forward, turn_left, turn_right]
 
 
 class Controller:
-    def __init__(self, level, agent_stride, agent_turn, agent_radius=0.45, coin_radius=0.25):
+    def __init__(self, level, agent_stride, agent_stride_on_turn, agent_turn, agent_radius=0.45, coin_radius=0.25):
         self._level = level
         self._grid_shape = np.array(level.grid).shape
         self._stride = agent_stride
+        self._stride_on_turn = agent_stride_on_turn
         self._turn = agent_turn
         self._agent_radius = agent_radius
         self._coin_radius = coin_radius
@@ -24,8 +25,10 @@ class Controller:
             is_colliding = self._walk(self._level.agent.theta, self._stride)
         elif action == turn_left:
             self._level.agent.theta += self._turn
+            is_colliding = self._walk(self._level.agent.theta, self._stride_on_turn)
         elif action == turn_right:
             self._level.agent.theta -= self._turn
+            is_colliding = self._walk(self._level.agent.theta, self._stride_on_turn)
         return is_colliding
 
     def _walk(self, theta, distance):

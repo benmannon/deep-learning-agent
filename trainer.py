@@ -18,6 +18,7 @@ _AGENT_VISION_FOV = pi / 2
 _AGENT_VISION_ATTENUATION = 0.25
 _AGENT_RADIUS = 0.45
 _AGENT_STRIDE = 0.1
+_AGENT_STRIDE_ON_TURN = 0.05
 _AGENT_TURN = pi / 16
 _COIN_RADIUS = 0.25
 
@@ -140,6 +141,7 @@ def main(argv):
               agent_vision_attenuation=_AGENT_VISION_ATTENUATION,
               agent_radius=_AGENT_RADIUS,
               agent_stride=_AGENT_STRIDE,
+              agent_stride_on_turn=_AGENT_STRIDE_ON_TURN,
               agent_turn=_AGENT_TURN,
               coin_radius=_COIN_RADIUS,
               window_width=_WINDOW_WIDTH,
