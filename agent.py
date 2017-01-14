@@ -73,13 +73,13 @@ class Agent(object):
 
         return sess, params, params_target, ops
 
-    def _model_train(self, gamma, rate, q_s, q2_s2, actions, rewards, terminals):
+    def _model_train(self, gamma, rate, q_s, q2_s2, a, r, term):
         # train is a no-op if there are no trainable variables
         if not tf.trainable_variables():
             return tf.no_op()
 
         # Q(s, a)
-        q_flat = tf.range(0, tf.shape(q_s)[0]) * tf.shape(q_s)[1] + actions
+        q_flat = tf.range(0, tf.shape(q_s)[0]) * tf.shape(q_s)[1] + a
         q_a = tf.gather(tf.reshape(q_s, [-1]), q_flat)
 
         # q2_a = argmax_a2 Q2(s2, a2)
@@ -89,9 +89,9 @@ class Agent(object):
         # Q2(s2, q2_a)
         q2_max_a = tf.gather(tf.reshape(q2_s2, [-1]), q2_a_flat)
 
-        # Yt = rewards + gamma * Q2(s2, q2_a)
+        # Yt = reward + gamma * Q2(s2, q2_a)
         # (don't reward terminal states)
-        target = rewards + (1 - terminals) * gamma * q2_max_a
+        target = r + (1 - term) * gamma * q2_max_a
 
         # loss = (target - q(s, a)) ^ 2
         loss = tf.pow(target - q_a, 2)
