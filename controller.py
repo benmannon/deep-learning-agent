@@ -12,6 +12,72 @@ ACTION_TURN_RIGHT = _enum.next()
 ACTIONS = (ACTION_WALK_FORWARD, ACTION_TURN_LEFT, ACTION_TURN_RIGHT)
 
 
+def _handle_corner_collision(agent_coord, agent_radius, grid, cell_coord):
+
+    grid_shape = grid.shape
+
+    # cell coordinates
+    cx = cell_coord[0]
+    cy = cell_coord[1]
+
+    # is the cell out of bounds? exit early
+    if cx < 0 or cy < 0 or cx >= grid_shape[1] or cy >= grid_shape[0]:
+        return
+
+    # is the cell open? exit early
+    # (y-axis on grid is flipped)
+    cy_flip = grid_shape[0] - cy - 1
+    cell = grid[cy_flip][cx]
+    if cell == 0:
+        return
+
+    # the cell's bounding box vertices
+    cx0, cx1 = cx, cx + 1
+    cy0, cy1 = cy, cy + 1
+
+    # cell center point
+    ccx = (cx0 + cx1) / 2
+    ccy = (cy0 + cy1) / 2
+
+    # agent coordinates and radius, radius ^ 2
+    ax = agent_coord[0]
+    ay = agent_coord[1]
+    ar = agent_radius
+    ar2 = ar * ar
+
+    # adjusted agent coordinates
+    new_x = ax;
+    new_y = ay;
+
+    # find the nearest corner
+    ncx = cx0 if ax <= ccx else cx1
+    ncy = cy0 if ay <= ccy else cy1
+
+    # calculate distance to agent
+    vx, vy = ax - ncx, ay - ncy
+    dist2 = vx * vx + vy * vy
+
+    # colliding?
+    if dist2 < ar2:
+
+        # avoid costly sqrt until we're sure we have to
+        dist = sqrt(dist2)
+
+        # rescale vector with magnitude equal to agent's radius
+        vxr = vx * ar / dist
+        vyr = vy * ar / dist
+
+        # apply adjustment to both axes
+        new_x = ncx + vxr
+        new_y = ncy + vyr
+
+    # apply new agent coordinates
+    agent_coord[0] = new_x
+    agent_coord[1] = new_y
+
+    return ax != new_x or ay != new_y
+
+
 def _collect_coins(coins, coin_radius, agent_x, agent_y, agent_radius):
 
     # threshold distance for coin collection (squared)
@@ -80,7 +146,7 @@ class Controller:
             if self._handle_bounding_collision(cell):
                 is_colliding = True
         for cell in check_cells:
-            if self._handle_corner_collision(cell):
+            if _handle_corner_collision(coord, self._agent_radius, grid, cell):
                 is_colliding = True
         return is_colliding
 
@@ -135,73 +201,6 @@ class Controller:
                 new_x = cx1 + ar
             elif ax < ccx and cx0 - ax < ar:
                 new_x = cx0 - ar
-
-        # apply new agent coordinates
-        agent.coord[0] = new_x
-        agent.coord[1] = new_y
-
-        return ax != new_x or ay != new_y
-
-    def _handle_corner_collision(self, cell_coord):
-
-        grid_shape = self._grid_shape
-        grid = self._level.grid
-
-        # cell coordinates
-        cx = cell_coord[0]
-        cy = cell_coord[1]
-
-        # is the cell out of bounds? exit early
-        if cx < 0 or cy < 0 or cx >= grid_shape[1] or cy >= grid_shape[0]:
-            return
-
-        # is the cell open? exit early
-        # (y-axis on grid is flipped)
-        cy_flip = grid_shape[0] - cy - 1
-        cell = grid[cy_flip][cx]
-        if cell == 0:
-            return
-
-        # the cell's bounding box vertices
-        cx0, cx1 = cx, cx + 1
-        cy0, cy1 = cy, cy + 1
-
-        # cell center point
-        ccx = (cx0 + cx1) / 2
-        ccy = (cy0 + cy1) / 2
-
-        # agent coordinates and radius, radius ^ 2
-        agent = self._level.agent
-        ax = agent.coord[0]
-        ay = agent.coord[1]
-        ar = self._agent_radius
-        ar2 = ar * ar
-
-        # adjusted agent coordinates
-        new_x = ax;
-        new_y = ay;
-
-        # find the nearest corner
-        ncx = cx0 if ax <= ccx else cx1
-        ncy = cy0 if ay <= ccy else cy1
-
-        # calculate distance to agent
-        vx, vy = ax - ncx, ay - ncy
-        dist2 = vx * vx + vy * vy
-
-        # colliding?
-        if dist2 < ar2:
-
-            # avoid costly sqrt until we're sure we have to
-            dist = sqrt(dist2)
-
-            # rescale vector with magnitude equal to agent's radius
-            vxr = vx * ar / dist
-            vyr = vy * ar / dist
-
-            # apply adjustment to both axes
-            new_x = ncx + vxr
-            new_y = ncy + vyr
 
         # apply new agent coordinates
         agent.coord[0] = new_x
