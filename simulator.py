@@ -2,9 +2,9 @@ from __future__ import division
 
 import threading
 
-import controller
 import level
 import vision
+from controller import Controller
 from draw import Draw, Line
 from vision import Vision
 
@@ -24,7 +24,7 @@ class Simulator:
         self._coin_color = args.coin_color
 
         self._draw = Draw(args, self._lvl.grid.shape)
-        self._ctrl = controller.Controller(args, self._lvl)
+        self._ctrl = Controller(args, self._lvl)
 
         self._vision = Vision(self._lvl,
                               agent_radius=args.agent_radius,
