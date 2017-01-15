@@ -137,15 +137,27 @@ class Vision:
         return circles
 
     @staticmethod
+    def _cross_2d(v1, v2):
+        x1, y1 = v1[0], v1[1]
+        x2, y2 = v2[0], v2[1]
+        return x1 * y2 - x2 * y1
+
+    @staticmethod
     def _cast_edge(ray, edge):
 
-        p = np.array(ray.point)
-        r = np.array(ray.project(1.0)) - p
-        q = np.array(edge.a)
-        s = np.array(edge.b) - q
+        px, py = ray.point
+        rx, ry = ray.cos_theta(), ray.sin_theta()
+        qx, qy = edge.a
+        bx, by = edge.b
+        sx, sy = bx - qx, by - qy
 
-        t = np.cross(q - p, s) / np.cross(r, s)
-        u = np.cross(q - p, r) / np.cross(r, s)
+        q_m_p = [qx - px, qy - py]
+        cross_r_s = Vision._cross_2d([rx, ry], [sx, sy])
+        if cross_r_s == 0:
+            return float('inf')
+
+        t = Vision._cross_2d(q_m_p, [sx, sy]) / cross_r_s
+        u = Vision._cross_2d(q_m_p, [rx, ry]) / cross_r_s
 
         # return t unless intersection is behind ray or outside edge points
         return t if 0 <= t and 0 <= u <= 1 else float('inf')
