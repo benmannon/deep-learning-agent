@@ -12,6 +12,15 @@ ACTION_TURN_RIGHT = _enum.next()
 ACTIONS = (ACTION_WALK_FORWARD, ACTION_TURN_LEFT, ACTION_TURN_RIGHT)
 
 
+def _walk(level, agent_radius, coin_radius, theta, distance):
+    agent_coord = level.agent.coord
+    agent_coord[0] += distance * cos(theta)
+    agent_coord[1] += distance * sin(theta)
+    is_colliding = _handle_collision(level, agent_radius)
+    _collect_coins(level.coins, coin_radius, agent_coord[0], agent_coord[1], agent_radius)
+    return is_colliding
+
+
 def _handle_collision(level, agent_radius):
     grid = level.grid
     agent = level.agent
@@ -190,19 +199,11 @@ class Controller:
     def step(self, action):
         is_colliding = False
         if action == ACTION_WALK_FORWARD:
-            is_colliding = self._walk(self._level.agent.theta, self._stride)
+            is_colliding = _walk(self._level, self._agent_radius, self._coin_radius, self._level.agent.theta, self._stride)
         elif action == ACTION_TURN_LEFT:
             self._level.agent.theta += self._turn
-            is_colliding = self._walk(self._level.agent.theta, self._stride_on_turn)
+            is_colliding = _walk(self._level, self._agent_radius, self._coin_radius, self._level.agent.theta, self._stride_on_turn)
         elif action == ACTION_TURN_RIGHT:
             self._level.agent.theta -= self._turn
-            is_colliding = self._walk(self._level.agent.theta, self._stride_on_turn)
-        return is_colliding
-
-    def _walk(self, theta, distance):
-        agent = self._level.agent
-        x, y = agent.coord[0], agent.coord[1]
-        agent.coord = [x + distance * cos(theta), y + distance * sin(theta)]
-        is_colliding = _handle_collision(self._level, self._agent_radius)
-        _collect_coins(self._level.coins, self._coin_radius, agent.coord[0], agent.coord[1], self._agent_radius)
+            is_colliding = _walk(self._level, self._agent_radius, self._coin_radius, self._level.agent.theta, self._stride_on_turn)
         return is_colliding
