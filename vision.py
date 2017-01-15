@@ -22,7 +22,7 @@ def _project(ray, t):
 def _cast_circle(ray, circle):
 
     pr1x, pr1y = ray.x, ray.y
-    pcx, pcy = circle.a
+    pcx, pcy = circle.x, circle.y
     r = circle.r
 
     # exit early if ray is clearly pointing away from circle
@@ -173,7 +173,7 @@ def _find_circles(coins, coin_radius):
     # just return each coin as a circle
     circles = []
     for coin in coins:
-        circles.append(Circle(coin, coin_radius, c))
+        circles.append(Circle(coin[0], coin[1], coin_radius, c))
 
     return circles
 
@@ -219,10 +219,4 @@ class Signal:
 
 
 Edge = namedtuple('Edge', 'ax ay bx by channels')
-
-
-class Circle:
-    def __init__(self, a, r, channels):
-        self.a = a
-        self.r = r
-        self.channels = channels
+Circle = namedtuple('Circle', 'x y r channels')
