@@ -2,28 +2,25 @@ from __future__ import division
 
 import random
 import time
-
 from agent import Agent, q_models
 from xp_buffer import XpBuffer
 
 
 class Learner:
-    def __init__(self, buffer_cap, batch_size, discount, learning_rate, learn_start_t, learn_interval,
-                 target_update_interval, e_start, e_end, e_start_t, e_end_t, model, n_inputs, n_channels, n_actions,
-                 report_interval):
-        self._xp_buf = XpBuffer(buffer_cap)
-        self._batch_size = batch_size
-        self._gamma = discount
-        self._learning_rate = learning_rate
-        self._learn_start_t = learn_start_t
-        self._learn_interval = learn_interval
-        self._target_update_inverval = target_update_interval
-        self._e_start = e_start
-        self._e_end = e_end
-        self._e_start_t = e_start_t
-        self._e_end_t = e_end_t
-        self._agent = Agent(q_models[model], n_inputs, n_channels, n_actions)
-        self._report_interval = report_interval
+    def __init__(self, args, model, n_channels, n_actions):
+        self._xp_buf = XpBuffer(args.replay_buffer_size)
+        self._batch_size = args.replay_batch_size
+        self._gamma = args.reward_discount_factor
+        self._learning_rate = args.learning_rate
+        self._learn_start_t = args.learn_start_t
+        self._learn_interval = args.learn_interval
+        self._target_update_inverval = args.target_update_interval
+        self._e_start = args.e_start
+        self._e_end = args.e_end
+        self._e_start_t = args.e_start_t
+        self._e_end_t = args.e_end_t
+        self._agent = Agent(q_models[model], args.agent_vision_res, n_channels, n_actions)
+        self._report_interval = args.report_interval
         self._recent_state = None
         self._recent_action = None
         self._step = 0

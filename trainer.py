@@ -68,22 +68,7 @@ class Trainer:
 
     def train(self, sim, first_input):
 
-        learner = Learner(buffer_cap=_ARGS.replay_buffer_size,
-                          batch_size=_ARGS.replay_batch_size,
-                          discount=_ARGS.reward_discount_factor,
-                          learning_rate=_ARGS.learning_rate,
-                          learn_start_t=_ARGS.learn_start_t,
-                          learn_interval=_ARGS.learn_interval,
-                          target_update_interval=_ARGS.target_update_interval,
-                          e_start=_ARGS.e_start,
-                          e_end=_ARGS.e_end,
-                          e_start_t=_ARGS.e_start_t,
-                          e_end_t=_ARGS.e_end_t,
-                          model=self._model,
-                          n_inputs=_ARGS.agent_vision_res,
-                          n_channels=simulator.CHANNEL_NUM,
-                          n_actions=len(controller.actions),
-                          report_interval=_ARGS.report_interval)
+        learner = Learner(_ARGS, model=self._model, n_channels=simulator.CHANNEL_NUM, n_actions=len(controller.actions))
 
         agent_input = first_input
         reward = 0.0
