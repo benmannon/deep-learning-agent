@@ -12,45 +12,42 @@ CHANNEL_NUM = vision.CHANNEL_NUM
 
 
 class Simulator:
-    def __init__(self, agent_vision_res, agent_vision_fov, agent_vision_attenuation, agent_radius, agent_stride,
-                 agent_stride_on_turn, agent_turn, coin_radius, reward_coin, reward_win, reward_loss, reward_collision,
-                 window_width, grid_color, coin_color, agent_color,
-                 agent_pointer_brightness, bkg_color):
+    def __init__(self, args):
 
-        self._reward_coin = reward_coin
-        self._reward_win = reward_win
-        self._reward_loss = reward_loss
-        self._reward_collision = reward_collision
+        self._reward_coin = args.reward_coin
+        self._reward_win = args.reward_win
+        self._reward_loss = args.reward_loss
+        self._reward_collision = args.reward_collision
 
         self._lvl = level.square()
-        self._grid_color = grid_color
-        self._coin_color = coin_color
+        self._grid_color = args.grid_color
+        self._coin_color = args.coin_color
 
         self._draw = Draw(self._lvl.grid.shape,
-                          sight_res=agent_vision_res,
-                          window_width=window_width,
-                          coin_radius=coin_radius,
-                          agent_radius=agent_radius,
-                          agent_pointer_threshold=agent_vision_fov / 2,
-                          grid_color=grid_color,
-                          coin_color=coin_color,
-                          agent_color=agent_color,
-                          agent_pointer_brightness=agent_pointer_brightness,
-                          bkg_color=bkg_color)
+                          sight_res=args.agent_vision_res,
+                          window_width=args.window_width,
+                          coin_radius=args.coin_radius,
+                          agent_radius=args.agent_radius,
+                          agent_pointer_threshold=args.agent_vision_fov / 2,
+                          grid_color=args.grid_color,
+                          coin_color=args.coin_color,
+                          agent_color=args.agent_color,
+                          agent_pointer_brightness=args.agent_pointer_brightness,
+                          bkg_color=args.bkg_color)
 
         self._ctrl = controller.Controller(self._lvl,
-                                           agent_stride=agent_stride,
-                                           agent_stride_on_turn=agent_stride_on_turn,
-                                           agent_turn=agent_turn,
-                                           agent_radius=agent_radius,
-                                           coin_radius=coin_radius)
+                                           agent_stride=args.agent_stride,
+                                           agent_stride_on_turn=args.agent_stride_on_turn,
+                                           agent_turn=args.agent_turn,
+                                           agent_radius=args.agent_radius,
+                                           coin_radius=args.coin_radius)
 
         self._vision = Vision(self._lvl,
-                              agent_radius=agent_radius,
-                              coin_radius=coin_radius,
-                              signal_count=agent_vision_res,
-                              fov=agent_vision_fov,
-                              attenuation=agent_vision_attenuation)
+                              agent_radius=args.agent_radius,
+                              coin_radius=args.coin_radius,
+                              signal_count=args.agent_vision_res,
+                              fov=args.agent_vision_fov,
+                              attenuation=args.agent_vision_attenuation)
 
         self._time_step = self._lvl.time
 

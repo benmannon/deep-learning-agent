@@ -138,25 +138,7 @@ def main(argv):
     print 'User controls %s' % ('enabled' if user_control else 'disabled')
 
     trainer = Trainer(model, user_control=user_control)
-    Simulator(agent_vision_res=_ARGS.agent_vision_res,
-              agent_vision_fov=_ARGS.agent_vision_fov,
-              agent_vision_attenuation=_ARGS.agent_vision_attenuation,
-              agent_radius=_ARGS.agent_radius,
-              agent_stride=_ARGS.agent_stride,
-              agent_stride_on_turn=_ARGS.agent_stride_on_turn,
-              agent_turn=_ARGS.agent_turn,
-              coin_radius=_ARGS.coin_radius,
-              reward_coin=_ARGS.reward_coin,
-              reward_win=_ARGS.reward_win,
-              reward_loss=_ARGS.reward_loss,
-              reward_collision=_ARGS.reward_collision,
-              window_width=_ARGS.window_width,
-              grid_color=_ARGS.grid_color,
-              coin_color=_ARGS.coin_color,
-              agent_color=_ARGS.agent_color,
-              agent_pointer_brightness=_ARGS.agent_pointer_brightness,
-              bkg_color=_ARGS.bkg_color) \
-        .run(trainer.train, trainer.key_press, trainer.close)
+    Simulator(_ARGS).run(trainer.train, trainer.key_press, trainer.close)
 
 
 def print_usage():
