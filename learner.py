@@ -14,7 +14,7 @@ class Learner:
         self._learning_rate = args.learning_rate
         self._learn_start_t = args.learn_start_t
         self._learn_interval = args.learn_interval
-        self._target_update_inverval = args.target_update_interval
+        self._target_update_interval = args.target_update_interval
         self._e_start = args.e_start
         self._e_end = args.e_end
         self._e_start_t = args.e_start_t
@@ -69,7 +69,7 @@ class Learner:
         self._recent_action = action
 
         learning = self._step >= self._learn_start_t
-        if learning and (self._step + self._learn_start_t) % self._target_update_inverval == 0:
+        if learning and (self._step + self._learn_start_t) % self._target_update_interval == 0:
             self._agent.update_target()
 
         if learning and self._step % self._learn_interval == 0:
