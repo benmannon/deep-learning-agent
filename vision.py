@@ -190,8 +190,8 @@ class Vision:
         self._agent_radius = args.agent_radius
         self._signal_count = args.agent_vision_res
         self._fov = args.agent_vision_fov
-        self._coin_radius = args.coin_radius
         self._attenuation = args.agent_vision_attenuation
+        self._coin_radius = args.coin_radius
         self._edges = _find_edges(self._level.grid)
 
     def look(self):
