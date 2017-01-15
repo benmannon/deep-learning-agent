@@ -1,7 +1,5 @@
 from math import cos, sin, sqrt
 
-import numpy as np
-
 from enum import Enum
 
 _enum = Enum()
@@ -40,7 +38,6 @@ def _handle_collision(level, args):
 
 
 def _handle_bounding_collision(agent_coord, grid, cell_coord, args):
-
     grid_shape = grid.shape
 
     # cell coordinates
@@ -97,7 +94,6 @@ def _handle_bounding_collision(agent_coord, grid, cell_coord, args):
 
 
 def _handle_corner_collision(agent_coord, grid, cell_coord, args):
-
     grid_shape = grid.shape
 
     # cell coordinates
@@ -143,7 +139,6 @@ def _handle_corner_collision(agent_coord, grid, cell_coord, args):
 
     # colliding?
     if dist2 < ar2:
-
         # avoid costly sqrt until we're sure we have to
         dist = sqrt(dist2)
 
@@ -163,7 +158,6 @@ def _handle_corner_collision(agent_coord, grid, cell_coord, args):
 
 
 def _collect_coins(level, args):
-
     coins = level.coins
     agent_coord = level.agent.coord
     agent_x = agent_coord[0]
