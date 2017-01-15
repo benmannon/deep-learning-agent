@@ -61,8 +61,8 @@ def _cast_edge(ray, edge):
 
     px, py = ray.x, ray.y
     rx, ry = ray.cos, ray.sin
-    qx, qy = edge.a
-    bx, by = edge.b
+    qx, qy = edge.ax, edge.ay
+    bx, by = edge.bx, edge.by
     sx, sy = bx - qx, by - qy
 
     q_m_p = [qx - px, qy - py]
@@ -144,10 +144,10 @@ def _find_edges(grid, shape):
             if a != b and x0 is None:
                 x0 = x
             elif a == b and x0 is not None:
-                edges.append(Edge([x0, y], [x, y], _CHANNELS_WALL))
+                edges.append(Edge(x0, y, x, y, _CHANNELS_WALL))
                 x0 = None
         if x0 is not None:
-            edges.append(Edge([x0, y], [w, y], _CHANNELS_WALL))
+            edges.append(Edge(x0, y, w, y, _CHANNELS_WALL))
 
     # walk between columns
     for x in range(1, w):
@@ -158,10 +158,10 @@ def _find_edges(grid, shape):
             if a != b and y0 is None:
                 y0 = y
             elif a == b and y0 is not None:
-                edges.append(Edge([x, y0], [x, y], _CHANNELS_WALL))
+                edges.append(Edge(x, y0, x, y, _CHANNELS_WALL))
                 y0 = None
         if y0 is not None:
-            edges.append(Edge([x, y0], [x, h], _CHANNELS_WALL))
+            edges.append(Edge(x, y0, x, h, _CHANNELS_WALL))
 
     return edges
 
@@ -218,14 +218,7 @@ class Signal:
         self.channels = channels
 
 
-class Edge:
-    def __init__(self, a, b, channels):
-        self.a = a
-        self.b = b
-        self.channels = channels
-
-    def __repr__(self):
-        return '[a=%s,b=%s,channels=%s]' % (self.a, self.b, self.channels)
+Edge = namedtuple('Edge', 'ax ay bx by channels')
 
 
 class Circle:
