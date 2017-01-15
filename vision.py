@@ -3,6 +3,11 @@ from math import pi, cos, sin, e, sqrt
 
 import numpy as np
 
+Ray = namedtuple('Ray', 'x y cos sin')
+Signal = namedtuple('Signal', 'ax ay bx by channels')
+Edge = namedtuple('Edge', 'ax ay bx by channels')
+Circle = namedtuple('Circle', 'x y r channels')
+
 CHANNEL_NUM = 2
 
 _CHANNELS_NONE = (0, 0)
@@ -206,9 +211,3 @@ class Vision:
             signals.append(_cast(ray, edges, circles, self._attenuation))
 
         return signals
-
-
-Ray = namedtuple('Ray', 'x y cos sin')
-Signal = namedtuple('Signal', 'ax ay bx by channels')
-Edge = namedtuple('Edge', 'ax ay bx by channels')
-Circle = namedtuple('Circle', 'x y r channels')
