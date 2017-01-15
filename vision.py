@@ -158,10 +158,10 @@ class Vision:
         r = circle.r
 
         # exit early if ray is clearly pointing away from circle
-        x_dir = cos(ray.theta)
+        x_dir = ray.cos_theta()
         if (x_dir > 0 and pr1x > pcx + r) or (x_dir < 0 and pr1x < pcx - r):
             return float('inf')
-        y_dir = sin(ray.theta)
+        y_dir = ray.sin_theta()
         if (y_dir > 0 and pr1y > pcy + r) or (y_dir < 0 and pr1y < pcy - r):
             return float('inf')
 
@@ -198,11 +198,23 @@ class Ray:
     def __init__(self, point, theta):
         self.point = point
         self.theta = theta
+        self._cos = None
+        self._sin = None
 
     def project(self, t):
-        x = self.point[0] + t * cos(self.theta)
-        y = self.point[1] + t * sin(self.theta)
+        x = self.point[0] + t * self.cos_theta()
+        y = self.point[1] + t * self.sin_theta()
         return [x, y]
+
+    def cos_theta(self):
+        if self._cos is None:
+            self._cos = cos(self.theta)
+        return self._cos
+
+    def sin_theta(self):
+        if self._sin is None:
+            self._sin = sin(self.theta)
+        return self._sin
 
 
 class Signal:
