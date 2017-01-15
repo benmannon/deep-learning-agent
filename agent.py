@@ -207,10 +207,6 @@ def _build_model(q_model, n_inputs, n_channels, n_outputs):
         term=term
     )
 
-    init = tf.global_variables_initializer()
-    sess = tf.Session()
-    sess.run(init)
-
     ops = {
         _OP_STATES: s,
         _OP_DROPOUT: dropout,
@@ -232,7 +228,14 @@ def _build_model(q_model, n_inputs, n_channels, n_outputs):
         _PARAMS_Q2: q2_params,
     }
 
-    return sess, ops, params
+    return ops, params
+
+
+def _tf_init():
+    init = tf.global_variables_initializer()
+    sess = tf.Session()
+    sess.run(init)
+    return sess
 
 
 def _bools_to_floats(bools):
@@ -244,7 +247,8 @@ def _bools_to_floats(bools):
 
 class Agent:
     def __init__(self, q_model, n_inputs, n_channels, n_outputs):
-        self._sess, self._ops, self._params = _build_model(q_model, n_inputs, n_channels, n_outputs)
+        self._ops, self._params = _build_model(q_model, n_inputs, n_channels, n_outputs)
+        self._sess = _tf_init()
         self._target_params = [None] * len(self._params[_PARAMS_Q])
         self.update_target()
 
