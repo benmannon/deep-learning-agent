@@ -12,6 +12,23 @@ ACTION_TURN_RIGHT = _enum.next()
 ACTIONS = (ACTION_WALK_FORWARD, ACTION_TURN_LEFT, ACTION_TURN_RIGHT)
 
 
+def _handle_collision(level, agent_radius):
+    grid = level.grid
+    agent = level.agent
+    coord = agent.coord
+    x = round(coord[0])
+    y = round(coord[1])
+    check_cells = [[x - 1, y - 1], [x - 1, y], [x, y], [x, y - 1]]
+    is_colliding = False
+    for cell in check_cells:
+        if _handle_bounding_collision(coord, agent_radius, grid, cell):
+            is_colliding = True
+    for cell in check_cells:
+        if _handle_corner_collision(coord, agent_radius, grid, cell):
+            is_colliding = True
+    return is_colliding
+
+
 def _handle_bounding_collision(agent_coord, agent_radius, grid, cell_coord):
 
     grid_shape = grid.shape
@@ -186,23 +203,6 @@ class Controller:
         agent = self._level.agent
         x, y = agent.coord[0], agent.coord[1]
         agent.coord = [x + distance * cos(theta), y + distance * sin(theta)]
-        is_colliding = self._handle_collision()
+        is_colliding = _handle_collision(self._level, self._agent_radius)
         _collect_coins(self._level.coins, self._coin_radius, agent.coord[0], agent.coord[1], self._agent_radius)
-        return is_colliding
-
-    def _handle_collision(self):
-        level = self._level
-        grid = level.grid
-        agent = level.agent
-        coord = agent.coord
-        x = round(coord[0])
-        y = round(coord[1])
-        check_cells = [[x - 1, y - 1], [x - 1, y], [x, y], [x, y - 1]]
-        is_colliding = False
-        for cell in check_cells:
-            if _handle_bounding_collision(coord, self._agent_radius, grid, cell):
-                is_colliding = True
-        for cell in check_cells:
-            if _handle_corner_collision(coord, self._agent_radius, grid, cell):
-                is_colliding = True
         return is_colliding
