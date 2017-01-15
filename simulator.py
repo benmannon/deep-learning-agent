@@ -25,13 +25,7 @@ class Simulator:
 
         self._draw = Draw(args, self._lvl.grid.shape)
         self._ctrl = Controller(args, self._lvl)
-
-        self._vision = Vision(self._lvl,
-                              agent_radius=args.agent_radius,
-                              coin_radius=args.coin_radius,
-                              signal_count=args.agent_vision_res,
-                              fov=args.agent_vision_fov,
-                              attenuation=args.agent_vision_attenuation)
+        self._vision = Vision(args, self._lvl)
 
         self._time_step = self._lvl.time
 

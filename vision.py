@@ -185,18 +185,13 @@ def _find_circles(coins, coin_radius):
 
 
 class Vision:
-    def __init__(self, level,
-                 agent_radius=0.45,
-                 coin_radius=0.25,
-                 signal_count=32,
-                 fov=pi / 2,
-                 attenuation=0.25):
+    def __init__(self, args, level):
         self._level = level
-        self._agent_radius = agent_radius
-        self._signal_count = signal_count
-        self._fov = fov
-        self._coin_radius = coin_radius
-        self._attenuation = attenuation
+        self._agent_radius = args.agent_radius
+        self._signal_count = args.agent_vision_res
+        self._fov = args.agent_vision_fov
+        self._coin_radius = args.coin_radius
+        self._attenuation = args.agent_vision_attenuation
         self._edges = _find_edges(self._level.grid)
 
     def look(self):
