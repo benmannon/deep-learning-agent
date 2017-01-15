@@ -189,7 +189,6 @@ def _collect_coins(coins, coin_radius, agent_x, agent_y, agent_radius):
 class Controller:
     def __init__(self, args, level):
         self._level = level
-        self._grid_shape = np.array(level.grid).shape
         self._stride = args.agent_stride
         self._stride_on_turn = args.agent_stride_on_turn
         self._turn = args.agent_turn
