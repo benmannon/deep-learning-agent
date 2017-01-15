@@ -153,13 +153,14 @@ class Vision:
     @staticmethod
     def _cast_circle(ray, circle):
 
-        # represent the ray's points in the circle's local space
-        p1 = np.array(ray.point) - np.array(circle.a)
-        p2 = np.array(ray.project(1)) - np.array(circle.a)
+        pr1x, pr1y = ray.point
+        pr2x, pr2y = ray.project(1)
+        pcx, pcy = circle.a
         r = circle.r
 
-        x1, y1 = p1[0], p1[1]
-        x2, y2 = p2[0], p2[1]
+        # represent the ray's points in the circle's local space
+        x1, y1 = pr1x - pcx, pr1y - pcy
+        x2, y2 = pr2x - pcx, pr2y - pcy
 
         x2_m_x1 = x2 - x1
         y2_m_y1 = y2 - y1
