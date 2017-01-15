@@ -132,12 +132,12 @@ def _cast(ray, edges, circles, attenuation):
     return _Signal(ray.x, ray.y, bx, by, _fog(channels_nearest, t_nearest, attenuation))
 
 
-def _find_edges(grid, shape):
+def _find_edges(grid):
 
     # walk between the cells to find the edges
 
-    w = shape[1]
-    h = shape[0]
+    w = grid.shape[1]
+    h = grid.shape[0]
 
     edges = []
 
@@ -185,20 +185,19 @@ def _find_circles(coins, coin_radius):
 
 
 class Vision:
-    def __init__(self, level, grid_shape,
+    def __init__(self, level,
                  agent_radius=0.45,
                  coin_radius=0.25,
                  signal_count=32,
                  fov=pi / 2,
                  attenuation=0.25):
         self._level = level
-        self._grid_shape = grid_shape
         self._agent_radius = agent_radius
         self._signal_count = signal_count
         self._fov = fov
         self._coin_radius = coin_radius
         self._attenuation = attenuation
-        self._edges = _find_edges(self._level.grid, self._grid_shape)
+        self._edges = _find_edges(self._level.grid)
 
     def look(self):
         signals = []

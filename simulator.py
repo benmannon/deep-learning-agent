@@ -45,7 +45,7 @@ class Simulator:
                                            agent_radius=agent_radius,
                                            coin_radius=coin_radius)
 
-        self._vision = Vision(self._lvl, self._lvl.grid.shape,
+        self._vision = Vision(self._lvl,
                               agent_radius=agent_radius,
                               coin_radius=coin_radius,
                               signal_count=agent_vision_res,
