@@ -120,6 +120,46 @@ def _cast(ray, edges, circles, attenuation):
     return Signal(ray.point, intersection, _fog(channels_nearest, t_nearest, attenuation))
 
 
+def _find_edges(grid, shape):
+
+    # walk between the cells to find the edges
+
+    w = shape[1]
+    h = shape[0]
+
+    edges = []
+
+    # walk between rows, draw a line along edges
+    for y in range(1, h):
+        x0 = None
+        for x in range(0, w):
+            a = grid[h - y][x]
+            b = grid[h - y - 1][x]
+            if a != b and x0 is None:
+                x0 = x
+            elif a == b and x0 is not None:
+                edges.append(Edge([x0, y], [x, y], _CHANNELS_WALL))
+                x0 = None
+        if x0 is not None:
+            edges.append(Edge([x0, y], [w, y], _CHANNELS_WALL))
+
+    # walk between columns
+    for x in range(1, w):
+        y0 = None
+        for y in range(0, h):
+            a = grid[h - y - 1][x - 1]
+            b = grid[h - y - 1][x]
+            if a != b and y0 is None:
+                y0 = y
+            elif a == b and y0 is not None:
+                edges.append(Edge([x, y0], [x, y], _CHANNELS_WALL))
+                y0 = None
+        if y0 is not None:
+            edges.append(Edge([x, y0], [x, h], _CHANNELS_WALL))
+
+    return edges
+
+
 class Vision:
     def __init__(self, level, grid_shape,
                  agent_radius=0.45,
@@ -134,7 +174,7 @@ class Vision:
         self._fov = fov
         self._coin_radius = coin_radius
         self._attenuation = attenuation
-        self._edges = self._find_edges()
+        self._edges = _find_edges(self._level.grid, self._grid_shape)
 
     def look(self):
         signals = []
@@ -148,46 +188,6 @@ class Vision:
             signals.append(_cast(ray, edges, circles, self._attenuation))
 
         return signals
-
-    def _find_edges(self):
-
-        # walk between the cells to find the edges
-
-        w = self._grid_shape[1]
-        h = self._grid_shape[0]
-
-        grid = self._level.grid
-        edges = []
-
-        # walk between rows, draw a line along edges
-        for y in range(1, h):
-            x0 = None
-            for x in range(0, w):
-                a = grid[h - y][x]
-                b = grid[h - y - 1][x]
-                if a != b and x0 is None:
-                    x0 = x
-                elif a == b and x0 is not None:
-                    edges.append(Edge([x0, y], [x, y], _CHANNELS_WALL))
-                    x0 = None
-            if x0 is not None:
-                edges.append(Edge([x0, y], [w, y], _CHANNELS_WALL))
-
-        # walk between columns
-        for x in range(1, w):
-            y0 = None
-            for y in range(0, h):
-                a = grid[h - y - 1][x - 1]
-                b = grid[h - y - 1][x]
-                if a != b and y0 is None:
-                    y0 = y
-                elif a == b and y0 is not None:
-                    edges.append(Edge([x, y0], [x, y], _CHANNELS_WALL))
-                    y0 = None
-            if y0 is not None:
-                edges.append(Edge([x, y0], [x, h], _CHANNELS_WALL))
-
-        return edges
 
     def _circles(self):
 
