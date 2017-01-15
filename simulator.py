@@ -77,7 +77,9 @@ class Simulator:
     def _lines(self, signals):
         signal_lines = []
         for signal in signals:
-            signal_lines.append(Line(signal.a, signal.b, self._color(signal.channels)))
+            a = [signal.ax, signal.ay]
+            b = [signal.bx, signal.by]
+            signal_lines.append(Line(a, b, self._color(signal.channels)))
         return signal_lines
 
     def _sight_colors(self, signals):

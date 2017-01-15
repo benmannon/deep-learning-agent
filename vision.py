@@ -121,9 +121,9 @@ def _cast(ray, edges, circles, attenuation):
             t_nearest = t
             channels_nearest = circle.channels
 
-    intersection = _project(ray, t_nearest) if t_nearest != float('inf') else [ray.x, ray.y]
+    bx, by = _project(ray, t_nearest) if t_nearest != float('inf') else [ray.x, ray.y]
 
-    return Signal([ray.x, ray.y], intersection, _fog(channels_nearest, t_nearest, attenuation))
+    return Signal(ray.x, ray.y, bx, by, _fog(channels_nearest, t_nearest, attenuation))
 
 
 def _find_edges(grid, shape):
@@ -209,14 +209,6 @@ class Vision:
 
 
 Ray = namedtuple('Ray', 'x y cos sin')
-
-
-class Signal:
-    def __init__(self, a, b, channels):
-        self.a = a
-        self.b = b
-        self.channels = channels
-
-
+Signal = namedtuple('Signal', 'ax ay bx by channels')
 Edge = namedtuple('Edge', 'ax ay bx by channels')
 Circle = namedtuple('Circle', 'x y r channels')
