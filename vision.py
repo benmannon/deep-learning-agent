@@ -7,12 +7,13 @@ _Ray = namedtuple('Ray', 'x y cos sin')
 _Signal = namedtuple('Signal', 'ax ay bx by channels')
 _Edge = namedtuple('Edge', 'ax ay bx by channels')
 _Circle = namedtuple('Circle', 'x y r channels')
+_Channel = namedtuple('Channel', 'c0 c1')
 
-CHANNEL_NUM = 2
+_CHANNELS_NONE = _Channel(0, 0)
+_CHANNELS_WALL = _Channel(1, 0)
+_CHANNELS_COIN = _Channel(0, 1)
 
-_CHANNELS_NONE = (0, 0)
-_CHANNELS_WALL = (1, 0)
-_CHANNELS_COIN = (0, 1)
+CHANNEL_NUM = len(_CHANNELS_NONE)
 
 
 def _fog(channels, distance, attenuation):
