@@ -186,8 +186,9 @@ class Controller:
         ax = agent.coord[0]
         ay = agent.coord[1]
 
-        # threshold distance for coin collection
+        # threshold distance for coin collection (squared)
         threshold = self._agent_radius + self._coin_radius
+        threshold2 = threshold * threshold
 
         coins = self._level.coins
         i = 0
@@ -201,8 +202,8 @@ class Controller:
             vx, vy = cx - ax, cy - ay
 
             # close enough to collect?
-            dist = sqrt(vx * vx + vy * vy)
-            if dist < threshold:
+            dist2 = vx * vx + vy * vy
+            if dist2 < threshold2:
                 # "collect" the coin by deleting it
                 del coins[i]
 
