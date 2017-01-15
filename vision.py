@@ -95,6 +95,31 @@ def _rays(origin, theta_center, near_clip, fov, total):
     return rays
 
 
+def _cast(ray, edges, circles, attenuation):
+
+    # select the nearest item the ray intersects
+    t_nearest = float('inf')
+    channels_nearest = _CHANNELS_NONE
+
+    # first check all the edges
+    for edge in edges:
+        t = _cast_edge(ray, edge)
+        if t < t_nearest:
+            t_nearest = t
+            channels_nearest = edge.channels
+
+    # next check all the circles
+    for circle in circles:
+        t = _cast_circle(ray, circle)
+        if t < t_nearest:
+            t_nearest = t
+            channels_nearest = circle.channels
+
+    intersection = ray.project(t_nearest) if t_nearest != float('inf') else ray.point
+
+    return Signal(ray.point, intersection, _fog(channels_nearest, t_nearest, attenuation))
+
+
 class Vision:
     def __init__(self, level, grid_shape,
                  agent_radius=0.45,
@@ -114,37 +139,15 @@ class Vision:
     def look(self):
         signals = []
         agent = self._level.agent
-        for ray in _rays(agent.coord, agent.theta, self._agent_radius, self._fov, self._signal_count):
-            signals.append(self._cast(ray))
-        return signals
-
-    def _cast(self, ray):
 
         # there are 2 types of shapes in a level: edges and circles
         edges = self._edges
         circles = self._circles()
 
-        # select the nearest item the ray intersects
-        t_nearest = float('inf')
-        channels_nearest = _CHANNELS_NONE
+        for ray in _rays(agent.coord, agent.theta, self._agent_radius, self._fov, self._signal_count):
+            signals.append(_cast(ray, edges, circles, self._attenuation))
 
-        # first check all the edges
-        for edge in edges:
-            t = _cast_edge(ray, edge)
-            if t < t_nearest:
-                t_nearest = t
-                channels_nearest = edge.channels
-
-        # next check all the circles
-        for circle in circles:
-            t = _cast_circle(ray, circle)
-            if t < t_nearest:
-                t_nearest = t
-                channels_nearest = circle.channels
-
-        intersection = ray.project(t_nearest) if t_nearest != float('inf') else ray.point
-
-        return Signal(ray.point, intersection, _fog(channels_nearest, t_nearest, self._attenuation))
+        return signals
 
     def _find_edges(self):
 
