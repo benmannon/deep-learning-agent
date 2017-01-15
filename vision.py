@@ -23,6 +23,7 @@ class Vision:
         self._fov = fov
         self._coin_radius = coin_radius
         self._attenuation = attenuation
+        self._edges = self._find_edges()
 
     def look(self):
         signals = []
@@ -56,7 +57,7 @@ class Vision:
     def _cast(self, ray):
 
         # there are 2 types of shapes in a level: edges and circles
-        edges = self._edges()
+        edges = self._edges
         circles = self._circles()
 
         # select the nearest item the ray intersects
@@ -81,7 +82,7 @@ class Vision:
 
         return Signal(ray.point, intersection, self.fog(channels_nearest, t_nearest, self._attenuation))
 
-    def _edges(self):
+    def _find_edges(self):
 
         # walk between the cells to find the edges
 
