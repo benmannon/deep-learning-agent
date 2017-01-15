@@ -3,6 +3,7 @@ from __future__ import division
 import getopt
 import sys
 import time
+from collections import namedtuple
 from math import pi
 from threading import Lock
 
@@ -11,46 +12,50 @@ import simulator
 from learner import Learner
 from simulator import Simulator
 
-# simulation parameters
-_AGENT_VISION_RES = 16
-_AGENT_VISION_FOV = pi / 2
-_AGENT_VISION_ATTENUATION = 0.25
-_AGENT_RADIUS = 0.45
-_AGENT_STRIDE = 0.1
-_AGENT_STRIDE_ON_TURN = 0.05
-_AGENT_TURN = pi / 16
-_COIN_RADIUS = 0.25
-_REWARD_COIN = 1
-_REWARD_WIN = 5
-_REWARD_LOSS = -5
-_REWARD_COLLISION = -0.1
+_ARGS_DICT = {
+    # simulation parameters
+    'agent_vision_res': 16,
+    'agent_vision_fov': pi / 2,
+    'agent_vision_attenuation': 0.25,
+    'agent_radius': 0.45,
+    'agent_stride': 0.1,
+    'agent_stride_on_turn': 0.05,
+    'agent_turn': pi / 16,
+    'coin_radius': 0.25,
+    'reward_coin': 1,
+    'reward_win': 5,
+    'reward_loss': -5,
+    'reward_collision': -0.1,
 
-# visualization parameters
-_WINDOW_WIDTH = 2048
-_GRID_COLOR = [0.8, 0.8, 0.8]
-_COIN_COLOR = [1.0, 0.843, 0.0]
-_AGENT_COLOR = [0.15, 0.45, 0.35]
-_AGENT_POINTER_BRIGHTNESS = 0.5
-_BKG_COLOR = [0.0, 0.3, 0.5]
+    # visualization parameters
+    'window_width': 2048,
+    'grid_color': [0.8, 0.8, 0.8],
+    'coin_color': [1.0, 0.843, 0.0],
+    'agent_color': [0.15, 0.45, 0.35],
+    'agent_pointer_brightness': 0.5,
+    'bkg_color': [0.0, 0.3, 0.5],
 
-# learning parameters
-_REPLAY_BUFFER_SIZE = 1000000
-_REPLAY_BATCH_SIZE = 32
-_REWARD_DISCOUNT_FACTOR = 0.99
-_LEARNING_RATE = 0.00025
-_LEARN_START_T = 2000
-_LEARN_INTERVAL = 4
-_TARGET_UPDATE_INTERVAL = 200
-_E_START = 1.0
-_E_END = 0.1
-_E_START_T = 2000
-_E_END_T = 10000
-_REPORT_INTERVAL = 1000
+    # learning parameters
+    'replay_buffer_size': 1000000,
+    'replay_batch_size': 32,
+    'reward_discount_factor': 0.99,
+    'learning_rate': 0.00025,
+    'learn_start_t': 2000,
+    'learn_interval': 4,
+    'target_update_interval': 200,
+    'e_start': 1.0,
+    'e_end': 0.1,
+    'e_start_t': 2000,
+    'e_end_t': 10000,
+    'report_interval': 1000,
 
-# user input (w, a, d)
-_KEY_WALK_FORWARD = 87
-_KEY_TURN_LEFT = 65
-_KEY_TURN_RIGHT = 68
+    # user input (w, a, d)
+    'key_walk_forward': 87,
+    'key_turn_left': 65,
+    'key_turn_right': 68
+}
+
+_ARGS = namedtuple('Args', _ARGS_DICT.keys())(**_ARGS_DICT)
 
 
 class Trainer:
@@ -63,22 +68,22 @@ class Trainer:
 
     def train(self, sim, first_input):
 
-        learner = Learner(buffer_cap=_REPLAY_BUFFER_SIZE,
-                          batch_size=_REPLAY_BATCH_SIZE,
-                          discount=_REWARD_DISCOUNT_FACTOR,
-                          learning_rate=_LEARNING_RATE,
-                          learn_start_t=_LEARN_START_T,
-                          learn_interval=_LEARN_INTERVAL,
-                          target_update_interval=_TARGET_UPDATE_INTERVAL,
-                          e_start=_E_START,
-                          e_end=_E_END,
-                          e_start_t=_E_START_T,
-                          e_end_t=_E_END_T,
+        learner = Learner(buffer_cap=_ARGS.replay_buffer_size,
+                          batch_size=_ARGS.replay_batch_size,
+                          discount=_ARGS.reward_discount_factor,
+                          learning_rate=_ARGS.learning_rate,
+                          learn_start_t=_ARGS.learn_start_t,
+                          learn_interval=_ARGS.learn_interval,
+                          target_update_interval=_ARGS.target_update_interval,
+                          e_start=_ARGS.e_start,
+                          e_end=_ARGS.e_end,
+                          e_start_t=_ARGS.e_start_t,
+                          e_end_t=_ARGS.e_end_t,
                           model=self._model,
-                          n_inputs=_AGENT_VISION_RES,
+                          n_inputs=_ARGS.agent_vision_res,
                           n_channels=simulator.CHANNEL_NUM,
                           n_actions=len(controller.actions),
-                          report_interval=_REPORT_INTERVAL)
+                          report_interval=_ARGS.report_interval)
 
         agent_input = first_input
         reward = 0.0
@@ -109,11 +114,11 @@ class Trainer:
 
         self._action_lock.acquire()
         try:
-            if symbol == _KEY_WALK_FORWARD:
+            if symbol == _ARGS.key_walk_forward:
                 self._action = controller.walk_forward
-            elif symbol == _KEY_TURN_LEFT:
+            elif symbol == _ARGS.key_turn_left:
                 self._action = controller.turn_left
-            elif symbol == _KEY_TURN_RIGHT:
+            elif symbol == _ARGS.key_turn_right:
                 self._action = controller.turn_right
         finally:
             self._action_lock.release()
@@ -148,24 +153,24 @@ def main(argv):
     print 'User controls %s' % ('enabled' if user_control else 'disabled')
 
     trainer = Trainer(model, user_control=user_control)
-    Simulator(agent_vision_res=_AGENT_VISION_RES,
-              agent_vision_fov=_AGENT_VISION_FOV,
-              agent_vision_attenuation=_AGENT_VISION_ATTENUATION,
-              agent_radius=_AGENT_RADIUS,
-              agent_stride=_AGENT_STRIDE,
-              agent_stride_on_turn=_AGENT_STRIDE_ON_TURN,
-              agent_turn=_AGENT_TURN,
-              coin_radius=_COIN_RADIUS,
-              reward_coin=_REWARD_COIN,
-              reward_win=_REWARD_WIN,
-              reward_loss=_REWARD_LOSS,
-              reward_collision=_REWARD_COLLISION,
-              window_width=_WINDOW_WIDTH,
-              grid_color=_GRID_COLOR,
-              coin_color=_COIN_COLOR,
-              agent_color=_AGENT_COLOR,
-              agent_pointer_brightness=_AGENT_POINTER_BRIGHTNESS,
-              bkg_color=_BKG_COLOR) \
+    Simulator(agent_vision_res=_ARGS.agent_vision_res,
+              agent_vision_fov=_ARGS.agent_vision_fov,
+              agent_vision_attenuation=_ARGS.agent_vision_attenuation,
+              agent_radius=_ARGS.agent_radius,
+              agent_stride=_ARGS.agent_stride,
+              agent_stride_on_turn=_ARGS.agent_stride_on_turn,
+              agent_turn=_ARGS.agent_turn,
+              coin_radius=_ARGS.coin_radius,
+              reward_coin=_ARGS.reward_coin,
+              reward_win=_ARGS.reward_win,
+              reward_loss=_ARGS.reward_loss,
+              reward_collision=_ARGS.reward_collision,
+              window_width=_ARGS.window_width,
+              grid_color=_ARGS.grid_color,
+              coin_color=_ARGS.coin_color,
+              agent_color=_ARGS.agent_color,
+              agent_pointer_brightness=_ARGS.agent_pointer_brightness,
+              bkg_color=_ARGS.bkg_color) \
         .run(trainer.train, trainer.key_press, trainer.close)
 
 
