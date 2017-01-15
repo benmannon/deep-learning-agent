@@ -24,13 +24,7 @@ class Simulator:
         self._coin_color = args.coin_color
 
         self._draw = Draw(args, self._lvl.grid.shape)
-
-        self._ctrl = controller.Controller(self._lvl,
-                                           agent_stride=args.agent_stride,
-                                           agent_stride_on_turn=args.agent_stride_on_turn,
-                                           agent_turn=args.agent_turn,
-                                           agent_radius=args.agent_radius,
-                                           coin_radius=args.coin_radius)
+        self._ctrl = controller.Controller(args, self._lvl)
 
         self._vision = Vision(self._lvl,
                               agent_radius=args.agent_radius,
