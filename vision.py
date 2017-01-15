@@ -9,6 +9,75 @@ _CHANNELS_WALL = [1, 0]
 _CHANNELS_COIN = [0, 1]
 
 
+def _fog(channels, distance, attenuation):
+    factor = 1 / pow(e, distance * attenuation)
+    return np.array(channels) * [factor]
+
+
+def _cast_circle(ray, circle):
+
+    pr1x, pr1y = ray.point
+    pcx, pcy = circle.a
+    r = circle.r
+
+    # exit early if ray is clearly pointing away from circle
+    x_dir = ray.cos_theta()
+    if (x_dir > 0 and pr1x > pcx + r) or (x_dir < 0 and pr1x < pcx - r):
+        return float('inf')
+    y_dir = ray.sin_theta()
+    if (y_dir > 0 and pr1y > pcy + r) or (y_dir < 0 and pr1y < pcy - r):
+        return float('inf')
+
+    # represent the ray's points in the circle's local space
+    pr2x, pr2y = ray.project(1)
+    x1, y1 = pr1x - pcx, pr1y - pcy
+    x2, y2 = pr2x - pcx, pr2y - pcy
+
+    # reuse these calculations
+    x2_m_x1 = x2 - x1
+    y2_m_y1 = y2 - y1
+
+    # variables of quadratic formula
+    a = x2_m_x1 * x2_m_x1 + y2_m_y1 * y2_m_y1
+    b = 2 * (x1 * x2_m_x1 + y1 * y2_m_y1)
+    c = x1 * x1 + y1 * y1 - r * r
+
+    delta = b * b - 4 * a * c
+
+    if delta < 0:
+        return float('inf')
+    else:
+        # quadratic formula; only the smaller result
+        t = (-b - sqrt(delta)) / (2 * a)
+        return t if t >= 0 else float('inf')
+
+
+def _cast_edge(ray, edge):
+
+    px, py = ray.point
+    rx, ry = ray.cos_theta(), ray.sin_theta()
+    qx, qy = edge.a
+    bx, by = edge.b
+    sx, sy = bx - qx, by - qy
+
+    q_m_p = [qx - px, qy - py]
+    cross_r_s = _cross_2d([rx, ry], [sx, sy])
+    if cross_r_s == 0:
+        return float('inf')
+
+    t = _cross_2d(q_m_p, [sx, sy]) / cross_r_s
+    u = _cross_2d(q_m_p, [rx, ry]) / cross_r_s
+
+    # return t unless intersection is behind ray or outside edge points
+    return t if 0 <= t and 0 <= u <= 1 else float('inf')
+
+
+def _cross_2d(v1, v2):
+    x1, y1 = v1[0], v1[1]
+    x2, y2 = v2[0], v2[1]
+    return x1 * y2 - x2 * y1
+
+
 class Vision:
     def __init__(self, level, grid_shape,
                  agent_radius=0.45,
@@ -66,21 +135,21 @@ class Vision:
 
         # first check all the edges
         for edge in edges:
-            t = self._cast_edge(ray, edge)
+            t = _cast_edge(ray, edge)
             if t < t_nearest:
                 t_nearest = t
                 channels_nearest = edge.channels
 
         # next check all the circles
         for circle in circles:
-            t = self._cast_circle(ray, circle)
+            t = _cast_circle(ray, circle)
             if t < t_nearest:
                 t_nearest = t
                 channels_nearest = circle.channels
 
         intersection = ray.project(t_nearest) if t_nearest != float('inf') else ray.point
 
-        return Signal(ray.point, intersection, self.fog(channels_nearest, t_nearest, self._attenuation))
+        return Signal(ray.point, intersection, _fog(channels_nearest, t_nearest, self._attenuation))
 
     def _find_edges(self):
 
@@ -135,75 +204,6 @@ class Vision:
             circles.append(Circle(coin, r, c))
 
         return circles
-
-    @staticmethod
-    def _cross_2d(v1, v2):
-        x1, y1 = v1[0], v1[1]
-        x2, y2 = v2[0], v2[1]
-        return x1 * y2 - x2 * y1
-
-    @staticmethod
-    def _cast_edge(ray, edge):
-
-        px, py = ray.point
-        rx, ry = ray.cos_theta(), ray.sin_theta()
-        qx, qy = edge.a
-        bx, by = edge.b
-        sx, sy = bx - qx, by - qy
-
-        q_m_p = [qx - px, qy - py]
-        cross_r_s = Vision._cross_2d([rx, ry], [sx, sy])
-        if cross_r_s == 0:
-            return float('inf')
-
-        t = Vision._cross_2d(q_m_p, [sx, sy]) / cross_r_s
-        u = Vision._cross_2d(q_m_p, [rx, ry]) / cross_r_s
-
-        # return t unless intersection is behind ray or outside edge points
-        return t if 0 <= t and 0 <= u <= 1 else float('inf')
-
-    @staticmethod
-    def _cast_circle(ray, circle):
-
-        pr1x, pr1y = ray.point
-        pcx, pcy = circle.a
-        r = circle.r
-
-        # exit early if ray is clearly pointing away from circle
-        x_dir = ray.cos_theta()
-        if (x_dir > 0 and pr1x > pcx + r) or (x_dir < 0 and pr1x < pcx - r):
-            return float('inf')
-        y_dir = ray.sin_theta()
-        if (y_dir > 0 and pr1y > pcy + r) or (y_dir < 0 and pr1y < pcy - r):
-            return float('inf')
-
-        # represent the ray's points in the circle's local space
-        pr2x, pr2y = ray.project(1)
-        x1, y1 = pr1x - pcx, pr1y - pcy
-        x2, y2 = pr2x - pcx, pr2y - pcy
-
-        # reuse these calculations
-        x2_m_x1 = x2 - x1
-        y2_m_y1 = y2 - y1
-
-        # variables of quadratic formula
-        a = x2_m_x1 * x2_m_x1 + y2_m_y1 * y2_m_y1
-        b = 2 * (x1 * x2_m_x1 + y1 * y2_m_y1)
-        c = x1 * x1 + y1 * y1 - r * r
-
-        delta = b * b - 4 * a * c
-
-        if delta < 0:
-            return float('inf')
-        else:
-            # quadratic formula; only the smaller result
-            t = (-b - sqrt(delta)) / (2 * a)
-            return t if t >= 0 else float('inf')
-
-    @staticmethod
-    def fog(channels, distance, attenuation):
-        factor = 1 / pow(e, distance * attenuation)
-        return np.array(channels) * [factor]
 
 
 class Ray:
