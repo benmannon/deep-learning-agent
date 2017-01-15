@@ -145,11 +145,12 @@ class Controller:
         ccx = (cx0 + cx1) / 2
         ccy = (cy0 + cy1) / 2
 
-        # agent coordinates and radius
+        # agent coordinates and radius, radius ^ 2
         agent = self._level.agent
         ax = agent.coord[0]
         ay = agent.coord[1]
         ar = self._agent_radius
+        ar2 = ar * ar
 
         # adjusted agent coordinates
         new_x = ax;
@@ -161,10 +162,14 @@ class Controller:
 
         # calculate distance to agent
         vx, vy = ax - ncx, ay - ncy
-        dist = sqrt(vx * vx + vy * vy)
+        dist2 = vx * vx + vy * vy
 
         # colliding?
-        if dist < ar:
+        if dist2 < ar2:
+
+            # avoid costly sqrt until we're sure we have to
+            dist = sqrt(dist2)
+
             # rescale vector with magnitude equal to agent's radius
             vxr = vx * ar / dist
             vyr = vy * ar / dist
