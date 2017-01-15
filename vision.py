@@ -1,3 +1,4 @@
+from collections import namedtuple
 from math import pi, cos, sin, e, sqrt
 
 import numpy as np
@@ -14,22 +15,26 @@ def _fog(channels, distance, attenuation):
     return np.array(channels) * [factor]
 
 
+def _project(ray, t):
+    return ray.x + t * ray.cos, ray.y + t * ray.sin
+
+
 def _cast_circle(ray, circle):
 
-    pr1x, pr1y = ray.point
+    pr1x, pr1y = ray.x, ray.y
     pcx, pcy = circle.a
     r = circle.r
 
     # exit early if ray is clearly pointing away from circle
-    x_dir = ray.cos_theta()
+    x_dir = ray.cos
     if (x_dir > 0 and pr1x > pcx + r) or (x_dir < 0 and pr1x < pcx - r):
         return float('inf')
-    y_dir = ray.sin_theta()
+    y_dir = ray.sin
     if (y_dir > 0 and pr1y > pcy + r) or (y_dir < 0 and pr1y < pcy - r):
         return float('inf')
 
     # represent the ray's points in the circle's local space
-    pr2x, pr2y = ray.project(1)
+    pr2x, pr2y = _project(ray, 1)
     x1, y1 = pr1x - pcx, pr1y - pcy
     x2, y2 = pr2x - pcx, pr2y - pcy
 
@@ -54,8 +59,8 @@ def _cast_circle(ray, circle):
 
 def _cast_edge(ray, edge):
 
-    px, py = ray.point
-    rx, ry = ray.cos_theta(), ray.sin_theta()
+    px, py = ray.x, ray.y
+    rx, ry = ray.cos, ray.sin
     qx, qy = edge.a
     bx, by = edge.b
     sx, sy = bx - qx, by - qy
@@ -88,8 +93,9 @@ def _rays(origin, theta_center, near_clip, fov, total):
     rays = []
     theta = theta_max
     for i in range(0, total):
-        point = [near_clip * cos(theta) + origin[0], near_clip * sin(theta) + origin[1]]
-        rays.append(Ray(point, theta))
+        x = near_clip * cos(theta) + origin[0]
+        y = near_clip * sin(theta) + origin[1]
+        rays.append(Ray(x, y, cos(theta), sin(theta)))
         theta -= theta_step
 
     return rays
@@ -115,9 +121,9 @@ def _cast(ray, edges, circles, attenuation):
             t_nearest = t
             channels_nearest = circle.channels
 
-    intersection = ray.project(t_nearest) if t_nearest != float('inf') else ray.point
+    intersection = _project(ray, t_nearest) if t_nearest != float('inf') else [ray.x, ray.y]
 
-    return Signal(ray.point, intersection, _fog(channels_nearest, t_nearest, attenuation))
+    return Signal([ray.x, ray.y], intersection, _fog(channels_nearest, t_nearest, attenuation))
 
 
 def _find_edges(grid, shape):
@@ -202,27 +208,7 @@ class Vision:
         return signals
 
 
-class Ray:
-    def __init__(self, point, theta):
-        self.point = point
-        self.theta = theta
-        self._cos = None
-        self._sin = None
-
-    def project(self, t):
-        x = self.point[0] + t * self.cos_theta()
-        y = self.point[1] + t * self.sin_theta()
-        return [x, y]
-
-    def cos_theta(self):
-        if self._cos is None:
-            self._cos = cos(self.theta)
-        return self._cos
-
-    def sin_theta(self):
-        if self._sin is None:
-            self._sin = sin(self.theta)
-        return self._sin
+Ray = namedtuple('Ray', 'x y cos sin')
 
 
 class Signal:
