@@ -160,6 +160,18 @@ def _find_edges(grid, shape):
     return edges
 
 
+def _find_circles(coins, coin_radius):
+
+    c = _CHANNELS_COIN
+
+    # just return each coin as a circle
+    circles = []
+    for coin in coins:
+        circles.append(Circle(coin, coin_radius, c))
+
+    return circles
+
+
 class Vision:
     def __init__(self, level, grid_shape,
                  agent_radius=0.45,
@@ -182,26 +194,12 @@ class Vision:
 
         # there are 2 types of shapes in a level: edges and circles
         edges = self._edges
-        circles = self._circles()
+        circles = _find_circles(self._level.coins, self._coin_radius)
 
         for ray in _rays(agent.coord, agent.theta, self._agent_radius, self._fov, self._signal_count):
             signals.append(_cast(ray, edges, circles, self._attenuation))
 
         return signals
-
-    def _circles(self):
-
-        # coins are circles
-
-        r = self._coin_radius
-        c = _CHANNELS_COIN
-
-        # just return each coin as a circle
-        circles = []
-        for coin in self._level.coins:
-            circles.append(Circle(coin, r, c))
-
-        return circles
 
 
 class Ray:
