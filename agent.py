@@ -123,10 +123,10 @@ q_models = {
     'relu': _q_fully_connected(tf.nn.relu),
     'sigmoid': _q_fully_connected(tf.sigmoid),
     'tanh': _q_fully_connected(tf.tanh),
-    'hidden_linear': _q_hidden_fully_connected(None, 128),
-    'hidden_relu': _q_hidden_fully_connected(tf.nn.relu, 128),
-    'hidden_sigmoid': _q_hidden_fully_connected(tf.sigmoid, 128),
-    'hidden_tanh': _q_hidden_fully_connected(tf.tanh, 128)
+    'hidden_linear': _q_hidden_fully_connected(None, 2),
+    'hidden_relu': _q_hidden_fully_connected(tf.nn.relu, 3),
+    'hidden_sigmoid': _q_hidden_fully_connected(tf.sigmoid, 2),
+    'hidden_tanh': _q_hidden_fully_connected(tf.tanh, 2)
 }
 
 
