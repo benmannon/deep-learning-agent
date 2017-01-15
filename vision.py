@@ -78,6 +78,23 @@ def _cross_2d(v1, v2):
     return x1 * y2 - x2 * y1
 
 
+def _rays(origin, theta_center, near_clip, fov, total):
+
+    # determine the initial angle and step size
+    theta_max = theta_center + (fov / 2)
+    theta_step = fov / (total - 1)
+
+    # fan out
+    rays = []
+    theta = theta_max
+    for i in range(0, total):
+        point = [near_clip * cos(theta) + origin[0], near_clip * sin(theta) + origin[1]]
+        rays.append(Ray(point, theta))
+        theta -= theta_step
+
+    return rays
+
+
 class Vision:
     def __init__(self, level, grid_shape,
                  agent_radius=0.45,
@@ -96,32 +113,10 @@ class Vision:
 
     def look(self):
         signals = []
-        for ray in self._rays():
+        agent = self._level.agent
+        for ray in _rays(agent.coord, agent.theta, self._agent_radius, self._fov, self._signal_count):
             signals.append(self._cast(ray))
         return signals
-
-    def _rays(self):
-
-        # gather parameters
-        origin = self._level.agent.coord
-        theta_center = self._level.agent.theta
-        near_clip = self._agent_radius
-        fov = self._fov
-        total = self._signal_count
-
-        # determine the initial angle and step size
-        theta_max = theta_center + (fov / 2)
-        theta_step = fov / (total - 1)
-
-        # fan out
-        rays = []
-        theta = theta_max
-        for i in range(0, total):
-            point = [near_clip * cos(theta) + origin[0], near_clip * sin(theta) + origin[1]]
-            rays.append(Ray(point, theta))
-            theta -= theta_step
-
-        return rays
 
     def _cast(self, ray):
 
