@@ -12,6 +12,63 @@ ACTION_TURN_RIGHT = _enum.next()
 ACTIONS = (ACTION_WALK_FORWARD, ACTION_TURN_LEFT, ACTION_TURN_RIGHT)
 
 
+def _handle_bounding_collision(agent_coord, agent_radius, grid, cell_coord):
+
+    grid_shape = grid.shape
+
+    # cell coordinates
+    cx = cell_coord[0]
+    cy = cell_coord[1]
+
+    # is the cell out of bounds? exit early
+    if cx < 0 or cy < 0 or cx >= grid_shape[1] or cy >= grid_shape[0]:
+        return
+
+    # is the cell open? exit early
+    # (y-axis on grid is flipped)
+    cy_flip = grid_shape[0] - cy - 1
+    cell = grid[cy_flip][cx]
+    if cell == 0:
+        return
+
+    # the cell's bounding box vertices
+    cx0, cx1 = cx, cx + 1
+    cy0, cy1 = cy, cy + 1
+
+    # cell center point
+    ccx = (cx0 + cx1) / 2
+    ccy = (cy0 + cy1) / 2
+
+    # agent coordinates and radius
+    ax = agent_coord[0]
+    ay = agent_coord[1]
+    ar = agent_radius
+
+    # adjusted agent coordinates
+    new_x = ax;
+    new_y = ay;
+
+    # calculate adjustment on the y-axis
+    if cx0 <= ax <= cx1:
+        if ay > ccy and ay - cy1 < ar:
+            new_y = cy1 + ar
+        elif ay < ccy and cy0 - ay < ar:
+            new_y = cy0 - ar
+
+    # calculate adjustment on the x-axis
+    if cy0 <= ay <= cy1:
+        if ax > ccx and ax - cx1 < ar:
+            new_x = cx1 + ar
+        elif ax < ccx and cx0 - ax < ar:
+            new_x = cx0 - ar
+
+    # apply new agent coordinates
+    agent_coord[0] = new_x
+    agent_coord[1] = new_y
+
+    return ax != new_x or ay != new_y
+
+
 def _handle_corner_collision(agent_coord, agent_radius, grid, cell_coord):
 
     grid_shape = grid.shape
@@ -143,67 +200,9 @@ class Controller:
         check_cells = [[x - 1, y - 1], [x - 1, y], [x, y], [x, y - 1]]
         is_colliding = False
         for cell in check_cells:
-            if self._handle_bounding_collision(cell):
+            if _handle_bounding_collision(coord, self._agent_radius, grid, cell):
                 is_colliding = True
         for cell in check_cells:
             if _handle_corner_collision(coord, self._agent_radius, grid, cell):
                 is_colliding = True
         return is_colliding
-
-    def _handle_bounding_collision(self, cell_coord):
-
-        grid_shape = self._grid_shape
-        grid = self._level.grid
-
-        # cell coordinates
-        cx = cell_coord[0]
-        cy = cell_coord[1]
-
-        # is the cell out of bounds? exit early
-        if cx < 0 or cy < 0 or cx >= grid_shape[1] or cy >= grid_shape[0]:
-            return
-
-        # is the cell open? exit early
-        # (y-axis on grid is flipped)
-        cy_flip = grid_shape[0] - cy - 1
-        cell = grid[cy_flip][cx]
-        if cell == 0:
-            return
-
-        # the cell's bounding box vertices
-        cx0, cx1 = cx, cx + 1
-        cy0, cy1 = cy, cy + 1
-
-        # cell center point
-        ccx = (cx0 + cx1) / 2
-        ccy = (cy0 + cy1) / 2
-
-        # agent coordinates and radius
-        agent = self._level.agent
-        ax = agent.coord[0]
-        ay = agent.coord[1]
-        ar = self._agent_radius
-
-        # adjusted agent coordinates
-        new_x = ax;
-        new_y = ay;
-
-        # calculate adjustment on the y-axis
-        if cx0 <= ax <= cx1:
-            if ay > ccy and ay - cy1 < ar:
-                new_y = cy1 + ar
-            elif ay < ccy and cy0 - ay < ar:
-                new_y = cy0 - ar
-
-        # calculate adjustment on the x-axis
-        if cy0 <= ay <= cy1:
-            if ax > ccx and ax - cx1 < ar:
-                new_x = cx1 + ar
-            elif ax < ccx and cx0 - ax < ar:
-                new_x = cx0 - ar
-
-        # apply new agent coordinates
-        agent.coord[0] = new_x
-        agent.coord[1] = new_y
-
-        return ax != new_x or ay != new_y
