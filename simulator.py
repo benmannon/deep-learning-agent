@@ -23,17 +23,7 @@ class Simulator:
         self._grid_color = args.grid_color
         self._coin_color = args.coin_color
 
-        self._draw = Draw(self._lvl.grid.shape,
-                          sight_res=args.agent_vision_res,
-                          window_width=args.window_width,
-                          coin_radius=args.coin_radius,
-                          agent_radius=args.agent_radius,
-                          agent_pointer_threshold=args.agent_vision_fov / 2,
-                          grid_color=args.grid_color,
-                          coin_color=args.coin_color,
-                          agent_color=args.agent_color,
-                          agent_pointer_brightness=args.agent_pointer_brightness,
-                          bkg_color=args.bkg_color)
+        self._draw = Draw(args, self._lvl.grid.shape)
 
         self._ctrl = controller.Controller(self._lvl,
                                            agent_stride=args.agent_stride,

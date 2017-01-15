@@ -15,31 +15,21 @@ def calc_level_scale(window_size, grid_shape):
 
 
 class Draw:
-    def __init__(
-            self, grid_shape, sight_res,
-            window_width=2048,
-            coin_radius=0.25,
-            agent_radius=0.45,
-            agent_pointer_threshold=pi / 4,
-            grid_color=[0.8, 0.8, 0.8],
-            coin_color=[1.0, 0.843, 0.0],
-            agent_color=[0.15, 0.45, 0.35],
-            agent_pointer_brightness=0.5,
-            bkg_color=[0.0, 0.3, 0.5]):
+    def __init__(self, args, grid_shape):
 
         self._lock = Lock()
-        self._window_size = [window_width, int(window_width / 2)]
+        self._window_size = [args.window_width, int(args.window_width / 2)]
         self._level_scale = calc_level_scale(self._window_size, grid_shape)
         self._grid_shape = grid_shape
-        self._sight_res = sight_res
-        self._coin_radius = coin_radius
-        self._agent_radius = agent_radius
-        self._agent_pointer_threshold = agent_pointer_threshold
-        self._grid_color = grid_color
-        self._coin_color = coin_color
-        self._agent_color = agent_color
-        self._agent_pointer_brightness = agent_pointer_brightness
-        self._bkg_color = bkg_color
+        self._sight_res = args.agent_vision_res
+        self._coin_radius = args.coin_radius
+        self._agent_radius = args.agent_radius
+        self._agent_pointer_threshold = args.agent_vision_fov / 2
+        self._grid_color = args.grid_color
+        self._coin_color = args.coin_color
+        self._agent_color = args.agent_color
+        self._agent_pointer_brightness = args.agent_pointer_brightness
+        self._bkg_color = args.bkg_color
         self._grid = self._grid_program()
         self._coin = self._coin_program()
         self._agent = self._agent_program()
