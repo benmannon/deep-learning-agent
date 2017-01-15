@@ -154,14 +154,23 @@ class Vision:
     def _cast_circle(ray, circle):
 
         pr1x, pr1y = ray.point
-        pr2x, pr2y = ray.project(1)
         pcx, pcy = circle.a
         r = circle.r
 
+        # exit early if ray is clearly pointing away from circle
+        x_dir = cos(ray.theta)
+        if (x_dir > 0 and pr1x > pcx + r) or (x_dir < 0 and pr1x < pcx - r):
+            return float('inf')
+        y_dir = sin(ray.theta)
+        if (y_dir > 0 and pr1y > pcy + r) or (y_dir < 0 and pr1y < pcy - r):
+            return float('inf')
+
         # represent the ray's points in the circle's local space
+        pr2x, pr2y = ray.project(1)
         x1, y1 = pr1x - pcx, pr1y - pcy
         x2, y2 = pr2x - pcx, pr2y - pcy
 
+        # reuse these calculations
         x2_m_x1 = x2 - x1
         y2_m_y1 = y2 - y1
 
