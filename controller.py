@@ -2,11 +2,11 @@ from math import cos, sin, sqrt
 
 import numpy as np
 
-walk_forward = 0
-turn_left = 1
-turn_right = 2
+ACTION_WALK_FORWARD = 0
+ACTION_TURN_LEFT = 1
+ACTION_TURN_RIGHT = 2
 
-actions = [walk_forward, turn_left, turn_right]
+ACTIONS = (ACTION_WALK_FORWARD, ACTION_TURN_LEFT, ACTION_TURN_RIGHT)
 
 
 class Controller:
@@ -21,12 +21,12 @@ class Controller:
 
     def step(self, action):
         is_colliding = False
-        if action == walk_forward:
+        if action == ACTION_WALK_FORWARD:
             is_colliding = self._walk(self._level.agent.theta, self._stride)
-        elif action == turn_left:
+        elif action == ACTION_TURN_LEFT:
             self._level.agent.theta += self._turn
             is_colliding = self._walk(self._level.agent.theta, self._stride_on_turn)
-        elif action == turn_right:
+        elif action == ACTION_TURN_RIGHT:
             self._level.agent.theta -= self._turn
             is_colliding = self._walk(self._level.agent.theta, self._stride_on_turn)
         return is_colliding

@@ -68,7 +68,7 @@ class Trainer:
 
     def train(self, sim, first_input):
 
-        learner = Learner(_ARGS, model=self._model, n_channels=simulator.CHANNEL_NUM, n_actions=len(controller.actions))
+        learner = Learner(_ARGS, model=self._model, n_channels=simulator.CHANNEL_NUM, n_actions=len(controller.ACTIONS))
 
         agent_input = first_input
         reward = 0.0
@@ -78,7 +78,7 @@ class Trainer:
 
             if not self._user_control:
                 action_i = learner.perceive(agent_input, reward, terminal)
-                self._action = controller.actions[action_i]
+                self._action = controller.ACTIONS[action_i]
 
             self._action_lock.acquire()
             try:
@@ -100,11 +100,11 @@ class Trainer:
         self._action_lock.acquire()
         try:
             if symbol == _ARGS.key_walk_forward:
-                self._action = controller.walk_forward
+                self._action = controller.ACTION_WALK_FORWARD
             elif symbol == _ARGS.key_turn_left:
-                self._action = controller.turn_left
+                self._action = controller.ACTION_TURN_LEFT
             elif symbol == _ARGS.key_turn_right:
-                self._action = controller.turn_right
+                self._action = controller.ACTION_TURN_RIGHT
         finally:
             self._action_lock.release()
 
