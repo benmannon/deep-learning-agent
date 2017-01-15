@@ -3,10 +3,10 @@ from math import pi, cos, sin, e, sqrt
 
 import numpy as np
 
-Ray = namedtuple('Ray', 'x y cos sin')
-Signal = namedtuple('Signal', 'ax ay bx by channels')
-Edge = namedtuple('Edge', 'ax ay bx by channels')
-Circle = namedtuple('Circle', 'x y r channels')
+_Ray = namedtuple('Ray', 'x y cos sin')
+_Signal = namedtuple('Signal', 'ax ay bx by channels')
+_Edge = namedtuple('Edge', 'ax ay bx by channels')
+_Circle = namedtuple('Circle', 'x y r channels')
 
 CHANNEL_NUM = 2
 
@@ -100,7 +100,7 @@ def _rays(origin, theta_center, near_clip, fov, total):
     for i in range(0, total):
         x = near_clip * cos(theta) + origin[0]
         y = near_clip * sin(theta) + origin[1]
-        rays.append(Ray(x, y, cos(theta), sin(theta)))
+        rays.append(_Ray(x, y, cos(theta), sin(theta)))
         theta -= theta_step
 
     return rays
@@ -128,7 +128,7 @@ def _cast(ray, edges, circles, attenuation):
 
     bx, by = _project(ray, t_nearest) if t_nearest != float('inf') else [ray.x, ray.y]
 
-    return Signal(ray.x, ray.y, bx, by, _fog(channels_nearest, t_nearest, attenuation))
+    return _Signal(ray.x, ray.y, bx, by, _fog(channels_nearest, t_nearest, attenuation))
 
 
 def _find_edges(grid, shape):
@@ -149,10 +149,10 @@ def _find_edges(grid, shape):
             if a != b and x0 is None:
                 x0 = x
             elif a == b and x0 is not None:
-                edges.append(Edge(x0, y, x, y, _CHANNELS_WALL))
+                edges.append(_Edge(x0, y, x, y, _CHANNELS_WALL))
                 x0 = None
         if x0 is not None:
-            edges.append(Edge(x0, y, w, y, _CHANNELS_WALL))
+            edges.append(_Edge(x0, y, w, y, _CHANNELS_WALL))
 
     # walk between columns
     for x in range(1, w):
@@ -163,10 +163,10 @@ def _find_edges(grid, shape):
             if a != b and y0 is None:
                 y0 = y
             elif a == b and y0 is not None:
-                edges.append(Edge(x, y0, x, y, _CHANNELS_WALL))
+                edges.append(_Edge(x, y0, x, y, _CHANNELS_WALL))
                 y0 = None
         if y0 is not None:
-            edges.append(Edge(x, y0, x, h, _CHANNELS_WALL))
+            edges.append(_Edge(x, y0, x, h, _CHANNELS_WALL))
 
     return edges
 
@@ -178,7 +178,7 @@ def _find_circles(coins, coin_radius):
     # just return each coin as a circle
     circles = []
     for coin in coins:
-        circles.append(Circle(coin[0], coin[1], coin_radius, c))
+        circles.append(_Circle(coin[0], coin[1], coin_radius, c))
 
     return circles
 
