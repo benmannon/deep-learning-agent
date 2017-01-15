@@ -1,6 +1,7 @@
 from __future__ import division
 
 import random
+import time
 
 from agent import Agent, q_models
 from xp_buffer import XpBuffer
@@ -26,6 +27,7 @@ class Learner:
         self._recent_state = None
         self._recent_action = None
         self._step = 0
+        self._timer = None
 
     def _add_xp(self, state, action, reward, term):
         self._xp_buf.append(state, action, reward, term)
@@ -57,6 +59,9 @@ class Learner:
 
     def perceive(self, state, reward, terminal):
 
+        if self._timer is None:
+            self._timer = time.clock()
+
         if self._recent_state:
             self._add_xp(self._recent_state, self._recent_action, reward, terminal)
 
@@ -74,7 +79,13 @@ class Learner:
             self._learn()
 
         if self._step % self._report_interval == 0:
-            print 'step=%s | {e: %s, learning: %s}' % (self._step, epsilon, learning)
+            now = time.clock()
+            elapsed = now - self._timer
+            pace = self._report_interval / elapsed
+            pace_str = 'na' if self._step == 0 else repr(round(pace, 1))
+            self._timer = now
+            print 'step=%s, pace=%s | {e: %s, learning: %s}'\
+                  % (self._step, pace_str, epsilon, learning)
 
         self._step += 1
 
