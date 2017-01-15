@@ -2,9 +2,12 @@ from math import cos, sin, sqrt
 
 import numpy as np
 
-ACTION_WALK_FORWARD = 0
-ACTION_TURN_LEFT = 1
-ACTION_TURN_RIGHT = 2
+from enum import Enum
+
+_enum = Enum()
+ACTION_WALK_FORWARD = _enum.next()
+ACTION_TURN_LEFT = _enum.next()
+ACTION_TURN_RIGHT = _enum.next()
 
 ACTIONS = (ACTION_WALK_FORWARD, ACTION_TURN_LEFT, ACTION_TURN_RIGHT)
 
