@@ -12,6 +12,31 @@ ACTION_TURN_RIGHT = _enum.next()
 ACTIONS = (ACTION_WALK_FORWARD, ACTION_TURN_LEFT, ACTION_TURN_RIGHT)
 
 
+def _collect_coins(coins, coin_radius, agent_x, agent_y, agent_radius):
+
+    # threshold distance for coin collection (squared)
+    threshold = agent_radius + coin_radius
+    threshold2 = threshold * threshold
+
+    i = 0
+    while i < len(coins):
+
+        # coin coordinates
+        coin = coins[i]
+        cx, cy = coin[0], coin[1]
+
+        # agent-to-coin vector
+        vx, vy = cx - agent_x, cy - agent_y
+
+        # close enough to collect?
+        dist2 = vx * vx + vy * vy
+        if dist2 < threshold2:
+            # "collect" the coin by deleting it
+            del coins[i]
+
+        i += 1
+
+
 class Controller:
     def __init__(self, args, level):
         self._level = level
@@ -39,7 +64,7 @@ class Controller:
         x, y = agent.coord[0], agent.coord[1]
         agent.coord = [x + distance * cos(theta), y + distance * sin(theta)]
         is_colliding = self._handle_collision()
-        self._collect_coins()
+        _collect_coins(self._level.coins, self._coin_radius, agent.coord[0], agent.coord[1], self._agent_radius)
         return is_colliding
 
     def _handle_collision(self):
@@ -183,33 +208,3 @@ class Controller:
         agent.coord[1] = new_y
 
         return ax != new_x or ay != new_y
-
-    def _collect_coins(self):
-
-        # agent coordinate
-        agent = self._level.agent
-        ax = agent.coord[0]
-        ay = agent.coord[1]
-
-        # threshold distance for coin collection (squared)
-        threshold = self._agent_radius + self._coin_radius
-        threshold2 = threshold * threshold
-
-        coins = self._level.coins
-        i = 0
-        while i < len(coins):
-
-            # coin coordinates
-            coin = coins[i]
-            cx, cy = coin[0], coin[1]
-
-            # agent-to-coin vector
-            vx, vy = cx - ax, cy - ay
-
-            # close enough to collect?
-            dist2 = vx * vx + vy * vy
-            if dist2 < threshold2:
-                # "collect" the coin by deleting it
-                del coins[i]
-
-            i += 1
