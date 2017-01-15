@@ -12,16 +12,17 @@ ACTION_TURN_RIGHT = _enum.next()
 ACTIONS = (ACTION_WALK_FORWARD, ACTION_TURN_LEFT, ACTION_TURN_RIGHT)
 
 
-def _walk(level, agent_radius, coin_radius, theta, distance):
+def _walk(level, args, distance):
     agent_coord = level.agent.coord
+    theta = level.agent.theta
     agent_coord[0] += distance * cos(theta)
     agent_coord[1] += distance * sin(theta)
-    is_colliding = _handle_collision(level, agent_radius)
-    _collect_coins(level.coins, coin_radius, agent_coord[0], agent_coord[1], agent_radius)
+    is_colliding = _handle_collision(level, args)
+    _collect_coins(level, args)
     return is_colliding
 
 
-def _handle_collision(level, agent_radius):
+def _handle_collision(level, args):
     grid = level.grid
     agent = level.agent
     coord = agent.coord
@@ -30,15 +31,15 @@ def _handle_collision(level, agent_radius):
     check_cells = [[x - 1, y - 1], [x - 1, y], [x, y], [x, y - 1]]
     is_colliding = False
     for cell in check_cells:
-        if _handle_bounding_collision(coord, agent_radius, grid, cell):
+        if _handle_bounding_collision(coord, grid, cell, args):
             is_colliding = True
     for cell in check_cells:
-        if _handle_corner_collision(coord, agent_radius, grid, cell):
+        if _handle_corner_collision(coord, grid, cell, args):
             is_colliding = True
     return is_colliding
 
 
-def _handle_bounding_collision(agent_coord, agent_radius, grid, cell_coord):
+def _handle_bounding_collision(agent_coord, grid, cell_coord, args):
 
     grid_shape = grid.shape
 
@@ -68,7 +69,7 @@ def _handle_bounding_collision(agent_coord, agent_radius, grid, cell_coord):
     # agent coordinates and radius
     ax = agent_coord[0]
     ay = agent_coord[1]
-    ar = agent_radius
+    ar = args.agent_radius
 
     # adjusted agent coordinates
     new_x = ax;
@@ -95,7 +96,7 @@ def _handle_bounding_collision(agent_coord, agent_radius, grid, cell_coord):
     return ax != new_x or ay != new_y
 
 
-def _handle_corner_collision(agent_coord, agent_radius, grid, cell_coord):
+def _handle_corner_collision(agent_coord, grid, cell_coord, args):
 
     grid_shape = grid.shape
 
@@ -125,7 +126,7 @@ def _handle_corner_collision(agent_coord, agent_radius, grid, cell_coord):
     # agent coordinates and radius, radius ^ 2
     ax = agent_coord[0]
     ay = agent_coord[1]
-    ar = agent_radius
+    ar = args.agent_radius
     ar2 = ar * ar
 
     # adjusted agent coordinates
@@ -161,10 +162,15 @@ def _handle_corner_collision(agent_coord, agent_radius, grid, cell_coord):
     return ax != new_x or ay != new_y
 
 
-def _collect_coins(coins, coin_radius, agent_x, agent_y, agent_radius):
+def _collect_coins(level, args):
+
+    coins = level.coins
+    agent_coord = level.agent.coord
+    agent_x = agent_coord[0]
+    agent_y = agent_coord[1]
 
     # threshold distance for coin collection (squared)
-    threshold = agent_radius + coin_radius
+    threshold = args.agent_radius + args.coin_radius
     threshold2 = threshold * threshold
 
     i = 0
@@ -188,21 +194,17 @@ def _collect_coins(coins, coin_radius, agent_x, agent_y, agent_radius):
 
 class Controller:
     def __init__(self, args, level):
+        self._args = args
         self._level = level
-        self._stride = args.agent_stride
-        self._stride_on_turn = args.agent_stride_on_turn
-        self._turn = args.agent_turn
-        self._agent_radius = args.agent_radius
-        self._coin_radius = args.coin_radius
 
     def step(self, action):
         is_colliding = False
         if action == ACTION_WALK_FORWARD:
-            is_colliding = _walk(self._level, self._agent_radius, self._coin_radius, self._level.agent.theta, self._stride)
+            is_colliding = _walk(self._level, self._args, self._args.agent_stride)
         elif action == ACTION_TURN_LEFT:
-            self._level.agent.theta += self._turn
-            is_colliding = _walk(self._level, self._agent_radius, self._coin_radius, self._level.agent.theta, self._stride_on_turn)
+            self._level.agent.theta += self._args.agent_turn
+            is_colliding = _walk(self._level, self._args, self._args.agent_stride_on_turn)
         elif action == ACTION_TURN_RIGHT:
-            self._level.agent.theta -= self._turn
-            is_colliding = _walk(self._level, self._agent_radius, self._coin_radius, self._level.agent.theta, self._stride_on_turn)
+            self._level.agent.theta -= self._args.agent_turn
+            is_colliding = _walk(self._level, self._args, self._args.agent_stride_on_turn)
         return is_colliding
