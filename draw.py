@@ -13,6 +13,37 @@ def _calc_level_scale(window_size, grid_shape):
     return min(window_ratio / grid_ratio, 0.5)
 
 
+def _coin_positions(coins, args):
+    positions = [None] * len(coins) * 4
+    r = args.coin_radius
+    offset = 0
+    for coin in coins:
+        positions[offset + 0] = [coin[0] - r, coin[1] - r]
+        positions[offset + 1] = [coin[0] - r, coin[1] + r]
+        positions[offset + 2] = [coin[0] + r, coin[1] + r]
+        positions[offset + 3] = [coin[0] + r, coin[1] - r]
+        offset += 4
+    return positions
+
+
+def _agent_position(agent, args):
+    r = args.agent_radius
+    position = [None] * 4
+    position[0] = [agent.coord[0] - r, agent.coord[1] - r]
+    position[1] = [agent.coord[0] - r, agent.coord[1] + r]
+    position[2] = [agent.coord[0] + r, agent.coord[1] + r]
+    position[3] = [agent.coord[0] + r, agent.coord[1] - r]
+    return position
+
+
+def _line_positions(lines):
+    positions = []
+    for line in lines:
+        positions.append([line.ax, line.ay])
+        positions.append([line.bx, line.by])
+    return positions
+
+
 def _update_buffer(program, name, update, use_tuple=False, filler=None):
 
     buf = program[name]
@@ -78,48 +109,20 @@ class Draw:
             self._agent['theta'] = level.agent.theta
             if self._initialized:
                 _update_buffer(self._coin, 'texcoord', _texcoords(len(level.coins)), use_tuple=True, filler=([0, 0],))
-                _update_buffer(self._coin, 'position', self._normalize_each(self._coin_positions(level.coins)), use_tuple=True, filler=([0, 0],))
-                _update_buffer(self._agent, 'position', self._normalize_each(self._agent_position(level.agent)))
-                _update_buffer(self._lines, 'position', self._normalize_each(self._line_positions(lines)), use_tuple=True, filler=([0, 0],))
+                _update_buffer(self._coin, 'position', self._normalize_each(_coin_positions(level.coins, self._args)), use_tuple=True, filler=([0, 0],))
+                _update_buffer(self._agent, 'position', self._normalize_each(_agent_position(level.agent, self._args)))
+                _update_buffer(self._lines, 'position', self._normalize_each(_line_positions(lines)), use_tuple=True, filler=([0, 0],))
                 _update_buffer(self._lines, 'line_color', _line_colors(lines), use_tuple=True, filler=([0, 0, 0, 0],))
             else:
                 self._coin['texcoord'] = _texcoords(len(level.coins))
-                self._coin['position'] = self._normalize_each(self._coin_positions(level.coins))
+                self._coin['position'] = self._normalize_each(_coin_positions(level.coins, self._args))
                 self._agent['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)]
-                self._agent['position'] = self._normalize_each(self._agent_position(level.agent))
-                self._lines['position'] = self._normalize_each(self._line_positions(lines))
+                self._agent['position'] = self._normalize_each(_agent_position(level.agent, self._args))
+                self._lines['position'] = self._normalize_each(_line_positions(lines))
                 self._lines['line_color'] = _line_colors(lines)
                 self._initialized = True
         finally:
             self._lock.release()
-
-    def _coin_positions(self, coins):
-        positions = [None] * len(coins) * 4
-        r = self._args.coin_radius
-        offset = 0
-        for coin in coins:
-            positions[offset + 0] = [coin[0] - r, coin[1] - r]
-            positions[offset + 1] = [coin[0] - r, coin[1] + r]
-            positions[offset + 2] = [coin[0] + r, coin[1] + r]
-            positions[offset + 3] = [coin[0] + r, coin[1] - r]
-            offset += 4
-        return positions
-
-    def _agent_position(self, agent):
-        r = self._args.agent_radius
-        position = [None] * 4
-        position[0] = [agent.coord[0] - r, agent.coord[1] - r]
-        position[1] = [agent.coord[0] - r, agent.coord[1] + r]
-        position[2] = [agent.coord[0] + r, agent.coord[1] + r]
-        position[3] = [agent.coord[0] + r, agent.coord[1] - r]
-        return position
-
-    def _line_positions(self, lines):
-        positions = []
-        for line in lines:
-            positions.append([line.ax, line.ay])
-            positions.append([line.bx, line.by])
-        return positions
 
     def run(self, key_handler=None, close_handler=None):
 
