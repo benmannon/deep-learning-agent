@@ -24,23 +24,19 @@ def _handle_collision(level, args):
     grid = level.grid
     agent = level.agent
     coord = agent.coord
-    is_colliding = False
-    if _handle_bounding_collisions(args, coord, grid):
-        is_colliding = True
-    if _handle_corner_collision(coord, grid, args):
-        is_colliding = True
-    return is_colliding
+    bounding_collision = _handle_bounding_collisions(args, coord, grid)
+    corner_collision = _handle_corner_collision(coord, grid, args)
+    return bounding_collision or corner_collision
 
 
 def _handle_bounding_collisions(args, coord, grid):
     x = round(coord[0])
     y = round(coord[1])
     check_cells = [[x - 1, y - 1], [x - 1, y], [x, y], [x, y - 1]]
-    is_colliding = False
+    collision = False
     for cell in check_cells:
-        if _handle_bounding_collision(coord, grid, cell, args):
-            is_colliding = True
-    return is_colliding
+        collision = _handle_bounding_collision(coord, grid, cell, args) or collision
+    return collision
 
 
 def _handle_bounding_collision(agent_coord, grid, cell_coord, args):
