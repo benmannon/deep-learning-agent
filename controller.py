@@ -31,9 +31,8 @@ def _handle_collision(level, args):
     for cell in check_cells:
         if _handle_bounding_collision(coord, grid, cell, args):
             is_colliding = True
-    for cell in check_cells:
-        if _handle_corner_collision(coord, grid, cell, args):
-            is_colliding = True
+    if _handle_corner_collision(coord, grid, x, y, args):
+        is_colliding = True
     return is_colliding
 
 
@@ -93,31 +92,34 @@ def _handle_bounding_collision(agent_coord, grid, cell_coord, args):
     return ax != new_x or ay != new_y
 
 
-def _handle_corner_collision(agent_coord, grid, cell_coord, args):
+def _handle_corner_collision(agent_coord, grid, grid_x, grid_y, args):
     grid_shape = grid.shape
 
-    # cell coordinates
-    cx = cell_coord[0]
-    cy = cell_coord[1]
+    # convex corners only exist at points surrounded by 1 'on' cell and 3 'off' cells
+    # E.g.
+    # tl    tr    bl    br
+    # *-    -*    --    --
+    # --    --    *-    -*
 
-    # is the cell out of bounds? exit early
-    if cx < 0 or cy < 0 or cx >= grid_shape[1] or cy >= grid_shape[0]:
-        return
+    # grid dimensions
+    h = grid_shape[0]
+    w = grid_shape[1]
 
-    # is the cell open? exit early
-    # (y-axis on grid is flipped)
-    cy_flip = grid_shape[0] - cy - 1
-    cell = grid[cy_flip][cx]
-    if cell == 0:
-        return
+    # grid is flipped on y-axis
+    bot = h - grid_y
+    top = bot - 1
+    rgt = grid_x
+    lft = rgt - 1
 
-    # the cell's bounding box vertices
-    cx0, cx1 = cx, cx + 1
-    cy0, cy1 = cy, cy + 1
+    # be careful not to look outside the grid dimensions
+    tl = grid[top, lft] if 0 <= top < h and 0 <= lft < w else 0
+    tr = grid[top, rgt] if 0 <= top < h and 0 <= rgt < w else 0
+    bl = grid[bot, lft] if 0 <= bot < h and 0 <= lft < w else 0
+    br = grid[bot, rgt] if 0 <= bot < h and 0 <= rgt < w else 0
 
-    # cell center point
-    ccx = (cx0 + cx1) / 2
-    ccy = (cy0 + cy1) / 2
+    # exit early if this isn't a corner
+    if tl + tr + bl + br != 1:
+        return False
 
     # agent coordinates and radius, radius ^ 2
     ax = agent_coord[0]
@@ -129,12 +131,8 @@ def _handle_corner_collision(agent_coord, grid, cell_coord, args):
     new_x = ax;
     new_y = ay;
 
-    # find the nearest corner
-    ncx = cx0 if ax <= ccx else cx1
-    ncy = cy0 if ay <= ccy else cy1
-
     # calculate distance to agent
-    vx, vy = ax - ncx, ay - ncy
+    vx, vy = ax - grid_x, ay - grid_y
     dist2 = vx * vx + vy * vy
 
     # colliding?
@@ -147,8 +145,8 @@ def _handle_corner_collision(agent_coord, grid, cell_coord, args):
         vyr = vy * ar / dist
 
         # apply adjustment to both axes
-        new_x = ncx + vxr
-        new_y = ncy + vyr
+        new_x = grid_x + vxr
+        new_y = grid_y + vyr
 
     # apply new agent coordinates
     agent_coord[0] = new_x
