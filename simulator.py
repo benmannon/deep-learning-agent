@@ -23,9 +23,10 @@ def _color(channels, args):
 def _lines(signals, args):
     signal_lines = []
     for signal in signals:
-        a = [signal.ax, signal.ay]
-        b = [signal.bx, signal.by]
-        signal_lines.append(Line(a, b, _color(signal.channels, args)))
+        ax, ay = signal.ax, signal.ay
+        bx, by = signal.bx, signal.by
+        r, g, b, a = _color(signal.channels, args)
+        signal_lines.append(Line(ax, ay, bx, by, r, g, b, a))
     return signal_lines
 
 

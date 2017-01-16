@@ -1,5 +1,6 @@
 from __future__ import division
 
+from collections import namedtuple
 from math import pi
 from threading import Lock
 
@@ -50,7 +51,8 @@ def _line_colors(lines):
     # append each color twice (one per vertex)
     colors = []
     for line in lines:
-        colors.extend([line.color, line.color])
+        rgba = [line.r, line.g, line.b, line.a]
+        colors.extend([rgba, rgba])
     return colors
 
 
@@ -117,8 +119,8 @@ class Draw:
     def _line_positions(self, lines):
         positions = []
         for line in lines:
-            positions.append(self._normalize(line.a))
-            positions.append(self._normalize(line.b))
+            positions.append(self._normalize([line.ax, line.ay]))
+            positions.append(self._normalize([line.bx, line.by]))
         return positions
 
     def run(self, key_handler=None, close_handler=None):
@@ -376,8 +378,4 @@ class Draw:
         return [x, y]
 
 
-class Line:
-    def __init__(self, a=[0.0, 0.0], b=[1.0, 0.0], color=[0.5, 0.5, 0.5]):
-        self.a = a
-        self.b = b
-        self.color = color
+Line = namedtuple('Line', 'ax ay bx by r g b a')
