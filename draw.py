@@ -78,47 +78,47 @@ class Draw:
             self._agent['theta'] = level.agent.theta
             if self._initialized:
                 _update_buffer(self._coin, 'texcoord', _texcoords(len(level.coins)), use_tuple=True, filler=([0, 0],))
-                _update_buffer(self._coin, 'position', self.coin_positions(level.coins), use_tuple=True, filler=([0, 0],))
-                _update_buffer(self._agent, 'position', self.agent_position(level.agent))
-                _update_buffer(self._lines, 'position', self.line_positions(lines), use_tuple=True, filler=([0, 0],))
+                _update_buffer(self._coin, 'position', self._coin_positions(level.coins), use_tuple=True, filler=([0, 0],))
+                _update_buffer(self._agent, 'position', self._agent_position(level.agent))
+                _update_buffer(self._lines, 'position', self._line_positions(lines), use_tuple=True, filler=([0, 0],))
                 _update_buffer(self._lines, 'line_color', _line_colors(lines), use_tuple=True, filler=([0, 0, 0, 0],))
             else:
                 self._coin['texcoord'] = _texcoords(len(level.coins))
-                self._coin['position'] = self.coin_positions(level.coins)
+                self._coin['position'] = self._coin_positions(level.coins)
                 self._agent['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)]
-                self._agent['position'] = self.agent_position(level.agent)
-                self._lines['position'] = self.line_positions(lines)
+                self._agent['position'] = self._agent_position(level.agent)
+                self._lines['position'] = self._line_positions(lines)
                 self._lines['line_color'] = _line_colors(lines)
                 self._initialized = True
         finally:
             self._lock.release()
 
-    def coin_positions(self, coins):
+    def _coin_positions(self, coins):
         positions = [None] * len(coins) * 4
         r = self._args.coin_radius
         offset = 0
         for coin in coins:
-            positions[offset + 0] = self.normalize([coin[0] - r, coin[1] - r])
-            positions[offset + 1] = self.normalize([coin[0] - r, coin[1] + r])
-            positions[offset + 2] = self.normalize([coin[0] + r, coin[1] + r])
-            positions[offset + 3] = self.normalize([coin[0] + r, coin[1] - r])
+            positions[offset + 0] = self._normalize([coin[0] - r, coin[1] - r])
+            positions[offset + 1] = self._normalize([coin[0] - r, coin[1] + r])
+            positions[offset + 2] = self._normalize([coin[0] + r, coin[1] + r])
+            positions[offset + 3] = self._normalize([coin[0] + r, coin[1] - r])
             offset += 4
         return positions
 
-    def agent_position(self, agent):
+    def _agent_position(self, agent):
         r = self._args.agent_radius
         position = [None] * 4
-        position[0] = self.normalize([agent.coord[0] - r, agent.coord[1] - r])
-        position[1] = self.normalize([agent.coord[0] - r, agent.coord[1] + r])
-        position[2] = self.normalize([agent.coord[0] + r, agent.coord[1] + r])
-        position[3] = self.normalize([agent.coord[0] + r, agent.coord[1] - r])
+        position[0] = self._normalize([agent.coord[0] - r, agent.coord[1] - r])
+        position[1] = self._normalize([agent.coord[0] - r, agent.coord[1] + r])
+        position[2] = self._normalize([agent.coord[0] + r, agent.coord[1] + r])
+        position[3] = self._normalize([agent.coord[0] + r, agent.coord[1] - r])
         return position
 
-    def line_positions(self, lines):
+    def _line_positions(self, lines):
         positions = []
         for line in lines:
-            positions.append(self.normalize(line.a))
-            positions.append(self.normalize(line.b))
+            positions.append(self._normalize(line.a))
+            positions.append(self._normalize(line.b))
         return positions
 
     def run(self, key_handler=None, close_handler=None):
@@ -180,7 +180,7 @@ class Draw:
         h = self._grid_shape[0]
 
         grid = gloo.Program(grid_vertex, grid_fragment, count=4)
-        grid['position'] = self.normalize_each([(0, 0), (0, h), (w, 0), (w, h)])
+        grid['position'] = self._normalize_each([(0, 0), (0, h), (w, 0), (w, h)])
         grid['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
         grid['texture'] = np.zeros(self._grid_shape + (4,))
 
@@ -345,13 +345,13 @@ class Draw:
 
         return sight
 
-    def normalize_each(self, coords):
+    def _normalize_each(self, coords):
         normals = []
         for coord in coords:
-            normals.append(self.normalize(coord))
+            normals.append(self._normalize(coord))
         return normals
 
-    def normalize(self, coord):
+    def _normalize(self, coord):
 
         # position level in top-left corner of screen
         #
