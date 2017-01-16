@@ -6,6 +6,8 @@ from threading import Lock
 import numpy as np
 from glumpy import app, gloo, gl
 
+import shaders
+
 
 def _calc_level_scale(window_size, grid_shape):
     window_ratio = window_size[1] / window_size[0]
@@ -86,25 +88,8 @@ def _line_colors(lines):
 
 
 def _grid_program(position, shape):
-    grid_vertex = """
-        attribute vec2 position;
-        attribute vec2 texcoord;
-        varying vec2 v_texcoord;
-        void main()
-        {
-            gl_Position = vec4(position, 0.0, 1.0);
-            v_texcoord = texcoord;
-        }
-    """
-
-    grid_fragment = """
-        uniform sampler2D texture;
-        varying vec2 v_texcoord;
-        void main()
-        {
-            gl_FragColor = texture2D(texture, v_texcoord);
-        }
-    """
+    grid_vertex = shaders.IMAGE.vertex
+    grid_fragment = shaders.IMAGE.fragment
 
     grid = gloo.Program(grid_vertex, grid_fragment, count=4)
     grid['position'] = position
@@ -115,40 +100,8 @@ def _grid_program(position, shape):
 
 
 def _coin_program(coin_color):
-    vertex = """
-        attribute vec2 position;
-        attribute vec2 texcoord;
-        varying vec2 v_texcoord;
-        void main()
-        {
-            gl_Position = vec4(position, 0.0, 1.0);
-            v_texcoord = texcoord;
-        }
-    """
-
-    fragment = """
-        uniform vec4 circle_color;
-        uniform vec4 border_color;
-        uniform vec4 bkg_color;
-        varying vec2 v_texcoord;
-        void main()
-        {
-            float dist = sqrt(dot(v_texcoord, v_texcoord));
-            if (dist < 0.9)
-                // inside the border
-                if (abs(v_texcoord.x) < 0.1 && abs(v_texcoord.y) < 0.5)
-                    // draw a vertical slot
-                    gl_FragColor = border_color;
-                else
-                    gl_FragColor = circle_color;
-            else if (dist < 1)
-                // the border
-                gl_FragColor = border_color;
-            else
-                // outside the border
-                gl_FragColor = bkg_color;
-        }
-    """
+    vertex = shaders.COIN.vertex
+    fragment = shaders.COIN.fragment
 
     coin = gloo.Program(vertex, fragment)
     coin['circle_color'] = coin_color + [1.0]
@@ -159,54 +112,8 @@ def _coin_program(coin_color):
 
 
 def _agent_program(agent_color, pointer_brightness, pointer_size):
-    vertex = """
-        attribute vec2 position;
-        attribute vec2 texcoord;
-        varying vec2 v_texcoord;
-        void main()
-        {
-            gl_Position = vec4(position, 0.0, 1.0);
-            v_texcoord = texcoord;
-        }
-    """
-
-    fragment = """
-        uniform vec4 circle_color;
-        uniform vec4 pointer_color;
-        uniform vec4 border_color;
-        uniform vec4 bkg_color;
-        uniform float pointer_threshold;
-        uniform float theta;
-        varying vec2 v_texcoord;
-        void main()
-        {
-            float dist = sqrt(dot(v_texcoord, v_texcoord));
-            if (dist < 0.9)
-            {
-                // inside the border; calculate angle to draw pointer
-                vec2 coord_unit = v_texcoord / dist;
-                float theta_actual = atan(coord_unit.y, coord_unit.x);
-                float theta_diff = theta - theta_actual;
-                float bounded_diff = abs(atan(sin(theta_diff), cos(theta_diff)));
-                if (bounded_diff > pointer_threshold)
-                    // outside the pointer arc
-                    gl_FragColor = circle_color;
-                else
-                    // inside the pointer arc
-                    gl_FragColor = pointer_color;
-            }
-            else if (dist < 1)
-            {
-                // the border
-                gl_FragColor = border_color;
-            }
-            else
-            {
-                // outside the border
-                gl_FragColor = bkg_color;
-            }
-        }
-    """
+    vertex = shaders.AGENT.vertex
+    fragment = shaders.AGENT.fragment
 
     # pointer color is a brighter shade of the agent color
     b = pointer_brightness
@@ -226,48 +133,15 @@ def _agent_program(agent_color, pointer_brightness, pointer_size):
 
 
 def _lines_program():
-    vertex = """
-        attribute vec2 position;
-        attribute vec4 line_color;
-        varying vec4 v_line_color;
-        void main()
-        {
-            gl_Position = vec4(position, 0.0, 1.0);
-            v_line_color = line_color;
-        }
-    """
-
-    fragment = """
-        varying vec4 v_line_color;
-        void main()
-        {
-            gl_FragColor = v_line_color;
-        }
-    """
+    vertex = shaders.LINE.vertex
+    fragment = shaders.LINE.fragment
 
     return gloo.Program(vertex, fragment)
 
 
 def _sight_program(shape):
-    grid_vertex = """
-        attribute vec2 position;
-        attribute vec2 texcoord;
-        varying vec2 v_texcoord;
-        void main()
-        {
-            gl_Position = vec4(position, 0.0, 1.0);
-            v_texcoord = texcoord;
-        }
-    """
-
-    grid_fragment = """
-        uniform sampler2D texture;
-        varying vec2 v_texcoord;
-        void main()
-        {
-            gl_FragColor = texture2D(texture, v_texcoord);
-        }
-    """
+    grid_vertex = shaders.IMAGE.vertex
+    grid_fragment = shaders.IMAGE.fragment
 
     sight = gloo.Program(grid_vertex, grid_fragment, count=4)
     sight['position'] = [(0, -0.25), (0, 0.25), (1, -0.25), (1, 0.25)]
