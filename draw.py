@@ -124,6 +124,36 @@ class Draw:
         finally:
             self._lock.release()
 
+    def _normalize_each(self, coords):
+        normals = []
+        for coord in coords:
+            normals.append(self._normalize(coord))
+        return normals
+
+    def _normalize(self, coord):
+
+        # position level in top-left corner of screen
+        #
+        # scale determines the amount of horizontal space that is covered
+        # vertical space is used as needed, maintaining proper aspect ratio
+
+        grid_aspect = self._grid_shape[0] / self._grid_shape[1]
+        window_aspect = self._args.window_width / self._window_height
+
+        xmin = -1
+        xmax = -1 + (2 * self._level_scale)
+        ymin = 1 - (2 * self._level_scale) * grid_aspect * window_aspect
+        ymax = 1
+
+        gw = self._grid_shape[1]
+        gh = self._grid_shape[0]
+        x_unit = coord[0] / gw
+        y_unit = coord[1] / gh
+        x = (xmax - xmin) * x_unit + xmin
+        y = (ymax - ymin) * y_unit + ymin
+
+        return [x, y]
+
     def run(self, key_handler=None, close_handler=None):
 
         config = app.configuration.Configuration()
@@ -347,36 +377,6 @@ class Draw:
         sight['texture'] = np.zeros((1, self._args.agent_vision_res, 4))
 
         return sight
-
-    def _normalize_each(self, coords):
-        normals = []
-        for coord in coords:
-            normals.append(self._normalize(coord))
-        return normals
-
-    def _normalize(self, coord):
-
-        # position level in top-left corner of screen
-        #
-        # scale determines the amount of horizontal space that is covered
-        # vertical space is used as needed, maintaining proper aspect ratio
-
-        grid_aspect = self._grid_shape[0] / self._grid_shape[1]
-        window_aspect = self._args.window_width / self._window_height
-
-        xmin = -1
-        xmax = -1 + (2 * self._level_scale)
-        ymin = 1 - (2 * self._level_scale) * grid_aspect * window_aspect
-        ymax = 1
-
-        gw = self._grid_shape[1]
-        gh = self._grid_shape[0]
-        x_unit = coord[0] / gw
-        y_unit = coord[1] / gh
-        x = (xmax - xmin) * x_unit + xmin
-        y = (ymax - ymin) * y_unit + ymin
-
-        return [x, y]
 
 
 Line = namedtuple('Line', 'ax ay bx by r g b a')
