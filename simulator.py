@@ -50,20 +50,18 @@ class Simulator:
         self._args = args
         self._lvl = level.square()
 
-        self._draw = Draw(args, self._lvl.grid.shape)
         self._ctrl = Controller(args, self._lvl)
         self._vision = Vision(args, self._lvl)
+        self._sightline = self._vision.look()
+
+        self._draw = Draw(args, self._lvl.grid.shape, self._draw_update)
 
         self._time_step = self._lvl.time
 
     def run(self, after_init=None, on_key_press=None, on_close=None):
 
-        # prepare first frame
-        sightline = self._vision.look()
-        self._draw.update(self._lvl, _lines(sightline, self._args), _sight_colors(sightline, self._args))
-
         if after_init is not None:
-            sight_channels = _channels(sightline)
+            sight_channels = _channels(self._sightline)
             threading.Thread(target=after_init, args=[self, sight_channels]).start()
 
         self._draw.run(key_handler=on_key_press, close_handler=on_close)
@@ -95,6 +93,14 @@ class Simulator:
             self._lvl.reset()
             end = True
 
-        sightline = self._vision.look()
-        self._draw.update(self._lvl, _lines(sightline, self._args), _sight_colors(sightline, self._args))
-        return _channels(sightline), reward, end
+        self._sightline = self._vision.look()
+        return _channels(self._sightline), reward, end
+
+    def _draw_update(self):
+        grid = self._lvl.grid
+        agent_coord = list(self._lvl.agent.coord)
+        agent_theta = self._lvl.agent.theta
+        coins = list(self._lvl.coins)
+        lines = _lines(self._sightline, self._args)
+        sight_colors = _sight_colors(self._sightline, self._args)
+        return grid, agent_coord, agent_theta, coins, lines, sight_colors

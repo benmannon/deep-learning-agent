@@ -15,40 +15,26 @@ def _calc_level_scale(window_size, grid_shape):
     return min(window_ratio / grid_ratio, 0.5)
 
 
+def _circle_square(point, r):
+    x, y = point
+    return [(x - r, y - r),
+            (x - r, y + r),
+            (x + r, y + r),
+            (x + r, y - r)]
+
+
 def _circle_squares(points, r):
     positions = [None] * len(points) * 4
     offset = 0
     for point in points:
-        positions[offset + 0] = [point[0] - r, point[1] - r]
-        positions[offset + 1] = [point[0] - r, point[1] + r]
-        positions[offset + 2] = [point[0] + r, point[1] + r]
-        positions[offset + 3] = [point[0] + r, point[1] - r]
+        positions[offset:offset + 4] = _circle_square(point, r)
         offset += 4
     return positions
 
 
-def _line_positions(lines):
-    positions = []
-    for line in lines:
-        positions.append([line.ax, line.ay])
-        positions.append([line.bx, line.by])
-    return positions
-
-
-def _update_buffer(buf, update, use_tuple=False, filler=None):
-
-    unused_len = len(buf) - len(update)
-
-    if unused_len < 0:
-        raise ValueError('Vertex buffer overflow')
-
-    # update values
+def _update_buffer(buf, update, use_tuple=False):
     for i in range(0, len(update)):
         buf[i] = (update[i],) if use_tuple else update[i]
-
-    # pack unused space with filler
-    if unused_len > 0:
-        buf[len(update):] = [filler] * unused_len
 
 
 def _grid_texture(grid, args):
@@ -60,19 +46,6 @@ def _grid_texture(grid, args):
         else:
             texture.append(args.bkg_color + [1.0])
     return np.array(texture)
-
-
-def _texcoords(repeat=1):
-    return [[-1.0, -1.0], [-1.0, 1.0], [1.0, 1.0], [1.0, -1.0]] * repeat
-
-
-def _line_colors(lines):
-    # append each color twice (one per vertex)
-    colors = []
-    for line in lines:
-        rgba = [line.r, line.g, line.b, line.a]
-        colors.extend([rgba, rgba])
-    return colors
 
 
 def _grid_program(position, shape):
@@ -111,6 +84,8 @@ def _agent_program(agent_color, pointer_brightness, pointer_size):
     pointer_color = [pointer_r, pointer_g, pointer_b]
 
     agent = gloo.Program(vertex, fragment, count=4)
+    agent['position'] = [(0, 0), (0, 0), (0, 0), (0, 0)]
+    agent['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)]
     agent['circle_color'] = agent_color + [1.0]
     agent['pointer_color'] = pointer_color + [1.0]
     agent['border_color'] = [0.0, 0.0, 0.0, 1.0]
@@ -120,7 +95,7 @@ def _agent_program(agent_color, pointer_brightness, pointer_size):
     return agent
 
 
-def _lines_program():
+def _line_program():
     vertex = shaders.LINE.vertex
     fragment = shaders.LINE.fragment
 
@@ -139,10 +114,59 @@ def _sight_program(shape):
     return sight
 
 
-class Draw:
-    def __init__(self, args, grid_shape):
+def _update_agent(agent_program, coord, theta, r, transform):
+    _update_buffer(agent_program['position'], transform(_circle_square(coord, r)))
+    agent_program['theta'] = theta
 
-        self._lock = Lock()
+
+def _update_coins(coin_programs, coins, coin_color, r, transform):
+
+    n_coins = len(coins)
+
+    # update existing coins
+    for i in range(0, min(len(coin_programs), n_coins)):
+        _update_buffer(coin_programs[i]['position'], transform(_circle_square(coins[i], r)), use_tuple=True)
+
+    # create new coins if necessary
+    for i in range(min(len(coin_programs), n_coins), n_coins):
+        program = _coin_program(coin_color)
+        program['texcoord'] = [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)]
+        program['position'] = transform(_circle_square(coins[i], r))
+        coin_programs.append(program)
+
+    # delete coins if necessary
+    for i in range(n_coins, len(coin_programs)):
+        coin_programs[i].delete()
+    del coin_programs[n_coins:]
+
+
+def _update_lines(line_programs, lines, transform):
+
+    n_lines = len(lines)
+
+    # update existing lines
+    for i in range(0, min(len(line_programs), n_lines)):
+        ax, ay, bx, by, r, g, b, a = lines[i]
+        _update_buffer(line_programs[i]['position'], transform([(ax, ay), (bx, by)]), use_tuple=True)
+        _update_buffer(line_programs[i]['line_color'], [(r, g, b, a), (r, g, b, a)], use_tuple=True)
+
+    # create new lines if necessary
+    for i in range(min(len(line_programs), n_lines), n_lines):
+        ax, ay, bx, by, r, g, b, a = lines[i]
+        program = _line_program()
+        program['position'] = transform([(ax, ay), (bx, by)])
+        program['line_color'] = [(r, g, b, a), (r, g, b, a)]
+        line_programs.append(program)
+
+    # delete lines if necessary
+    for i in range(n_lines, len(line_programs)):
+        lines[i].delete()
+    del lines[n_lines:]
+
+
+class Draw:
+    def __init__(self, args, grid_shape, update_hook):
+
         self._args = args
         self._window_height = int(args.window_width / 2)
         self._level_scale = _calc_level_scale([args.window_width, self._window_height], grid_shape)
@@ -154,33 +178,21 @@ class Draw:
         grid_pos = self._normalize_each([(0, 0), (0, grid_h), (grid_w, 0), (grid_w, grid_h)])
 
         self._grid = _grid_program(grid_pos, grid_shape)
-        self._coin = _coin_program(args.coin_color)
+        self._coins = []
         self._agent = _agent_program(args.agent_color, args.agent_pointer_brightness, args.agent_vision_fov)
-        self._lines = _lines_program()
+        self._lines = []
         self._sight = _sight_program((1, args.agent_vision_res))
-        self._initialized = False
 
-    def update(self, level, lines, sight_colors):
-        self._lock.acquire()
-        try:
-            self._grid['texture'] = _grid_texture(level.grid, self._args)
-            self._sight['texture'] = np.array(sight_colors)
-            self._agent['theta'] = level.agent.theta
-            if self._initialized:
-                _update_buffer(self._coin['position'], self._normalize_each(_circle_squares(level.coins, self._args.coin_radius)), use_tuple=True, filler=([0, 0],))
-                _update_buffer(self._agent['position'], self._normalize_each(_circle_squares([level.agent.coord], self._args.agent_radius)))
-                _update_buffer(self._lines['position'], self._normalize_each(_line_positions(lines)), use_tuple=True, filler=([0, 0],))
-                _update_buffer(self._lines['line_color'], _line_colors(lines), use_tuple=True, filler=([0, 0, 0, 0],))
-            else:
-                self._coin['texcoord'] = _texcoords(len(level.coins))
-                self._coin['position'] = self._normalize_each(_circle_squares(level.coins, self._args.coin_radius))
-                self._agent['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)]
-                self._agent['position'] = self._normalize_each(_circle_squares([level.agent.coord], self._args.agent_radius))
-                self._lines['position'] = self._normalize_each(_line_positions(lines))
-                self._lines['line_color'] = _line_colors(lines)
-                self._initialized = True
-        finally:
-            self._lock.release()
+        self._update_hook = update_hook
+
+    def _update(self, grid, agent_coord, agent_theta, coins, lines, sight_colors):
+
+        self._grid['texture'] = _grid_texture(grid, self._args)
+        self._sight['texture'] = np.array(sight_colors)
+
+        _update_agent(self._agent, agent_coord, agent_theta, self._args.agent_radius, self._normalize_each)
+        _update_coins(self._coins, coins, self._args.coin_color, self._args.coin_radius, self._normalize_each)
+        _update_lines(self._lines, lines, self._normalize_each)
 
     def _normalize_each(self, coords):
         normals = []
@@ -223,17 +235,17 @@ class Draw:
 
         @window.event
         def on_draw(dt):
-            self._lock.acquire()
-            try:
-                window.clear()
-                self._grid.draw(gl.GL_TRIANGLE_STRIP)
-                self._coin.draw(gl.GL_QUADS)
-                self._agent.draw(gl.GL_QUADS)
-                self._lines.draw(gl.GL_LINES)
-                self._sight.draw(gl.GL_TRIANGLE_STRIP)
-            finally:
-                self._lock.release()
 
+            self._update(*self._update_hook())
+
+            window.clear()
+            self._grid.draw(gl.GL_TRIANGLE_STRIP)
+            for coin in self._coins:
+                coin.draw(gl.GL_QUADS)
+            self._agent.draw(gl.GL_QUADS)
+            for line in self._lines:
+                line.draw(gl.GL_LINES)
+            self._sight.draw(gl.GL_TRIANGLE_STRIP)
         if key_handler is not None:
             @window.event
             def on_key_press(symbol, modifiers):
