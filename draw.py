@@ -8,10 +8,50 @@ from glumpy import app, gloo, gl
 from glumpy.gloo import VertexBuffer
 
 
-def calc_level_scale(window_size, grid_shape):
+def _calc_level_scale(window_size, grid_shape):
     window_ratio = window_size[1] / window_size[0]
     grid_ratio = grid_shape[0] / grid_shape[1]
     return min(window_ratio / grid_ratio, 0.5)
+
+
+def _update_buffer(program, name, update, use_tuple=False, filler=None):
+
+    buf = program[name]
+    unused_len = len(buf) - len(update)
+
+    if unused_len < 0:
+        raise ValueError('Vertex buffer overflow')
+
+    # update values
+    for i in range(0, len(update)):
+        buf[i] = (update[i],) if use_tuple else update[i]
+
+    # pack unused space with filler
+    if unused_len > 0:
+        buf[len(update):] = [filler] * unused_len
+
+
+def _grid_texture(grid, args):
+    texture = []
+    flat_grid = np.reshape(grid, (-1))
+    for cell in flat_grid:
+        if cell == 1:
+            texture.append(args.grid_color + [1.0])
+        else:
+            texture.append(args.bkg_color + [1.0])
+    return np.array(texture)
+
+
+def _texcoords(repeat=1):
+    return [[-1.0, -1.0], [-1.0, 1.0], [1.0, 1.0], [1.0, -1.0]] * repeat
+
+
+def _line_colors(lines):
+    # append each color twice (one per vertex)
+    colors = []
+    for line in lines:
+        colors.extend([line.color, line.color])
+    return colors
 
 
 class Draw:
@@ -20,7 +60,7 @@ class Draw:
         self._lock = Lock()
         self._args = args
         self._window_height = int(args.window_width / 2)
-        self._level_scale = calc_level_scale([args.window_width, self._window_height], grid_shape)
+        self._level_scale = _calc_level_scale([args.window_width, self._window_height], grid_shape)
         self._grid_shape = grid_shape
         self._agent_pointer_threshold = args.agent_vision_fov / 2
         self._grid = self._grid_program()
@@ -33,54 +73,25 @@ class Draw:
     def update(self, level, lines, sight_colors):
         self._lock.acquire()
         try:
-            self._grid['texture'] = self.grid_texture(level.grid)
+            self._grid['texture'] = _grid_texture(level.grid, self._args)
             self._sight['texture'] = np.array(sight_colors)
             self._agent['theta'] = level.agent.theta
             if self._initialized:
-                self._update_buffer(self._coin, 'texcoord', self.texcoords(len(level.coins)), use_tuple=True, filler=([0, 0],))
-                self._update_buffer(self._coin, 'position', self.coin_positions(level.coins), use_tuple=True, filler=([0, 0],))
-                self._update_buffer(self._agent, 'position', self.agent_position(level.agent))
-                self._update_buffer(self._lines, 'position', self.line_positions(lines), use_tuple=True, filler=([0, 0],))
-                self._update_buffer(self._lines, 'line_color', self.line_colors(lines), use_tuple=True, filler=([0, 0, 0, 0],))
+                _update_buffer(self._coin, 'texcoord', _texcoords(len(level.coins)), use_tuple=True, filler=([0, 0],))
+                _update_buffer(self._coin, 'position', self.coin_positions(level.coins), use_tuple=True, filler=([0, 0],))
+                _update_buffer(self._agent, 'position', self.agent_position(level.agent))
+                _update_buffer(self._lines, 'position', self.line_positions(lines), use_tuple=True, filler=([0, 0],))
+                _update_buffer(self._lines, 'line_color', _line_colors(lines), use_tuple=True, filler=([0, 0, 0, 0],))
             else:
-                self._coin['texcoord'] = self.texcoords(len(level.coins))
+                self._coin['texcoord'] = _texcoords(len(level.coins))
                 self._coin['position'] = self.coin_positions(level.coins)
                 self._agent['texcoord'] = [(-1, -1), (-1, +1), (+1, +1), (+1, -1)]
                 self._agent['position'] = self.agent_position(level.agent)
                 self._lines['position'] = self.line_positions(lines)
-                self._lines['line_color'] = self.line_colors(lines)
+                self._lines['line_color'] = _line_colors(lines)
                 self._initialized = True
         finally:
             self._lock.release()
-
-    def _update_buffer(self, program, name, update, use_tuple=False, filler=None):
-
-        buf = program[name]
-        unused_len = len(buf) - len(update)
-
-        if unused_len < 0:
-            raise ValueError('Vertex buffer overflow')
-
-        # update values
-        for i in range(0, len(update)):
-            buf[i] = (update[i],) if use_tuple else update[i]
-
-        # pack unused space with filler
-        if unused_len > 0:
-            buf[len(update):] = [filler] * unused_len
-
-    def grid_texture(self, grid):
-        texture = []
-        flat_grid = np.reshape(grid, (-1))
-        for cell in flat_grid:
-            if cell == 1:
-                texture.append(self._args.grid_color + [1.0])
-            else:
-                texture.append(self._args.bkg_color + [1.0])
-        return np.array(texture)
-
-    def texcoords(self, repeat=1):
-        return [[-1.0, -1.0], [-1.0, 1.0], [1.0, 1.0], [1.0, -1.0]] * repeat
 
     def coin_positions(self, coins):
         positions = [None] * len(coins) * 4
@@ -109,13 +120,6 @@ class Draw:
             positions.append(self.normalize(line.a))
             positions.append(self.normalize(line.b))
         return positions
-
-    def line_colors(self, lines):
-        # append each color twice (one per vertex)
-        colors = []
-        for line in lines:
-            colors.extend([line.color, line.color])
-        return colors
 
     def run(self, key_handler=None, close_handler=None):
 
