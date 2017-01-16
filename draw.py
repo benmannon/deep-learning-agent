@@ -18,18 +18,11 @@ class Draw:
     def __init__(self, args, grid_shape):
 
         self._lock = Lock()
-        self._window_size = [args.window_width, int(args.window_width / 2)]
-        self._level_scale = calc_level_scale(self._window_size, grid_shape)
+        self._args = args
+        self._window_height = int(args.window_width / 2)
+        self._level_scale = calc_level_scale([args.window_width, self._window_height], grid_shape)
         self._grid_shape = grid_shape
-        self._sight_res = args.agent_vision_res
-        self._coin_radius = args.coin_radius
-        self._agent_radius = args.agent_radius
         self._agent_pointer_threshold = args.agent_vision_fov / 2
-        self._grid_color = args.grid_color
-        self._coin_color = args.coin_color
-        self._agent_color = args.agent_color
-        self._agent_pointer_brightness = args.agent_pointer_brightness
-        self._bkg_color = args.bkg_color
         self._grid = self._grid_program()
         self._coin = self._coin_program()
         self._agent = self._agent_program()
@@ -81,9 +74,9 @@ class Draw:
         flat_grid = np.reshape(grid, (-1))
         for cell in flat_grid:
             if cell == 1:
-                texture.append(self._grid_color + [1.0])
+                texture.append(self._args.grid_color + [1.0])
             else:
-                texture.append(self._bkg_color + [1.0])
+                texture.append(self._args.bkg_color + [1.0])
         return np.array(texture)
 
     def texcoords(self, repeat=1):
@@ -91,7 +84,7 @@ class Draw:
 
     def coin_positions(self, coins):
         positions = [None] * len(coins) * 4
-        r = self._coin_radius
+        r = self._args.coin_radius
         offset = 0
         for coin in coins:
             positions[offset + 0] = self.normalize([coin[0] - r, coin[1] - r])
@@ -102,7 +95,7 @@ class Draw:
         return positions
 
     def agent_position(self, agent):
-        r = self._agent_radius
+        r = self._args.agent_radius
         position = [None] * 4
         position[0] = self.normalize([agent.coord[0] - r, agent.coord[1] - r])
         position[1] = self.normalize([agent.coord[0] - r, agent.coord[1] + r])
@@ -129,8 +122,8 @@ class Draw:
         config = app.configuration.Configuration()
         config.samples = 8
 
-        window_w = self._window_size[0]
-        window_h = self._window_size[1]
+        window_w = self._args.window_width
+        window_h = self._window_height
         window = app.Window(width=window_w, height=window_h, title="Simulator", config=config)
 
         @window.event
@@ -226,9 +219,9 @@ class Draw:
         """
 
         coin = gloo.Program(vertex, fragment)
-        coin['circle_color'] = self._coin_color + [1.0]
+        coin['circle_color'] = self._args.coin_color + [1.0]
         coin['border_color'] = [0.0, 0.0, 0.0, 1.0]
-        coin['bkg_color'] = self._coin_color + [0.0]
+        coin['bkg_color'] = self._args.coin_color + [0.0]
 
         return coin
 
@@ -283,17 +276,17 @@ class Draw:
         """
 
         # pointer color is a brighter shade of the agent color
-        b = self._agent_pointer_brightness
-        pointer_r = b + self._agent_color[0] - (b * self._agent_color[0])
-        pointer_g = b + self._agent_color[1] - (b * self._agent_color[1])
-        pointer_b = b + self._agent_color[2] - (b * self._agent_color[2])
+        b = self._args.agent_pointer_brightness
+        pointer_r = b + self._args.agent_color[0] - (b * self._args.agent_color[0])
+        pointer_g = b + self._args.agent_color[1] - (b * self._args.agent_color[1])
+        pointer_b = b + self._args.agent_color[2] - (b * self._args.agent_color[2])
         pointer_color = [pointer_r, pointer_g, pointer_b]
 
         agent = gloo.Program(vertex, fragment, count=4)
-        agent['circle_color'] = self._agent_color + [1.0]
+        agent['circle_color'] = self._args.agent_color + [1.0]
         agent['pointer_color'] = pointer_color + [1.0]
         agent['border_color'] = [0.0, 0.0, 0.0, 1.0]
-        agent['bkg_color'] = self._agent_color + [0.0]
+        agent['bkg_color'] = self._args.agent_color + [0.0]
         agent['pointer_threshold'] = self._agent_pointer_threshold
 
         return agent
@@ -344,7 +337,7 @@ class Draw:
         sight = gloo.Program(grid_vertex, grid_fragment, count=4)
         sight['position'] = [(0, -0.25), (0, 0.25), (1, -0.25), (1, 0.25)]
         sight['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
-        sight['texture'] = np.zeros((1, self._sight_res, 4))
+        sight['texture'] = np.zeros((1, self._args.agent_vision_res, 4))
 
         return sight
 
@@ -362,7 +355,7 @@ class Draw:
         # vertical space is used as needed, maintaining proper aspect ratio
 
         grid_aspect = self._grid_shape[0] / self._grid_shape[1]
-        window_aspect = self._window_size[0] / self._window_size[1]
+        window_aspect = self._args.window_width / self._window_height
 
         xmin = -1
         xmax = -1 + (2 * self._level_scale)
