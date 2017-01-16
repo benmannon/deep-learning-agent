@@ -35,9 +35,8 @@ def _line_positions(lines):
     return positions
 
 
-def _update_buffer(program, name, update, use_tuple=False, filler=None):
+def _update_buffer(buf, update, use_tuple=False, filler=None):
 
-    buf = program[name]
     unused_len = len(buf) - len(update)
 
     if unused_len < 0:
@@ -168,11 +167,11 @@ class Draw:
             self._sight['texture'] = np.array(sight_colors)
             self._agent['theta'] = level.agent.theta
             if self._initialized:
-                _update_buffer(self._coin, 'texcoord', _texcoords(len(level.coins)), use_tuple=True, filler=([0, 0],))
-                _update_buffer(self._coin, 'position', self._normalize_each(_circle_squares(level.coins, self._args.coin_radius)), use_tuple=True, filler=([0, 0],))
-                _update_buffer(self._agent, 'position', self._normalize_each(_circle_squares([level.agent.coord], self._args.agent_radius)))
-                _update_buffer(self._lines, 'position', self._normalize_each(_line_positions(lines)), use_tuple=True, filler=([0, 0],))
-                _update_buffer(self._lines, 'line_color', _line_colors(lines), use_tuple=True, filler=([0, 0, 0, 0],))
+                _update_buffer(self._coin['texcoord'], _texcoords(len(level.coins)), use_tuple=True, filler=([0, 0],))
+                _update_buffer(self._coin['position'], self._normalize_each(_circle_squares(level.coins, self._args.coin_radius)), use_tuple=True, filler=([0, 0],))
+                _update_buffer(self._agent['position'], self._normalize_each(_circle_squares([level.agent.coord], self._args.agent_radius)))
+                _update_buffer(self._lines['position'], self._normalize_each(_line_positions(lines)), use_tuple=True, filler=([0, 0],))
+                _update_buffer(self._lines['line_color'], _line_colors(lines), use_tuple=True, filler=([0, 0, 0, 0],))
             else:
                 self._coin['texcoord'] = _texcoords(len(level.coins))
                 self._coin['position'] = self._normalize_each(_circle_squares(level.coins, self._args.coin_radius))
