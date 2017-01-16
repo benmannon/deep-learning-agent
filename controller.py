@@ -31,7 +31,7 @@ def _handle_collision(level, args):
     for cell in check_cells:
         if _handle_bounding_collision(coord, grid, cell, args):
             is_colliding = True
-    if _handle_corner_collision(coord, grid, x, y, args):
+    if _handle_corner_collision(coord, grid, args):
         is_colliding = True
     return is_colliding
 
@@ -92,7 +92,7 @@ def _handle_bounding_collision(agent_coord, grid, cell_coord, args):
     return ax != new_x or ay != new_y
 
 
-def _handle_corner_collision(agent_coord, grid, grid_x, grid_y, args):
+def _handle_corner_collision(agent_coord, grid, args):
     grid_shape = grid.shape
 
     # convex corners only exist at points surrounded by 1 'on' cell and 3 'off' cells
@@ -105,10 +105,14 @@ def _handle_corner_collision(agent_coord, grid, grid_x, grid_y, args):
     h = grid_shape[0]
     w = grid_shape[1]
 
+    # corner coordinates
+    cx = round(agent_coord[0])
+    cy = round(agent_coord[1])
+
     # grid is flipped on y-axis
-    bot = h - grid_y
+    bot = h - cx
     top = bot - 1
-    rgt = grid_x
+    rgt = cy
     lft = rgt - 1
 
     # be careful not to look outside the grid dimensions
@@ -132,7 +136,7 @@ def _handle_corner_collision(agent_coord, grid, grid_x, grid_y, args):
     new_y = ay;
 
     # calculate distance to agent
-    vx, vy = ax - grid_x, ay - grid_y
+    vx, vy = ax - cx, ay - cy
     dist2 = vx * vx + vy * vy
 
     # colliding?
@@ -145,8 +149,8 @@ def _handle_corner_collision(agent_coord, grid, grid_x, grid_y, args):
         vyr = vy * ar / dist
 
         # apply adjustment to both axes
-        new_x = grid_x + vxr
-        new_y = grid_y + vyr
+        new_x = cx + vxr
+        new_y = cy + vyr
 
     # apply new agent coordinates
     agent_coord[0] = new_x
