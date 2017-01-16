@@ -1,12 +1,10 @@
 from __future__ import division
 
 from collections import namedtuple
-from math import pi
 from threading import Lock
 
 import numpy as np
 from glumpy import app, gloo, gl
-from glumpy.gloo import VertexBuffer
 
 
 def _calc_level_scale(window_size, grid_shape):
