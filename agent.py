@@ -1,6 +1,7 @@
 import tensorflow as tf
 
-_OP_STATES_VISION = 'states'
+_OP_STATES_VISION = 'states_vision'
+_OP_STATES_PREV_ACTION = 'states_prev_action'
 _OP_DROPOUT = 'dropout'
 _OP_P = 'p'
 _OP_GREEDY = 'greedy'
@@ -8,7 +9,8 @@ _OP_E_GREEDY = 'e_greedy'
 _OP_EPSILON = 'e'
 _OP_REWARDS = 'rewards'
 _OP_ACTIONS = 'actions'
-_OP_STATES2_VISION = 'states2'
+_OP_STATES2_VISION = 'states2_vision'
+_OP_STATES2_PREV_ACTION = 'states2_prev_action'
 _OP_TERMINAL = 'terminal'
 _OP_GAMMA = 'gamma'
 _OP_LEARNING_RATE = 'rate'
@@ -21,7 +23,7 @@ _DROPOUT_OFF = 0.0
 _DROPOUT_ON = 1.0
 
 
-def _q_random(sv, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
+def _q_random(sv, prev_action, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
     # ignore state, just be random
     q = tf.random_normal([tf.shape(sv)[0], n_outputs])
 
@@ -29,19 +31,23 @@ def _q_random(sv, dropout, n_inputs, n_channels, n_outputs, trainable=True, para
 
 
 def _q_fully_connected(activation_fn):
-    def fn(sv, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
+    def fn(sv, prev_action, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
 
         # flatten input
-        s_size = n_inputs * n_channels
-        s_flat = tf.reshape(sv, [-1, s_size])
+        sv_size = n_inputs * n_channels
+        sv_flat = tf.reshape(sv, [-1, sv_size])
+
+        # create and concatenate a one-hot previous-action vector
+        a = tf.one_hot(prev_action, n_outputs)
+        s = tf.concat(1, [sv_flat, a])
 
         # dropout will be 1.0 (ON) or 0.0 (OFF)
         keep_prob = 1 - dropout * 0.5
-        drop_x = tf.nn.dropout(s_flat, keep_prob)
+        drop_s = tf.nn.dropout(s, keep_prob)
 
         # parameters may be shared with an identical model
         if params is None:
-            w_initial = tf.truncated_normal([s_size, n_outputs], stddev=0.1)
+            w_initial = tf.truncated_normal([sv_size, n_outputs], stddev=0.1)
             w = tf.Variable(w_initial, trainable=trainable)
 
             b_initial = tf.constant(0.1, shape=[n_outputs])
@@ -51,7 +57,7 @@ def _q_fully_connected(activation_fn):
             w, b = params
 
         q = tf.contrib.layers.fully_connected(
-            inputs=drop_x,
+            inputs=drop_s,
             num_outputs=n_outputs,
             activation_fn=activation_fn,
             variables_collections={
@@ -66,19 +72,23 @@ def _q_fully_connected(activation_fn):
 
 
 def _q_hidden_fully_connected(activation_fn, n_hidden):
-    def fn(sv, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
+    def fn(sv, prev_action, dropout, n_inputs, n_channels, n_outputs, trainable=True, params=None):
 
         # flatten input
-        s_size = n_inputs * n_channels
-        s_flat = tf.reshape(sv, [-1, s_size])
+        sv_size = n_inputs * n_channels
+        sv_flat = tf.reshape(sv, [-1, sv_size])
+
+        # create and concatenate a one-hot previous-action vector
+        a = tf.one_hot(prev_action, n_outputs)
+        s = tf.concat(1, [sv_flat, a])
 
         # dropout will be 1.0 (ON) or 0.0 (OFF)
         keep_prob = 1 - dropout * 0.5
-        drop_x = tf.nn.dropout(s_flat, keep_prob)
+        drop_s = tf.nn.dropout(s, keep_prob)
 
         # parameters may be shared with an identical model
         if params is None:
-            h_w_initial = tf.truncated_normal([s_size, n_hidden], stddev=0.1)
+            h_w_initial = tf.truncated_normal([sv_size, n_hidden], stddev=0.1)
             h_w = tf.Variable(h_w_initial, trainable=trainable)
 
             h_b_initial = tf.constant(0.1, shape=[n_hidden])
@@ -94,7 +104,7 @@ def _q_hidden_fully_connected(activation_fn, n_hidden):
             h_w, h_b, q_w, q_b = params
 
         h = tf.contrib.layers.fully_connected(
-            inputs=drop_x,
+            inputs=drop_s,
             num_outputs=n_hidden,
             activation_fn=activation_fn,
             variables_collections={
@@ -170,8 +180,9 @@ def _model_train(gamma, rate, q_s, q_s2, q2_s2, a, r, term):
 def _build_model(q_model, n_inputs, n_channels, n_outputs):
     # feed forward
     sv = tf.placeholder(tf.float32, [None, n_inputs, n_channels])
+    sa = tf.placeholder(tf.int32, [None])
     dropout = tf.placeholder(tf.float32, [])
-    q_s, q_params = q_model(sv, dropout, n_inputs, n_channels, n_outputs)
+    q_s, q_params = q_model(sv, sa, dropout, n_inputs, n_channels, n_outputs)
 
     # variety of evaluation functions
     p = tf.nn.softmax(q_s)
@@ -187,13 +198,14 @@ def _build_model(q_model, n_inputs, n_channels, n_outputs):
     a = tf.placeholder(tf.int32, [None])
     r = tf.placeholder(tf.float32, [None])
     s2v = tf.placeholder(tf.float32, [None, n_inputs, n_channels])
+    s2a = tf.placeholder(tf.int32, [None])
     term = tf.placeholder(tf.float32, [None])
 
     # current network's evaluation of transition state
-    q_s2, _ = q_model(s2v, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, params=q_params)
+    q_s2, _ = q_model(s2v, s2a, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, params=q_params)
 
     # target network's evaluation of transition state
-    q2_s2, q2_params = q_model(s2v, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, trainable=False)
+    q2_s2, q2_params = q_model(s2v, s2a, _DROPOUT_OFF, n_inputs, n_channels, n_outputs, trainable=False)
 
     # back propagation
     train = _model_train(
@@ -209,6 +221,7 @@ def _build_model(q_model, n_inputs, n_channels, n_outputs):
 
     ops = {
         _OP_STATES_VISION: sv,
+        _OP_STATES_PREV_ACTION: sa,
         _OP_DROPOUT: dropout,
         _OP_P: p,
         _OP_GREEDY: greedy,
@@ -217,6 +230,7 @@ def _build_model(q_model, n_inputs, n_channels, n_outputs):
         _OP_REWARDS: r,
         _OP_ACTIONS: a,
         _OP_STATES2_VISION: s2v,
+        _OP_STATES2_PREV_ACTION: s2a,
         _OP_TERMINAL: term,
         _OP_GAMMA: gamma,
         _OP_LEARNING_RATE: rate,
@@ -255,18 +269,21 @@ class Agent:
     def eval_pg(self, state):
         return self._sess.run(self._ops[_OP_P], feed_dict={
             self._ops[_OP_STATES_VISION]: [state.vision],
+            self._ops[_OP_STATES_PREV_ACTION]: [state.prev_action],
             self._ops[_OP_DROPOUT]: _DROPOUT_OFF,
         })[0]
 
     def eval_greedy(self, state):
         return self._sess.run(self._ops[_OP_GREEDY], feed_dict={
             self._ops[_OP_STATES_VISION]: [state.vision],
+            self._ops[_OP_STATES_PREV_ACTION]: [state.prev_action],
             self._ops[_OP_DROPOUT]: _DROPOUT_OFF,
         })[0]
 
     def eval_e_greedy(self, state, epsilon):
         return self._sess.run(self._ops[_OP_E_GREEDY], feed_dict={
             self._ops[_OP_STATES_VISION]: [state.vision],
+            self._ops[_OP_STATES_PREV_ACTION]: [state.prev_action],
             self._ops[_OP_DROPOUT]: _DROPOUT_OFF,
             self._ops[_OP_EPSILON]: epsilon
         })[0]
@@ -274,6 +291,7 @@ class Agent:
     def eval_thompson_sample(self, state):
         return self._sess.run(self._ops[_OP_GREEDY], feed_dict={
             self._ops[_OP_STATES_VISION]: [state.vision],
+            self._ops[_OP_STATES_PREV_ACTION]: [state.prev_action],
             self._ops[_OP_DROPOUT]: _DROPOUT_ON,
         })[0]
 
@@ -282,11 +300,13 @@ class Agent:
             self._ops[_OP_GAMMA]: discount,
             self._ops[_OP_LEARNING_RATE]: learning_rate,
             self._ops[_OP_STATES_VISION]: map(lambda state: state.vision, states),
+            self._ops[_OP_STATES_PREV_ACTION]: map(lambda state: state.prev_action, states),
             self._ops[_OP_ACTIONS]: actions,
             self._ops[_OP_REWARDS]: rewards,
             self._ops[_OP_DROPOUT]: _DROPOUT_ON,
             self._ops[_OP_STATES2_VISION]: map(lambda state: state.vision, states2),
-            self._ops[_OP_TERMINAL] : _bools_to_floats(term2)
+            self._ops[_OP_STATES2_PREV_ACTION]: map(lambda state: state.prev_action, states2),
+            self._ops[_OP_TERMINAL]: _bools_to_floats(term2)
         }
 
         # feed parameters of current target network into Q2

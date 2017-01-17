@@ -63,7 +63,7 @@ class Simulator:
 
         if after_init is not None:
             sight_channels = _channels(self._sightline)
-            state = _State(None, sight_channels)
+            state = _State(-1, sight_channels)
             threading.Thread(target=after_init, args=[self, state]).start()
 
         self._draw.run(key_handler=on_key_press, close_handler=on_close)
