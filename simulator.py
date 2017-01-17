@@ -1,6 +1,7 @@
 from __future__ import division
 
 import threading
+from collections import namedtuple
 
 import level
 import vision
@@ -62,7 +63,8 @@ class Simulator:
 
         if after_init is not None:
             sight_channels = _channels(self._sightline)
-            threading.Thread(target=after_init, args=[self, sight_channels]).start()
+            state = _State(None, sight_channels)
+            threading.Thread(target=after_init, args=[self, state]).start()
 
         self._draw.run(key_handler=on_key_press, close_handler=on_close)
 
@@ -94,7 +96,8 @@ class Simulator:
             end = True
 
         self._sightline = self._vision.look()
-        return _channels(self._sightline), reward, end
+        state = _State(action, _channels(self._sightline))
+        return state, reward, end
 
     def _draw_update(self):
         grid = self._lvl.grid
@@ -104,3 +107,5 @@ class Simulator:
         lines = _lines(self._sightline, self._args)
         sight_colors = _sight_colors(self._sightline, self._args)
         return grid, agent_coord, agent_theta, coins, lines, sight_colors
+
+_State = namedtuple('State', 'prev_action vision')
