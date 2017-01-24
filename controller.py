@@ -30,8 +30,8 @@ def _handle_collision(level, args):
 
 
 def _handle_bounding_collisions(args, coord, grid):
-    x = round(coord[0])
-    y = round(coord[1])
+    x = int(round(coord[0]))
+    y = int(round(coord[1]))
     check_cells = [[x - 1, y - 1], [x - 1, y], [x, y], [x, y - 1]]
     collision = False
     for cell in check_cells:
@@ -113,10 +113,10 @@ def _handle_corner_collision(agent_coord, grid, args):
     cy = round(agent_coord[1])
 
     # grid is flipped on y-axis
-    bot = h - cx
-    top = bot - 1
-    rgt = cy
-    lft = rgt - 1
+    bot = int(h - cx)
+    top = int(bot - 1)
+    rgt = int(cy)
+    lft = int(rgt - 1)
 
     # be careful not to look outside the grid dimensions
     tl = grid[top, lft] if 0 <= top < h and 0 <= lft < w else 0
