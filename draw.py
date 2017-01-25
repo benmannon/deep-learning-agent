@@ -1,7 +1,6 @@
 from __future__ import division
 
 from collections import namedtuple
-from threading import Lock
 
 import numpy as np
 from glumpy import app, gloo, gl
