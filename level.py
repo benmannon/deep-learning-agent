@@ -69,11 +69,11 @@ class Level:
 
     def __init__(self, grid, coins, agent, time):
         self.grid = grid
-        self._coins_origin = np.copy(coins)
+        self._coins_origin = coins
         self.agent = agent
         self.time = time
         self.reset()
 
     def reset(self):
-        self.coins = np.copy(self._coins_origin).tolist()
+        self.coins = list(self._coins_origin)
         self.agent.reset()
