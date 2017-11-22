@@ -155,7 +155,7 @@ def _model_train(gamma, rate, q_s, q_s2, q2_s2, a, r, term):
     q_s_a = _tf_select(q_s, a)
 
     # a2 = argmax_a2 Q(s2, a2)
-    a2 = tf.cast(tf.arg_max(q_s2, 1), tf.int32)
+    a2 = tf.cast(tf.argmax(q_s2, 1), tf.int32)
 
     # Q2(s2, a2)
     q2_s2_a2 = _tf_select(q2_s2, a2)
