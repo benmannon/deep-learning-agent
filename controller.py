@@ -1,6 +1,6 @@
 from math import cos, sin, sqrt
 
-from enum import Enum
+from dla_enum import Enum
 
 _enum = Enum()
 ACTION_WALK_FORWARD = _enum.next()
