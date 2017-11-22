@@ -39,7 +39,7 @@ def _q_fully_connected(activation_fn):
 
         # create and concatenate a one-hot previous-action vector
         a = tf.one_hot(prev_action, n_outputs)
-        s = tf.concat(1, [sv_flat, a])
+        s = tf.concat([sv_flat, a], 1)
 
         # dropout will be 1.0 (ON) or 0.0 (OFF)
         keep_prob = 1 - dropout * 0.5
@@ -80,7 +80,7 @@ def _q_hidden_fully_connected(activation_fn, n_hidden):
 
         # create and concatenate a one-hot previous-action vector
         a = tf.one_hot(prev_action, n_outputs)
-        s = tf.concat(1, [sv_flat, a])
+        s = tf.concat([sv_flat, a], 1)
 
         # dropout will be 1.0 (ON) or 0.0 (OFF)
         keep_prob = 1 - dropout * 0.5
