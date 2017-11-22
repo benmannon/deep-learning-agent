@@ -188,9 +188,9 @@ def _build_model(q_model, n_inputs, n_channels, n_outputs):
     p = tf.nn.softmax(q_s)
     greedy = tf.argmax(q_s, 1)
     e = tf.placeholder(tf.float32, [])
-    e_greedy = tf.select(tf.random_uniform(tf.shape(greedy)) < e,
-                         tf.random_uniform(tf.shape(greedy), dtype=tf.int64, maxval=n_outputs),
-                         greedy)
+    e_greedy = tf.where(tf.random_uniform(tf.shape(greedy)) < e,
+                        tf.random_uniform(tf.shape(greedy), dtype=tf.int64, maxval=n_outputs),
+                        greedy)
 
     # learning rate, actions, rewards, transitions
     gamma = tf.placeholder(tf.float32, [])
